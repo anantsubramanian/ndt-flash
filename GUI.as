@@ -152,7 +152,7 @@ package  {
 		public function waitMessage():void {
 			var waitF:TextField = new TextField();
 			waitF.width = stagewidth;
-			waitF.text = "Please Wait ~15 sec for results.";
+			waitF.text = "Please Wait ~25 sec for results.";
 			this.addChild(waitF);
 		}
 		

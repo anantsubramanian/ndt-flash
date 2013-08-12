@@ -73,7 +73,6 @@ package  {
 		
 		private var _dTime:Number;
 		private var soTimer:Timer;
-		private var soTimeout:Boolean;
 		private var tempProtObj:Protocol;
 		private var testStartRead:Boolean;
 		
@@ -122,8 +121,10 @@ package  {
 		
 		public function onComplete():void {
 			
-			TestResults.set_S2cspd(_dS2cspd);
-			TestResults.set_Ss2cspd(_dSs2cspd);
+			if(!isNaN(_dS2cspd))
+				TestResults.set_S2cspd(_dS2cspd);
+			if(!isNaN(_dSs2cspd))
+				TestResults.set_Ss2cspd(_dSs2cspd);
 			
 			removeResponseListener();
 			
@@ -457,7 +458,7 @@ package  {
 				onComplete();
 				return;
 			}
-									
+			
 			// Represent throughput using optimal units (i.e. kbps / mbps)
 			if(_dS2cspd < 1.0) {
 				TestResults.consoleOutput += NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) + "kb/s\n";
@@ -477,6 +478,10 @@ package  {
 			var tmpstr2:String = buff.toString();
 			trace("Sending '" + tmpstr2 + "' back to server");
 			TestResults.traceOutput += "Sending '" + tmpstr2 + "' back to server\n";
+			
+			// Display server calculated throughput value
+			trace("Server calculated throughput value = " + _dSs2cspd + " Mb/s");
+			TestResults.traceOutput += "Server calculated throughput value = " + _dSs2cspd + " Mb/s\n"; 
 			
 			soTimer = new Timer(5000, 0);
 			soTimer.removeEventListener(TimerEvent.TIMER, readTimeout1);

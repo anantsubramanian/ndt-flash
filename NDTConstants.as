@@ -23,6 +23,19 @@ package  {
 			
 		*/
 		
+		// Section : used in META test
+		public static const META_CLIENT_OS:String = "client.os.name";
+		public static const META_BROWSER_OS:String = "client.browser.name";
+		public static const META_CLIENT_KERNEL_VERSION:String = "client.kernel.version";
+		public static const META_CLIENT_VERSION:String = "client.version";
+		public static const META_CLIENT_APPLICATION:String = "client.application";
+		
+		// Version in code that needs compilation as changes to this
+		// would generally be accompanied by changes in code that need
+		// compilation
+		public static const VERSION:String = "4.0.0.0";
+		
+		
 		// NDT pre-fixed port ID
 		public static const CONTROL_PORT_DEFAULT:int = 3001;
 		
@@ -34,7 +47,7 @@ package  {
 		public static const SRV_QUEUE_SERVER_BUSY_60s:int = 9999;
 
 		// NDT hostname (temporarily serves the function of external call back ) & Policy File
-		public static const HOST_NAME:String = "ndt.iupui.mlab2.lca01.measurement-lab.org"; //- Changed for testing purposes
+		public static const HOST_NAME:String = "ndt.iupui.mlab1.lca01.measurement-lab.org"; //- Changed for testing purposes
 		
 		// Section: Test type
 		public static const TEST_MID:int = (1 << 0);

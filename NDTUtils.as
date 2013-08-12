@@ -41,6 +41,10 @@ package  {
 			
 			str = paramDblToFormat.toString();
 			i = str.indexOf(".");
+			
+			if(i == -1)
+				return (new String(str + ".0"));
+			
 			i += 3;
 			if(i > str.length) {
 				i -= 1;
@@ -48,7 +52,24 @@ package  {
 			if(i > str.length) {
 				i -= 1;
 			}
-			return (str.substr(0, i));
+			
+			return (str.substring(0, i));
+		}
+		
+		public static function trim(sParam:String):String {
+			var i:int = 0;
+			
+			while(sParam.charAt(i) == " ") {
+				i++;
+			}
+			
+			var j:int = sParam.length;
+			
+			while(sParam.charAt(j) == " ") {
+				j--;
+			}
+			
+			return sParam.substring(i, j);
 		}
 	}
 	

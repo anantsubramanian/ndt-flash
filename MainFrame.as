@@ -53,14 +53,15 @@ package  {
 		private var gui:GUI;
 		
 		private static var sHostName:String;
+		private static var clientId:String;
 		private var pub_host:String;
 		public var guiEnabled:Boolean;
 		var ctlSocket:Socket = null;
 		var tests:Array;
 		var testNo:int;
 		
-		private var _yTests:int =  NDTConstants.TEST_S2C;
-									//NDTConstants.TEST_MID | NDTConstants.TEST_C2S 
+		private var _yTests:int =  NDTConstants.TEST_C2S | NDTConstants.TEST_S2C | NDTConstants.TEST_META;
+								//	NDTConstants.TEST_MID | NDTConstants.TEST_C2S 
 								//  | NDTConstants.TEST_S2C | NDTConstants.TEST_SFW
 								//  | NDTConstants.TEST_STATUS | NDTConstants.TEST_META;
 		
@@ -167,8 +168,16 @@ package  {
 		*/
 		
 		public function initiateTests(protocolObj:Protocol, msg:Message):void {
-			tests = (new String(msg.getBody())).split(" ");
+			var tStr:String = new String(msg.getBody());
+			tStr = new String(NDTUtils.trim(tStr));
+			tests = tStr.split(" ");
 			testNo = 0;
+			
+			if(guiEnabled) {
+					
+				// to be removed
+				gui.waitMessage();
+			}
 			
 			runTests(protocolObj);
 		}
@@ -187,15 +196,16 @@ package  {
 			if(testNo < tests.length) {
 				var test:int = parseInt(tests[testNo]);
 				
-				if(guiEnabled) {
-					
-					// to be removed
-					gui.waitMessage();
-				}
-				
 				switch(test) {
-					case NDTConstants.TEST_S2C : var S2C:TestS2C = new TestS2C(ctlSocket, protocolObj, sHostName, this);
-												 break;
+					
+					case NDTConstants.TEST_C2S  : var C2S:TestC2S = new TestC2S(ctlSocket, protocolObj, sHostName, this);
+												  break;
+					
+					case NDTConstants.TEST_S2C  : var S2C:TestS2C = new TestS2C(ctlSocket, protocolObj, sHostName, this);
+												  break;
+												 
+					case NDTConstants.TEST_META : var META:TestMETA = new TestMETA(ctlSocket, protocolObj, clientId, this);
+												  break;
 				}
 			}
 			else {
@@ -240,7 +250,7 @@ package  {
 		
 		*/
 		
-		public function MainFrame(stageW:int, stageH:int, Parent:DisplayObjectContainer, hostname:String, clientID:String, guiEnabled:Boolean) {
+		public function MainFrame(stageW:int, stageH:int, Parent:DisplayObjectContainer, hostname:String, cID:String, guiEnabled:Boolean) {
 			// constructor code
 			
 			this.guiEnabled = guiEnabled;
@@ -252,6 +262,7 @@ package  {
 			
 			// variables initialization
 			sHostName = NDTConstants.HOST_NAME; // need to check if hostname is passed and change accordingly
+			clientId = cID;
 			pub_host = "unknown";
 		}
 

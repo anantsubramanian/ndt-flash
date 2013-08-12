@@ -139,6 +139,10 @@ package  {
 		private static var _dS2cspd:Number;
 		private static var _dC2sspd:Number;
 		
+		// Section : Misc variables
+		
+		private static var _sUserAgent:String;
+		
 		// Section : S2C Throughput Test
 		
 		public static var s2cspd:Number;
@@ -295,10 +299,22 @@ package  {
 			return ((pub_bytes * NDTConstants.EIGHT) / (getTimer() - pub_time)).toString();			
 		}
 		
+		public static function get_UserAgent():String {
+			return _sUserAgent;
+		}
+		
 		// Setter methods
 		
 		public static function set_pub_status(sParam:String):void {
 			pub_status = sParam;
+		}
+		
+		public static function set_pub_time(dParam:Number):void {
+			pub_time = dParam;
+		}
+		
+		public static function set_pub_bytes(dParam:Number):void {
+			pub_bytes = dParam;
 		}
 		
 		public static function set_Ss2cspd(dParam:Number):void {
@@ -315,6 +331,10 @@ package  {
 		
 		public static function set_C2sspd(dParam:Number):void {
 			_dC2sspd = dParam;
+		}
+		
+		public static function set_UserAgent(sParam:String):void {
+			_sUserAgent = sParam;
 		}
 		
 		/*
