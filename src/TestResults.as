@@ -33,129 +33,126 @@ package  {
 		// Section : "pub_xxx" variables. Declared
 		// as private but they have getter/setter methods.
 		
-		private static var pub_status:String;
-		private static var pub_flashVer:String;
-		private static var pub_host:String;
-		private static var pub_osName:String;
-		private static var pub_osArch:String;
-		private static var pub_AccessTech:String;
-		private static var pub_clientIP:String;
-		private static var pub_natBox:String;
+		private static var pub_status:String = null;
+		private static var pub_flashVer:String = null;
+		private static var pub_host:String = null;
+		private static var pub_osName:String = null;
+		private static var pub_osArch:String = null;
+		private static var pub_AccessTech:String = null;
+		private static var pub_clientIP:String = null;
+		private static var pub_natBox:String = null;
 		
-		private static var pub_SACKsRcvd:int;
-		private static var pub_MaxRwinRcvd:int;
-		private static var pub_CurRTO:int;
-		private static var pub_MaxRTO:int;
-		private static var pub_MinRTO:int;
-		private static var pub_MinRTT:int;
-		private static var pub_MaxRTT:int;
-		private static var pub_CurRwinRcvd:int;
-		private static var pub_Timeouts:int;
-		private static var pub_mismatch:int;
-		private static var pub_congestion:int;
-		private static var pub_Bad_cable:int;
-		private static var pub_DupAcksOut:int;
+		private static var pub_SACKsRcvd:int = 0;
+		private static var pub_MaxRwinRcvd:int = 0;
+		private static var pub_CurRTO:int = 0;
+		private static var pub_MaxRTO:int = 0;
+		private static var pub_MinRTO:int = 0;
+		private static var pub_MinRTT:int = 0;
+		private static var pub_MaxRTT:int = 0;
+		private static var pub_CurRwinRcvd:int = 0;
+		private static var pub_Timeouts:int = 0;
+		private static var pub_mismatch:int = 0;
+		private static var pub_congestion:int = 0;
+		private static var pub_Bad_cable:int = 0;
+		private static var pub_DupAcksOut:int = 0;
 		
-		private static var pub_loss:Number;
-		private static var pub_avgrtt:Number;
-		private static var pub_cwndtime:Number;
-		private static var pub_c2sspd:Number;
-		private static var pub_s2cspd:Number;
-		private static var pub_pctRcvrLimited:Number;
-		private static var pub_time:Number;
-		private static var pub_bytes:Number;
+		private static var pub_loss:Number = 0.0;
+		private static var pub_avgrtt:Number = 0.0;
+		private static var pub_cwndtime:Number = 0.0;
+		private static var pub_c2sspd:Number = 0.0;
+		private static var pub_s2cspd:Number = 0.0;
+		private static var pub_pctRcvrLimited:Number = 0.0;
+		private static var pub_time:Number = 0.0;
+		private static var pub_bytes:Number = 0.0;
 		
-		private static var pub_TimeStamp:Date;
+		private static var pub_TimeStamp:Date = null;
 		
 		// Section : web100 integer variables
 		
-		private static var MSSSent:int;
-		private static var MSSRcvd:int;
-		private static var _iECNEnabled:int;
-		private static var _iNagleEnabled:int;
-		private static var _iSACKEnabled:int;
-		private static var _iTimestampsEnabled:int;
-		private static var _iWinScaleRcvd:int;
-		private static var _iWinScaleSent:int;
-		private static var _iSumRTT:int;
-		private static var _iCountRTT:int;
-		private static var _iCurrentMSS:int;
-		private static var _iTimeouts:int;
-		private static var _iPktsRetrans:int;
-		private static var _iSACKsRcvd:int;
-		private static var _iMaxRwinRcvd:int;
-		private static var _iDupAcksIn:int;
-		private static var _iMaxRwinSent:int;
-		private static var _iSndbuf:int;
-		private static var _iRcvbuf:int;
-		private static var _iDataPktsOut:int;
-		private static var _iFastRetran:int;
-		private static var _iAckPktsOut:int;
-		private static var _iSmoothedRTT:int;
-		private static var _iCurrentCwnd:int;
-		private static var _iMaxCwnd:int;
-		private static var _iSndLimTimeRwin:int;
-		private static var _iSndLimTimeCwnd:int;
-		private static var _iSndLimTimeSender:int;
-		private static var _iDataBytesOut:int;
-		private static var _iAckPktsIn:int;
-		private static var _iSndLimTransRwin:int;
-		private static var _iSndLimTransCwnd:int;
-		private static var _iSndLimTransSender:int;
-		private static var _iMaxSsthresh:int;
-		private static var _iCurrentRTO:int;
-		private static var _iC2sData:int;
-		private static var _iC2sAck:int;
-		private static var _iS2cData:int;
-		private static var _iS2cAck:int;
-		private static var _iPktsOut:int;
-		private static var mismatch:int;
-		private static var congestion:int;
-		private static var bad_cable:int;
-		private static var half_duplex:int;
-		private static var _iCongestionSignals:int;
-		private static var _iRcvWinScale:int;
+		private static var MSSSent:int = 0;
+		private static var MSSRcvd:int = 0;
+		private static var _iECNEnabled:int = 0;
+		private static var _iNagleEnabled:int = 0;
+		private static var _iSACKEnabled:int = 0;
+		private static var _iTimestampsEnabled:int = 0;
+		private static var _iWinScaleRcvd:int = 0;
+		private static var _iWinScaleSent:int = 0;
+		private static var _iSumRTT:int = 0;
+		private static var _iCountRTT:int = 0;
+		private static var _iCurrentMSS:int = 0;
+		private static var _iTimeouts:int = 0;
+		private static var _iPktsRetrans:int = 0;
+		private static var _iSACKsRcvd:int = 0;
+		private static var _iMaxRwinRcvd:int = 0;
+		private static var _iDupAcksIn:int = 0;
+		private static var _iMaxRwinSent:int = 0;
+		private static var _iSndbuf:int = 0;
+		private static var _iRcvbuf:int = 0;
+		private static var _iDataPktsOut:int = 0;
+		private static var _iFastRetran:int = 0;
+		private static var _iAckPktsOut:int = 0;
+		private static var _iSmoothedRTT:int = 0;
+		private static var _iCurrentCwnd:int = 0;
+		private static var _iMaxCwnd:int = 0;
+		private static var _iSndLimTimeRwin:int = 0;
+		private static var _iSndLimTimeCwnd:int = 0;
+		private static var _iSndLimTimeSender:int = 0;
+		private static var _iDataBytesOut:int = 0;
+		private static var _iAckPktsIn:int = 0;
+		private static var _iSndLimTransRwin:int = 0;
+		private static var _iSndLimTransCwnd:int = 0;
+		private static var _iSndLimTransSender:int = 0;
+		private static var _iMaxSsthresh:int = 0;
+		private static var _iCurrentRTO:int = 0;
+		private static var _iC2sData:int = 0;
+		private static var _iC2sAck:int = 0;
+		private static var _iS2cData:int = 0;
+		private static var _iS2cAck:int = 0;
+		private static var _iPktsOut:int = 0;
+		private static var mismatch:int = 0;
+		private static var congestion:int = 0;
+		private static var bad_cable:int = 0;
+		private static var half_duplex:int = 0;
+		private static var _iCongestionSignals:int = 0;
+		private static var _iRcvWinScale:int = 0;
 		
 		// Section : web100 double variables
 		
-		private static var _dEstimate:Number;
-		private static var _dLoss:Number;
-		private static var _dAvgrtt:Number;
-		private static var _dWaitsec:Number;
-		private static var _dTimesec:Number;
-		private static var _dOrder:Number;
-		private static var _dRwintime:Number;
-		private static var _dSendtime:Number;
-		private static var _dCwndtime:Number;
-		private static var _dRttsec:Number;
-		private static var _dRwin:Number;
-		private static var _dSwin:Number;
-		private static var _dCwin:Number;
-		private static var _dSpd:Number;
-		private static var _dAspd:Number;
-		private static var mylink:Number;
-		private static var _dSc2sspd:Number;
-		private static var _dSs2cspd:Number;
-		private static var _dS2cspd:Number;
-		private static var _dC2sspd:Number;
+		private static var _dEstimate:Number = 0.0;
+		private static var _dLoss:Number = 0.0;
+		private static var _dAvgrtt:Number = 0.0;
+		private static var _dWaitsec:Number = 0.0;
+		private static var _dTimesec:Number = 0.0;
+		private static var _dOrder:Number = 0.0;
+		private static var _dRwintime:Number = 0.0;
+		private static var _dSendtime:Number = 0.0;
+		private static var _dCwndtime:Number = 0.0;
+		private static var _dRttsec:Number = 0.0;
+		private static var _dRwin:Number = 0.0;
+		private static var _dSwin:Number = 0.0;
+		private static var _dCwin:Number = 0.0;
+		private static var _dSpd:Number = 0.0;
+		private static var _dAspd:Number = 0.0;
+		private static var mylink:Number = 0.0;
+		private static var _dSc2sspd:Number = 0.0;
+		private static var _dSs2cspd:Number = 0.0;
+		private static var _dS2cspd:Number = 0.0;
+		private static var _dC2sspd:Number = 0.0;
 		
 		// Section : Misc variables
 		
-		private static var _sUserAgent:String;
+		private static var _sUserAgent:String = null;						
 		
-		// Section : S2C Throughput Test
+		// Output containing strings
 		
-		public static var s2cspd:Number;
-						
+		private static var consoleOutput:String = "";
+		private static var errMsg:String = "";
+		private static var statsText:String = "";
+		private static var traceOutput:String = "";
+		private static var diagnosisText:String = "";
+		private static var emailText:String = "";
 		
-		public static var consoleOutput:String = "";
-		public static var errMsg:String = "";
-		public static var statsText:String = "";
-		public static var traceOutput:String = "";
-		public static var diagnosisText:String = "";
-		public static var emailText:String = "";
-		
-		public static var _bFailed:Boolean;
+		private static var _bFailed:Boolean = false;
 		
 		// end variables declaration
 		
@@ -303,7 +300,15 @@ package  {
 			return _sUserAgent;
 		}
 		
+		public static function get_bFailed():Boolean {
+			return _bFailed;
+		}
+		
 		// Setter methods
+		
+		public static function set_bFailed(b:Boolean):void {
+			_bFailed = b;
+		}
 		
 		public static function set_pub_status(sParam:String):void {
 			pub_status = sParam;
@@ -335,6 +340,56 @@ package  {
 		
 		public static function set_UserAgent(sParam:String):void {
 			_sUserAgent = sParam;
+		}
+		
+		// Output handler functions
+		
+		public static function appendConsoleOutput(sParam:String):void {
+			consoleOutput += sParam;
+		}
+		
+		public static function appendStatsText(sParam:String):void {
+			statsText += sParam;
+		}
+		
+		public static function appendTraceOutput(sParam:String):void {
+			traceOutput += sParam;
+		}
+		
+		public static function appendDiagnosisText(sParam:String):void {
+			diagnosisText += sParam;
+		}
+		
+		public static function appendEmailText(sParam:String):void {
+			emailText += sParam;
+		}
+		
+		public static function appendErrMsg(sParam:String):void {
+			errMsg += sParam;
+		}
+		
+		public static function getConsoleOutput():String {
+			return consoleOutput;
+		}
+		
+		public static function getStatsText():String {
+			return statsText;
+		}
+		
+		public static function getTraceOutput():String {
+			return traceOutput;
+		}
+		
+		public static function getDiagnosisText():String {
+			return diagnosisText;
+		}
+		
+		public static function getEmailText():String {
+			return emailText;
+		}
+		
+		public static function getErrMsg():String {
+			return errMsg;
 		}
 		
 		/*

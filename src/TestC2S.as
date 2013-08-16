@@ -101,6 +101,11 @@ package  {
 		
 		private function onComplete():void {
 			
+			if (!c2sTest) {
+				TestResults.appendConsoleOutput(DispMsgs.c2sThroughputFailed + "\n");
+				TestResults.appendStatsText(DispMsgs.c2sThroughputFailed + "\n");
+			}
+			
 			if(!isNaN(_dC2sspd))
 				TestResults.set_C2sspd(_dC2sspd);
 			if(!isNaN(_dSc2sspd))
@@ -129,7 +134,7 @@ package  {
 		
 		private function onOutConnect(e:Event):void {
 			trace("C2S Socket Connected");
-			TestResults.traceOutput += "C2S Socket Connected\n";
+			TestResults.appendTraceOutput("C2S Socket Connected\n");
 		}
 		
 		/*
@@ -145,22 +150,26 @@ package  {
 			_iPktsRem = 0;
 			outTimer.stop();
 			trace("C2S Socket Closed.");
-			TestResults.traceOutput += "C2S Socket closed\n";
+			TestResults.appendTraceOutput("C2S Socket closed\n");
 			removeEventListeners();
 			calculateThroughput();
 		}
 		
 		private function onOutSecError(e:SecurityErrorEvent):void {
 			trace("C2S Security Error" + e);
-			TestResults.errMsg += "C2S Security error : " + e;
+			TestResults.appendErrMsg("C2S Security error : " + e);
 			c2sTest = false;
+			removeEventListeners();
+			removeResponseListener();
 			onComplete();
 		}
 		
 		private function onOutError(e:IOErrorEvent):void {
 			trace("C2S IOError : " + e);
-			TestResults.errMsg += "C2S IOError : " + e;
+			TestResults.appendErrMsg("C2S IOError : " + e);
 			c2sTest = false;
+			removeEventListeners();
+			removeResponseListener();
 			onComplete();
 		}
 		
@@ -234,16 +243,16 @@ package  {
 		
 		private function testPrepare():void {
 			
-			TestResults.consoleOutput += DispMsgs.runningOutboundTest + " ";
-			TestResults.statsText += DispMsgs.runningOutboundTest + " ";
-			TestResults.emailText += DispMsgs.runningOutboundTest + " ";
+			TestResults.appendConsoleOutput(DispMsgs.runningOutboundTest + " ");
+			TestResults.appendStatsText(DispMsgs.runningOutboundTest + " ");
+			TestResults.appendEmailText(DispMsgs.runningOutboundTest + " ");
 			TestResults.set_pub_status("runningOutboundTest");
 			
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
 				// error reading / receiving message
 				
-				TestResults.errMsg += DispMsgs.protocolError + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+				TestResults.appendErrMsg(DispMsgs.protocolError + parseInt(new String(msg.getBody()), 16)
+									  + " instead\n");
 				c2sTest = false;
 				onComplete();
 				return;
@@ -254,10 +263,10 @@ package  {
 			if(msg.getType() != MessageType.TEST_PREPARE) {
 				// 'wrong' message type
 				
-				TestResults.errMsg += DispMsgs.outboundWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.outboundWrongMessage + "\n");
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: " + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+					TestResults.appendErrMsg("ERROR MSG: " + parseInt(new String(msg.getBody()), 16)
+										  + "\n");
 				}
 				c2sTest = false;
 				onComplete();
@@ -273,7 +282,7 @@ package  {
 				}
 				yabuff2Write.writeByte(c++);
 			}
-			TestResults.traceOutput += "******Send buffer size = " + i + "\n";
+			TestResults.appendTraceOutput("******Send buffer size = " + i + "\n");
 			trace("******Send buffer size = " + i);
 			
 			// get port to bind to from message
@@ -306,9 +315,9 @@ package  {
 			// read signal from server application
 			// This signal tells the client to start pumping out data
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				c2sTest = false;
 				onComplete();
 				return;
@@ -317,10 +326,10 @@ package  {
 			// Expecting a TEST_START message from the server now.
 			// Any other message is an error
 			if(msg.getType() != MessageType.TEST_START) {
-				TestResults.errMsg += DispMsgs.outboundWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.outboundWrongMessage + "\n");
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: " + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+					TestResults.appendErrMsg("ERROR MSG: " + parseInt(new String(msg.getBody()), 16)
+										  + "\n");
 				}
 				c2sTest = false;
 				onComplete();
@@ -359,9 +368,9 @@ package  {
 			trace(_dTime + " millisec test completed" + ", "
 				  + yabuff2Write.length + ", " + _iPkts + ", "
 				  + (_iLength - _iPktsRem));
-			TestResults.traceOutput += _dTime + " millisec test completed" + ", "
+			TestResults.appendTraceOutput(_dTime + " millisec test completed" + ", "
 				  		   + yabuff2Write.length + ", " + _iPkts + ", "
-						   + (_iLength - _iPktsRem) + "\n";
+						   + (_iLength - _iPktsRem) + "\n");
 			
 			if(_dTime == 0)
 				_dTime = 1;
@@ -369,7 +378,7 @@ package  {
 			// Calculate C2S throughput in kbps
 			// 8 for calculating bits
 			trace(((NDTConstants.EIGHT * _dPktsSent) / _dTime), "kb/s outbound");
-			TestResults.traceOutput += (NDTConstants.EIGHT * _dPktsSent) / _dTime + " kb/s outbound\n";
+			TestResults.appendTraceOutput((NDTConstants.EIGHT * _dPktsSent) / _dTime + " kb/s outbound\n");
 			
 			_dC2sspd = ((NDTConstants.EIGHT * _dPktsSent) / NDTConstants.KILO) / _dTime;
 			
@@ -399,9 +408,9 @@ package  {
 			// calculated at its end.
 			
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				c2sTest = false;
 				onComplete();
 				return;
@@ -409,11 +418,11 @@ package  {
 			
 			if(msg.getType() != MessageType.TEST_MSG) {
 				// 'wrong' type received
-				TestResults.errMsg += DispMsgs.outboundWrongMessage;
+				TestResults.appendErrMsg(DispMsgs.outboundWrongMessage);
 				
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: "
-										  + parseInt(new String(msg.getBody()), 16) + "\n";
+					TestResults.appendErrMsg("ERROR MSG: "
+										  + parseInt(new String(msg.getBody()), 16) + "\n");
 				}
 				c2sTest = false;
 				onComplete();
@@ -426,7 +435,7 @@ package  {
 			
 			// Display server calculated throughput value
 			trace("Server calculated throughput value = " + _dSc2sspd + " Mb/s");
-			TestResults.traceOutput += "Server calculated throughput value = " + _dSc2sspd + " Mb/s\n";
+			TestResults.appendTraceOutput("Server calculated throughput value = " + _dSc2sspd + " Mb/s\n");
 			
 			comStage = FINALIZE_TEST;
 			
@@ -442,20 +451,20 @@ package  {
 		private function finalizeTest():void {
 			// Print results in the most convinient units
 			if(_dSc2sspd < 1.0) {
-				TestResults.consoleOutput += NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n";
-				TestResults.statsText += NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n";
-				TestResults.emailText += NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n%0A";
+				TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n");
+				TestResults.appendStatsText(NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n");
+				TestResults.appendEmailText(NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n%0A");
 			}
 			else {
-				TestResults.consoleOutput += NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n";
-				TestResults.statsText += NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n";
-				TestResults.emailText += NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n%0A";
+				TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n");
+				TestResults.appendStatsText(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n");
+				TestResults.appendEmailText(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n%0A");
 			}
 			
 			// Server should close session with a TEST_FINALIZE message
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.protocolError + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+				TestResults.appendErrMsg(DispMsgs.protocolError + parseInt(new String(msg.getBody()), 16)
+									  + " instead\n");
 				c2sTest = false;
 				onComplete();
 				return;
@@ -463,11 +472,11 @@ package  {
 			
 			if(msg.getType() != MessageType.TEST_FINALIZE) {
 				// 'wrong' message type
-				TestResults.errMsg += DispMsgs.outboundWrongMessage;
+				TestResults.appendErrMsg(DispMsgs.outboundWrongMessage);
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: "
+					TestResults.appendErrMsg("ERROR MSG: "
 										  + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+										  + "\n");
 				}
 				c2sTest = false;
 				onComplete();
@@ -506,6 +515,12 @@ package  {
 			protocolObj = paramProtoObj;
 			
 			c2sTest = true;		// initially the test has not failed
+			
+			// initializing local variables
+			_iPkts = 0;
+			_iPktsRem = 0;	
+			_dPktsSent = 0.0;
+			_dTime = 0.0;
 			
 			yabuff2Write = new ByteArray();
 			msg = new Message();

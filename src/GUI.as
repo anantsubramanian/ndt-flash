@@ -21,11 +21,10 @@ package  {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.ui.Mouse;
-	import com.greensock.TweenLite;
-	import com.greensock.easing.*;
 	import flash.events.Event;
 	import flash.net.*;
 	import flash.display.DisplayObjectContainer;
+	import spark.effects.*;
 	
 	public class GUI extends Sprite{
 		
@@ -56,19 +55,22 @@ package  {
 		private var Learn_more_text:TextField;		
 		private var Learn_text_container:Sprite;
 		
+		// Tween variables
+		private var fadeEffect:Fade;
+		
 		// event listener functions
 		
-		function rollOverLearn(e:MouseEvent):void {
+		private function rollOverLearn(e:MouseEvent):void {
 			Learn_text_container.alpha = 0.80;
 			Learn_more_text.textColor = 0x000000;
 		}
 		
-		function rollOutLearn(e:MouseEvent):void {
+		private function rollOutLearn(e:MouseEvent):void {
 			Learn_text_container.alpha = 1;
 			Learn_more_text.textColor = 0xFFFFFF;
 		}
 		
-		function clickLearnText(e:MouseEvent):void {
+		private function clickLearnText(e:MouseEvent):void {
 			try {
 				navigateToURL(Url_request);
 			}
@@ -79,21 +81,21 @@ package  {
 			}
 		}
 		
-		function rollOverStart(e:MouseEvent):void {
+		private function rollOverStart(e:MouseEvent):void {
 			if(Start_button.getChildAt(0)) {
 			   Start_button.removeChildAt(0);
 			}
 			Start_button.addChild(Hover);	 
 		}
 		
-		function rollOutStart(e:MouseEvent):void {
+		private function rollOutStart(e:MouseEvent):void {
 			if(Start_button.getChildAt(0)) {
 			   Start_button.removeChildAt(0);
 			}
 			Start_button.addChild(No_hover);
 		}
 		
-		function clickStart(e:MouseEvent):void {
+		private function clickStart(e:MouseEvent):void {
 			hideInitialScreen();
 			
 			parentObject.dottcp();			
@@ -103,26 +105,21 @@ package  {
 		
 		// animation functions
 		
-		function startUpAnimation():void {
+		private function startUpAnimation():void {
 			
 			Mlab_logo.alpha = 0;
 			Start_button.alpha = 0;
 			About_ndt_text.alpha = 0;
 			Learn_text_container.alpha = 0;
 		
-			TweenLite.to(Mlab_logo, 0.75, {alpha:1, ease:Linear.easeNone});
-			TweenLite.to(About_ndt_text, 0.75, {alpha:1, ease:Linear.easeNone});
-			TweenLite.to(Learn_text_container, 0.75, {alpha:1, ease:Linear.easeNone});
-			TweenLite.to(Start_button, 0.75, {alpha:1, ease:Linear.easeNone});
+			fadeEffect.play([Mlab_logo, About_ndt_text, Learn_text_container, Start_button]);
 		
 		}
 		
-		function hideInitialScreen():void {
+		private function hideInitialScreen():void {
 			
-			TweenLite.to(Mlab_logo, 0.25, {alpha:0, ease:Linear.easeNone});
-			TweenLite.to(About_ndt_text, 0.25, {alpha:0, ease:Linear.easeNone});
-			TweenLite.to(Learn_text_container, 0.25, {alpha:0, ease:Linear.easeNone});
-			TweenLite.to(Start_button, 0.25, {alpha:0, ease:Linear.easeNone});
+			fadeEffect.end();
+			fadeEffect.play([Mlab_logo, About_ndt_text, Learn_text_container, Start_button], true);
 			
 			if(this.getChildByName("Mlab_logo")) {
 				this.removeChild(Mlab_logo);   
@@ -153,7 +150,7 @@ package  {
 		public function waitMessage():void {
 			var waitF:TextField = new TextField();
 			waitF.width = stagewidth;
-			waitF.text = "Please Wait ~25 sec for results.";
+			waitF.text = "Please Wait ~30 sec for results.";
 			this.addChild(waitF);
 		}
 		
@@ -166,12 +163,16 @@ package  {
 			textF.width = stagewidth;
 			textF.height = stageheight;
 			this.addChild(textF);
-			textF.text = "Console Output Produced : \n\n" + TestResults.consoleOutput + "\n";
-			textF.appendText("Statistics : \n" + TestResults.statsText + "\n");
-			textF.appendText("Trace Output Produced : \n\n" + TestResults.traceOutput + "\n");
-			textF.appendText("Errors (blank lines indicate no errors) : \n\n" + TestResults.errMsg + "\n");
-			textF.appendText("Received web100vars : \n" + TestS2C._sTestResults);
-			textF.appendText("\nDiagnosis Text : " + TestResults.diagnosisText);
+			textF.text = "\n";
+			if (TestResults.get_bFailed())
+				textF.appendText("Test Failed !\n");
+			
+			textF.appendText("Console Output Produced : \n\n" + TestResults.getConsoleOutput() + "\n");
+			textF.appendText("Statistics : \n" + TestResults.getStatsText() + "\n");
+			textF.appendText("Trace Output Produced : \n\n" + TestResults.getTraceOutput() + "\n");
+			textF.appendText("Errors (blank lines indicate no errors) : \n\n" + TestResults.getErrMsg() + "\n");
+			textF.appendText("Received web100vars : \n" + TestS2C.getResultString());
+			textF.appendText("\nDiagnosis Text : " + TestResults.getDiagnosisText());
 		}
 
 		public function GUI(stageW:int, stageH:int, Parent:MainFrame) {
@@ -248,6 +249,12 @@ package  {
 			this.addChild(About_ndt_text);
 			this.addChild(Learn_text_container);
 			this.addChild(Start_button);
+			
+			// Initialize Fade tween variables
+			fadeEffect = new Fade();
+			fadeEffect.alphaFrom = 0.0;
+			fadeEffect.alphaTo = 1.0;
+			fadeEffect.duration = 500;
 			
 			startUpAnimation(); // to be removed if not required
 			

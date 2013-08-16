@@ -24,17 +24,9 @@ package  {
 	import flash.system.Security;
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
-	import com.greensock.*;
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
 	import flash.errors.IOError;
-	
-	/*  
-		
-		This program uses the free TweenLite plugin
-		from GreenSock : http://www.greensock.com/tweenlite/
-	
-	*/
 	
 	public class MainFrame extends Sprite{
 		
@@ -53,16 +45,17 @@ package  {
 		
 		private var gui:GUI;
 		
-		private static var sHostName:String;
-		private static var clientId:String;
+		private static var sHostName:String = null;
+		private static var clientId:String = null;
 		private var pub_host:String;
 		public var guiEnabled:Boolean;
-		var ctlSocket:Socket = null;
-		var protocolObj:Protocol;
-		var msg:Message;
-		var tests:Array;
-		var testNo:int;
-		var _sTestResults:String = null;
+		private var ctlSocket:Socket = null;
+		private var protocolObj:Protocol;
+		private var msg:Message;
+		private var tests:Array;
+		private var _sTestResults:String = null;
+		
+		public var testNo:int;
 		
 		private var readTimer:Timer;
 		private var readCount:int;
@@ -76,7 +69,7 @@ package  {
 		
 		public function onConnect(e:Event):void {
 			trace("Socket connected.");
-			TestResults.traceOutput += "Socket connected\n";
+			TestResults.appendTraceOutput("Socket connected\n");
 			protocolStart();
 		}
 		public function onClose(e:Event):void {
@@ -84,14 +77,14 @@ package  {
 		}
 		public function onError(e:IOErrorEvent):void {
 			trace("IOError : " + e);
-			TestResults.errMsg += "IOError : " + e;
-			TestResults._bFailed = true;
+			TestResults.appendErrMsg("IOError : " + e);
+			TestResults.set_bFailed(true);
 			finishedAll();
 		}
 		public function onSecError(e:SecurityErrorEvent):void {
 			trace("Security Error" + e);
-			TestResults.errMsg += "Security error : " + e;
-			TestResults._bFailed = true;
+			TestResults.appendErrMsg("Security error : " + e);
+			TestResults.set_bFailed(true);
 			finishedAll();
 		}
 		public function onResponse(e:ProgressEvent):void {
@@ -118,8 +111,8 @@ package  {
 		
 		public function onReadTimeout(e:TimerEvent):void {
 			readTimer.stop();
-			TestResults.errMsg += "Read timeout while reading results\n";
-			TestResults._bFailed = true;
+			TestResults.appendErrMsg("Read timeout while reading results\n");
+			TestResults.set_bFailed(true);
 			return;
 		}
 		
@@ -141,11 +134,11 @@ package  {
 			
 			Security.allowDomain("*"); // not sure if necessary
 			
-			TestResults._bFailed = false;  // test result status is false initially
+			TestResults.set_bFailed(false);  // test result status is false initially
 			
-			TestResults.consoleOutput += DispMsgs.connectingTo + " " + 
+			TestResults.appendConsoleOutput(DispMsgs.connectingTo + " " + 
 										 sHostName + " " + DispMsgs.toRunTest
-										 + "\n";
+										 + "\n");
 			
 			ctlSocket = new Socket();
 			
@@ -247,9 +240,9 @@ package  {
 			
 			while(ctlSocket.bytesAvailable > 0) {
 				if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-					TestResults.errMsg += DispMsgs.protocolError + parseInt(new String(msg.getBody()), 16)
-										  + " instead\n";
-					TestResults._bFailed = true;
+					TestResults.appendErrMsg(DispMsgs.protocolError + parseInt(new String(msg.getBody()), 16)
+										  + " instead\n");
+					TestResults.set_bFailed(true);
 					return;
 				}
 				
@@ -262,8 +255,8 @@ package  {
 				
 				// get results in the form of a human-readable string
 				if(msg.getType() != MessageType.MSG_RESULTS) {
-					TestResults.errMsg += DispMsgs.resultsWrongMessage + "\n";
-					TestResults._bFailed = true;
+					TestResults.appendErrMsg(DispMsgs.resultsWrongMessage + "\n");
+					TestResults.set_bFailed(true);
 					return;
 				}
 				_sTestResults += new String(msg.getBody());
@@ -275,11 +268,12 @@ package  {
 			try {
 				ctlSocket.close();
 			} catch(e:IOError) {
-				TestResults.errMsg += "Client failed to close Control Socket Connection\n";
+				TestResults.appendErrMsg("Client failed to close Control Socket Connection\n");
 			}
 			
-			// temporarily set to view results using GUI		
-			var interpRes:TestResults = new TestResults(_sTestResults, _yTests);
+			// temporarily set to view results using GUI
+			if (_sTestResults != null)
+				var interpRes:TestResults = new TestResults(_sTestResults, _yTests);
 			
 			if(guiEnabled) {
 				gui.displayResults();

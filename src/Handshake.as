@@ -45,8 +45,8 @@ package  {
 		private var comStage:int;	// variable representing the stage of communication
 									// with the server.
 		
-		var i:int, wait:int;
-		var iServerWaitFlag:int; // flag indicating whether wait message
+		private var i:int, wait:int;
+		private var iServerWaitFlag:int; // flag indicating whether wait message
 										 // was already received once
 										 
 		// event handler functions
@@ -64,7 +64,7 @@ package  {
 									  break;
 			}
 			
-			if(TestResults._bFailed) {
+			if(TestResults.get_bFailed()) {
 				removeResponseListener();
 				callerObj.finishedAll();
 			}
@@ -92,8 +92,8 @@ package  {
 			// read the message that kicks old clients
 			if(protocolObj.readn(msg, 13) != 13) {
 				trace(DispMsgs.unsupportedClient);
-				TestResults.errMsg += DispMsgs.unsupportedClient + "\n";
-				TestResults._bFailed = true;
+				TestResults.appendErrMsg(DispMsgs.unsupportedClient + "\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			
@@ -120,17 +120,17 @@ package  {
 			// If SRV_QUEUE message sent by the server does not indicate
 			// that the test session starts now, return
 			if(protocolObj.recv_msg(msg) != NDTConstants.SRV_QUEUE_TEST_STARTS_NOW) {
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
-				TestResults._bFailed = true;
+									  + " instead\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			
 			// If message is not of SRV_QUEUE type, it is incorrect at this stage.
 			if(msg.getType() != MessageType.SRV_QUEUE) {
-				TestResults.errMsg += DispMsgs.loggingWrongMessage + "\n";
-				TestResults._bFailed = true;
+				TestResults.appendErrMsg(DispMsgs.loggingWrongMessage + "\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			
@@ -140,13 +140,13 @@ package  {
 			var tmpstr:String = new String(msg.getBody());
 			wait = parseInt(tmpstr);
 			trace("Wait flag received = " + String(wait));
-			TestResults.traceOutput += "Wait flag received = " + String(wait) + "\n";
+			TestResults.appendTraceOutput("Wait flag received = " + String(wait) + "\n");
 				
 			if(wait == 0) {
 				// SRV_QUEUE message indicates tests should start,
 				// so proceed to next stage.
 				trace("Finished waiting");
-				TestResults.traceOutput += "Finished waiting" + "\n";
+				TestResults.appendTraceOutput("Finished waiting" + "\n");
 				
 				comStage = VERIFY_VERSION;
 				
@@ -160,21 +160,21 @@ package  {
 				
 			if(wait == NDTConstants.SRV_QUEUE_SERVER_BUSY) {
 				if(iServerWaitFlag == 0) {								// Message indicating server is busy,
-					TestResults.errMsg += DispMsgs.serverBusy + "\n";	// return
-					TestResults._bFailed = true;
+					TestResults.appendErrMsg(DispMsgs.serverBusy + "\n");	// return
+					TestResults.set_bFailed(true);
 					return;
 				}
 				else {
-					TestResults.errMsg += DispMsgs.serverFault + "\n";	// Server fault, return
-					TestResults._bFailed = true;
+					TestResults.appendErrMsg(DispMsgs.serverFault + "\n");	// Server fault, return
+					TestResults.set_bFailed(true);
 					return;
 				}
 			}
 				
 			// server busy for 60s, wait for previous test to finish
 			if(wait == NDTConstants.SRV_QUEUE_SERVER_BUSY_60s) {
-				TestResults.errMsg += DispMsgs.serverBusy60s + "\n";
-				TestResults._bFailed = true;
+				TestResults.appendErrMsg(DispMsgs.serverBusy60s + "\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 				
@@ -190,8 +190,8 @@ package  {
 			// of queued clients == number of minutes to wait before starting tests.
 			// wait = minutes to wait = number of queued clients.
 			wait = (wait * 45);
-			TestResults.consoleOutput += DispMsgs.otherClient + wait
-										 + DispMsgs.seconds + ".\n";
+			TestResults.appendConsoleOutput(DispMsgs.otherClient + wait
+										 + DispMsgs.seconds + ".\n");
 			iServerWaitFlag = 1; // first message from server now already encountered
 		}
 		
@@ -208,30 +208,30 @@ package  {
 			// and this is a MSG_LOGIN type message.
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
 				// there is a protocol error so return
-				TestResults.errMsg += DispMsgs.protocolError +
+				TestResults.appendErrMsg(DispMsgs.protocolError +
 									  parseInt(new String(msg.getBody()), 16) + 
-									  " instead\n";
-				TestResults._bFailed = true;
+									  " instead\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			
 			if(msg.getType() != MessageType.MSG_LOGIN) {
 				// only this type of message should be received at this stage.
 				// every other message is wrong.
-				TestResults.errMsg += DispMsgs.versionWrongMessage + "\n";
-				TestResults._bFailed = true;
+				TestResults.appendErrMsg(DispMsgs.versionWrongMessage + "\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			
 			// version compatibility between server and client must be verified.
 			var vVersion:String = new String(msg.getBody());
 			if(!(vVersion.indexOf("v") == 0)) {
-				TestResults.errMsg += DispMsgs.incompatibleVersion + "\n";
-				TestResults._bFailed = true;
+				TestResults.appendErrMsg(DispMsgs.incompatibleVersion + "\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			trace("Server version : " + vVersion.substring(1));
-			TestResults.traceOutput += "Server Version : " + vVersion.substring(1) + "\n";
+			TestResults.appendTraceOutput("Server Version : " + vVersion.substring(1) + "\n");
 			
 			comStage = VERIFY_SUITE;
 			
@@ -255,17 +255,17 @@ package  {
 			// the test suite and this should be the same set of tests requested by the client
 			// earlier.
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.protocolError +
+				TestResults.appendErrMsg(DispMsgs.protocolError +
 									  parseInt(new String(msg.getBody()), 16) + 
-									  " instead\n";
-				TestResults._bFailed = true;
+									  " instead\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			if(msg.getType() != MessageType.MSG_LOGIN) {
 				// only tests negotiation message expected at this point.
 				// any other type is wrong.
-				TestResults.errMsg += DispMsgs.testsuiteWrongMessage + "\n";
-				TestResults._bFailed = true;
+				TestResults.appendErrMsg(DispMsgs.testsuiteWrongMessage + "\n");
+				TestResults.set_bFailed(true);
 				return;
 			}
 			allComplete();
@@ -315,9 +315,13 @@ package  {
 			_yTests =  testPack;
 			callerObj = callerObject;
 			
+			// initializing local variables
 			iServerWaitFlag = 0;
+			wait = 0;
+			i = 0;
+			
 			comStage = KICK_CLIENTS;
-			TestResults._bFailed = false;
+			TestResults.set_bFailed(false);
 			
 			addResponseListener();
 			

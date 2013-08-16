@@ -69,12 +69,15 @@ package  {
 		private var _iSsndqueue:int;
 		private var _dSbytes:Number;
 		
-		public static var _sTestResults:String;
+		private static var _sTestResults:String = null;
 		
 		private var _dTime:Number;
 		private var soTimer:Timer;
 		private var tempProtObj:Protocol;
 		private var testStartRead:Boolean;
+		private var waitTimerCount:int;
+		private var waitTimer:Timer;	// A general timer to wait to proceed to the next step if
+										// enough data to proceed hasn't been received yet
 		
 		public var s2cTest:Boolean;	// variable that represents success (true) or
 									// failure (false) of the test.
@@ -128,6 +131,12 @@ package  {
 		
 		public function onComplete():void {
 			
+			if (!s2cTest)
+			{
+				TestResults.appendConsoleOutput(DispMsgs.s2cThroughputFailed + "\n");
+				TestResults.appendStatsText(DispMsgs.s2cThroughputFailed + "\n");
+			}
+			
 			if(!isNaN(_dS2cspd))
 				TestResults.set_S2cspd(_dS2cspd);
 			if(!isNaN(_dSs2cspd))
@@ -150,7 +159,7 @@ package  {
 		
 		private function onInConnect(e:Event):void {
 			trace("S2C Socket Connected");
-			TestResults.traceOutput += "S2C Socket Connected\n";
+			TestResults.appendTraceOutput("S2C Socket Connected\n");
 			comStage = RECEIVE_DATA;
 			tempProtObj = new Protocol(inSocket);
 			_dTime = getTimer();		// get start time for receiving data
@@ -183,7 +192,7 @@ package  {
 			// get time duration during which bytes were received
 			_dTime = getTimer() - _dTime;
 			trace("S2C Socket Closed.");
-			TestResults.traceOutput += "S2C Socket closed\n";
+			TestResults.appendTraceOutput("S2C Socket closed\n");
 			removeEventListeners();
 			soTimer.stop();
 			inSocket.close();
@@ -192,15 +201,19 @@ package  {
 		
 		private function onInSecError(e:SecurityErrorEvent):void {
 			trace("S2C Security Error" + e);
-			TestResults.errMsg += "S2C Security error : " + e;
+			TestResults.appendErrMsg("S2C Security error : " + e);
 			s2cTest = false;
+			removeResponseListener();
+			removeEventListeners();
 			onComplete();
 		}
 		
 		private function onInError(e:IOErrorEvent):void {
 			trace("S2C IOError : " + e);
-			TestResults.errMsg += "S2C IOError : " + e;
+			TestResults.appendErrMsg("S2C IOError : " + e);
 			s2cTest = false;
+			removeEventListeners();
+			removeResponseListener();
 			onComplete();
 		}
 		
@@ -250,8 +263,54 @@ package  {
 		*/
 		
 		private function readTimeout2(e:TimerEvent):void {
-			TestResults.errMsg += "Error Reading web100 variables. Socket read timed out.\n";
+			TestResults.appendErrMsg("Error Reading web100 variables. Socket read timed out.\n");
 			comStage = ALL_COMPLETE;
+		}
+		
+		/*
+			Function that responds by returning the appropriate function to the
+			wait timer as an event listener.
+			
+			@return
+					An event listener function appropriate to the comStage
+		*/
+		
+		private function returnWaitFunction():Function {
+			if (ctlSocket.bytesAvailable <= MIN_MSG_SIZE)
+			{
+				if (waitTimerCount > 2)
+				{
+					s2cTest = false;
+					TestResults.appendErrMsg("Server didn't respond in time.\n");
+					onComplete();
+				}
+				else
+				{
+					waitTimerCount++;
+					waitTimer.start();
+				}
+				return function doNothing(e:TimerEvent):void;
+			}
+			switch(comStage) {
+				
+				case TEST_PREPARE   : return function timerRespond(e:TimerEvent):void {
+										  testPrepare();
+									  }
+								 	  break;
+				case TEST_START     : return function timerRespond(e:TimerEvent):void {
+										  testStart();
+									  }
+									  break;
+				case COMPARE_SERVER : return function timerRespond(e:TimerEvent):void {
+										  compareWithServer();
+									  }
+									  break;
+				case GET_WEB100 	: return function timerRespond(e:TimerEvent):void {
+										  getWeb100();
+									  }
+								 	  break;
+			}
+			return function doNothing(e:TimerEvent):void;
 		}
 		
 		// functions used for the tests
@@ -270,16 +329,16 @@ package  {
 			msg = new Message();
 			
 			// start s2c tests
-			TestResults.consoleOutput += DispMsgs.runningInboundTest;
-			TestResults.statsText += DispMsgs.runningInboundTest;
+			TestResults.appendConsoleOutput(DispMsgs.runningInboundTest);
+			TestResults.appendStatsText(DispMsgs.runningInboundTest);
 			TestResults.set_pub_status("runningInboundTest");
 			
 			// server sends TEST_PREPARE message with the port to bind
 			// to as the message body
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				s2cTest = false;
 				onComplete();
 				return;
@@ -287,11 +346,11 @@ package  {
 			if(msg.getType() != MessageType.TEST_PREPARE) {
 				
 				// no other message type expected at this point
-				TestResults.errMsg += DispMsgs.inboundWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MESSAGE : "
+					TestResults.appendErrMsg("ERROR MESSAGE : "
 										  + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+										  + "\n");
 				}
 				s2cTest = false;
 				onComplete();
@@ -328,9 +387,9 @@ package  {
 			
 			// server now sends a TEST_START message
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.unknownServer
+				TestResults.appendErrMsg(DispMsgs.unknownServer
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				s2cTest = false;
 				onComplete();
 				return;
@@ -338,10 +397,10 @@ package  {
 			
 			if(msg.getType() != MessageType.TEST_START) {
 				// no other message type expected at this point
-				TestResults.errMsg += DispMsgs.serverFail + "\n";
+				TestResults.appendErrMsg(DispMsgs.serverFail + "\n");
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG : "
-										  + parseInt(new String(msg.getBody()), 16) + "\n";
+					TestResults.appendErrMsg("ERROR MSG : "
+										  + parseInt(new String(msg.getBody()), 16) + "\n");
 				}
 				s2cTest = false;
 				onComplete();
@@ -388,8 +447,8 @@ package  {
 			trace(iBitCount + " bytes " + (NDTConstants.EIGHT * iBitCount) / _dTime + " kb/s "
 					+ _dTime / NDTConstants.KILO + " secs");
 			
-			TestResults.traceOutput += new String(iBitCount + " bytes " + (NDTConstants.EIGHT * iBitCount) / _dTime + " kb/s "
-					+ _dTime / NDTConstants.KILO + " secs\n");
+			TestResults.appendTraceOutput(new String(iBitCount + " bytes " + (NDTConstants.EIGHT * iBitCount) / _dTime + " kb/s "
+					+ _dTime / NDTConstants.KILO + " secs\n"));
 			
 			// calculate throughput
 			_dS2cspd = ((NDTConstants.EIGHT * iBitCount) / NDTConstants.KILO) / _dTime;
@@ -400,6 +459,8 @@ package  {
 			if(ctlSocket.bytesAvailable > MIN_MSG_SIZE) {
 				compareWithServer();
 			}
+			else
+				waitTimer.start();
 		}
 		
 		/*
@@ -417,8 +478,9 @@ package  {
 				// begin. This ensures that it is read and processed.
 				testStart();
 				addResponseListener();
-				if(ctlSocket.bytesAvailable <= WEB100_VARS_MIN_SIZE)
+				if(ctlSocket.bytesAvailable <= WEB100_VARS_MIN_SIZE) {
 					return;
+				}	
 			}
 			
 			// once all data is received / timeout occurs, server sends
@@ -429,9 +491,9 @@ package  {
 			//receive s2cspd from the server
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
 				// error reading / receiving message
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				s2cTest = false;
 				onComplete();
 				return;
@@ -440,10 +502,10 @@ package  {
 			// Only message of type TEST_MSG expected from the server at this point
 			if(msg.getType() != MessageType.TEST_MSG) {
 				
-				TestResults.errMsg += DispMsgs.inboundWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG : "
-										  + parseInt(new String(msg.getBody()), 16) + "\n";
+					TestResults.appendErrMsg("ERROR MSG : "
+										  + parseInt(new String(msg.getBody()), 16) + "\n");
 				}
 				s2cTest = false;
 				onComplete();
@@ -460,7 +522,7 @@ package  {
 			_dSbytes = parseFloat((tmpstr.substr(k1+1)).substr(k2+1));
 			
 			if(isNaN(_dSs2cspd) || isNaN(_iSsndqueue) || isNaN(_dSbytes)) {
-				TestResults.errMsg += DispMsgs.inboundWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
 				s2cTest = false;
 				onComplete();
 				return;
@@ -468,27 +530,26 @@ package  {
 			
 			// Represent throughput using optimal units (i.e. kbps / mbps)
 			if(_dS2cspd < 1.0) {
-				TestResults.consoleOutput += NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) + "kb/s\n";
-				TestResults.statsText += NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) + "kb/s\n";
+				TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) + "kb/s\n");
+				TestResults.appendStatsText(NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) + "kb/s\n");
 			}
 			else {
-				TestResults.consoleOutput += NDTUtils.prtdbl(_dS2cspd) + "Mb/s\n";
-				TestResults.statsText += NDTUtils.prtdbl(_dS2cspd) + "Mb/s\n";
+				TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dS2cspd) + "Mb/s\n");
+				TestResults.appendStatsText(NDTUtils.prtdbl(_dS2cspd) + "Mb/s\n");
 			}
 			
 			// Set result for JavaScript access
-			TestResults.s2cspd = _dS2cspd;		
 			TestResults.set_pub_status("done");
 			
 			buff = new ByteArray();
 			buff.writeUTFBytes((_dS2cspd * NDTConstants.KILO).toString());
 			var tmpstr2:String = buff.toString();
 			trace("Sending '" + tmpstr2 + "' back to server");
-			TestResults.traceOutput += "Sending '" + tmpstr2 + "' back to server\n";
+			TestResults.appendTraceOutput("Sending '" + tmpstr2 + "' back to server\n");
 			
 			// Display server calculated throughput value
 			trace("Server calculated throughput value = " + _dSs2cspd + " Mb/s");
-			TestResults.traceOutput += "Server calculated throughput value = " + _dSs2cspd + " Mb/s\n"; 
+			TestResults.appendTraceOutput("Server calculated throughput value = " + _dSs2cspd + " Mb/s\n"); 
 			
 			soTimer = new Timer(5000, 0);
 			soTimer.removeEventListener(TimerEvent.TIMER, readTimeout1);
@@ -523,9 +584,9 @@ package  {
 				if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
 					// message not read / received correctly
 					
-					TestResults.errMsg += DispMsgs.protocolError
+					TestResults.appendErrMsg(DispMsgs.protocolError
 										  + parseInt(new String(msg.getBody()), 16)
-										  + " instead\n";
+										  + " instead\n");
 					s2cTest = false;
 					onComplete();
 					return;
@@ -542,10 +603,10 @@ package  {
 				// Only a message of TEST_MSG type containing the web100 variables
 				// is expected. Every other message is "incorrect"
 				if(msg.getType() != MessageType.TEST_MSG) {
-					TestResults.errMsg += DispMsgs.inboundWrongMessage + "\n";
+					TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
 					if(msg.getType() == MessageType.MSG_ERROR) {
-						TestResults.errMsg += "ERROR MSG : "
-											  + parseInt(new String(msg.getBody()), 16) + "\n";
+						TestResults.appendErrMsg("ERROR MSG : "
+											  + parseInt(new String(msg.getBody()), 16) + "\n");
 					}
 					s2cTest = false;
 					onComplete();
@@ -589,7 +650,16 @@ package  {
 			
 			addResponseListener();
 			
+			// assigning initial values to variables
+			waitTimerCount = 0;
+			_dTime = 1;
+			iBitCount = 0;
+			inlth = 0;		
+			
 			s2cTest = true;		// initially the test has not failed.
+			
+			waitTimer = new Timer(1000, 0);
+			waitTimer.addEventListener(TimerEvent.TIMER, returnWaitFunction);
 			
 			// if enough bytes have already been received to proceed
 			if(ctlSocket.bytesAvailable > MIN_MSG_SIZE) {

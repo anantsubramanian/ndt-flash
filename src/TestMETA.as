@@ -92,17 +92,17 @@ package  {
 		
 		private function testPrepare():void {
 			
-			TestResults.consoleOutput += DispMsgs.sendingMetaInformation + " ";
-			TestResults.statsText += DispMsgs.sendingMetaInformation + " ";
-			TestResults.emailText += DispMsgs.sendingMetaInformation + " ";
+			TestResults.appendConsoleOutput(DispMsgs.sendingMetaInformation + " ");
+			TestResults.appendStatsText(DispMsgs.sendingMetaInformation + " ");
+			TestResults.appendEmailText(DispMsgs.sendingMetaInformation + " ");
 			TestResults.set_pub_status("sendingMetaInformation");
 			
 			
 			// Server starts with a TEST_PREPARE messsage.
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				metaTest = false;
 				onComplete();
 				return;
@@ -110,11 +110,11 @@ package  {
 			
 			if(msg.getType() != MessageType.TEST_PREPARE) {
 				// any other message type is 'wrong'
-				TestResults.errMsg += DispMsgs.metaWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.metaWrongMessage + "\n");
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: "
+					TestResults.appendErrMsg("ERROR MSG: "
 										  + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+										  + "\n");
 				}
 				metaTest = false;
 				onComplete();
@@ -137,9 +137,9 @@ package  {
 			// Server now sends a TEST_START message
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
 				// message not received / read correctly
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				metaTest = false;
 				onComplete();
 				return;
@@ -147,12 +147,12 @@ package  {
 			
 			// Only TEST_START message expected here. Everything else is 'wrong'
 			if(msg.getType() != MessageType.TEST_START) {
-				TestResults.errMsg += DispMsgs.metaWrongMessage + "\n";
+				TestResults.appendErrMsg(DispMsgs.metaWrongMessage + "\n");
 				
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: "
+					TestResults.appendErrMsg("ERROR MSG: "
 										  + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+										  + "\n");
 				}
 				metaTest = false;
 				onComplete();
@@ -174,7 +174,7 @@ package  {
 			// responds with TEST_MSG type message.
 			// These message may be used to send name-value pairs as configuration data.
 			// There are length constraints to key-values : 64 / 256 respectively
-			TestResults.traceOutput += "USERAGENT " + TestResults.get_UserAgent() + "\n";
+			TestResults.appendTraceOutput("USERAGENT " + TestResults.get_UserAgent() + "\n");
 			trace("USERAGENT " + TestResults.get_UserAgent());
 			
 			var toSend:ByteArray = new ByteArray();
@@ -219,9 +219,9 @@ package  {
 			// TEST_FINALIZE message
 			if(protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
 				// error receiving / reading message
-				TestResults.errMsg += DispMsgs.protocolError
+				TestResults.appendErrMsg(DispMsgs.protocolError
 									  + parseInt(new String(msg.getBody()), 16)
-									  + " instead\n";
+									  + " instead\n");
 				metaTest = false;
 				onComplete();
 				return;
@@ -229,11 +229,11 @@ package  {
 			
 			if(msg.getType() != MessageType.TEST_FINALIZE) {
 				// any other message is 'wrong'
-				TestResults.errMsg += DispMsgs.metaWrongMessage;
+				TestResults.appendErrMsg(DispMsgs.metaWrongMessage);
 				if(msg.getType() == MessageType.MSG_ERROR) {
-					TestResults.errMsg += "ERROR MSG: "
+					TestResults.appendErrMsg("ERROR MSG: "
 										  + parseInt(new String(msg.getBody()), 16)
-										  + "\n";
+										  + "\n");
 				}
 				metaTest = false;
 				onComplete();
@@ -244,11 +244,17 @@ package  {
 		}
 		
 		private function allDone():void {
-			// Display status as "complete"
-			TestResults.consoleOutput += DispMsgs.done + "\n";
-			TestResults.statsText += DispMsgs.done + "\n";
-			TestResults.emailText += DispMsgs.done + "\n%0A";
-			
+			// Display status as "complete" and assign status
+			if(metaTest) {
+				TestResults.appendConsoleOutput(DispMsgs.done + "\n");
+				TestResults.appendStatsText(DispMsgs.done + "\n");
+				TestResults.appendEmailText(DispMsgs.done + "\n%0A");
+			}
+			else {
+				TestResults.appendConsoleOutput(DispMsgs.metaFailed + "\n");
+				TestResults.appendStatsText(DispMsgs.metaFailed + "\n");
+				TestResults.appendEmailText(DispMsgs.metaFailed + "\n%0A");
+			}
 			TestResults.set_pub_status("done");
 			onComplete();
 		}
