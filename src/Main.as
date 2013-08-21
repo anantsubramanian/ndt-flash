@@ -25,7 +25,7 @@ package
 			// entry point
 			stage.showDefaultContextMenu = false;
 
-			var hostname:String =  "ndt.iupui.mlab2.lca01.measurement-lab.org"; //"127.0.0.1"; - Changed for testing purposes
+			var hostname:String =  "utility.mlab.mlab1.nuq0t.measurement-lab.org"; //"127.0.0.1"; - Changed for testing purposes
 			var clientID:String = "swf";
 
 			function passedParams(Hostname:String, Clientid:String):void
