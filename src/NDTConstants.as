@@ -47,7 +47,7 @@ package  {
 		public static const SRV_QUEUE_SERVER_BUSY_60s:int = 9999;
 
 		// NDT hostname (temporarily serves the function of external call back ) & Policy File
-		public static const HOST_NAME:String = "utility.mlab.mlab1.nuq0t.measurement-lab.org"; //- Changed for testing purposes
+		public static const HOST_NAME:String = "utility.mlab.mlab1v4.nuq0t.measurement-lab.org"; //- Changed for testing purposes
 		
 		// Section: Test type
 		public static const TEST_MID:int = (1 << 0);
