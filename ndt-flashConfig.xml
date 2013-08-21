@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--This Adobe Flex compiler configuration file sets compiler options for the NDT Flash client.-->
+<flex-config>
+  <target-player>11.1</target-player>
+  <benchmark>false</benchmark>
+  <static-link-runtime-shared-libraries>true</static-link-runtime-shared-libraries>
+  <compiler>
+    <define append="true">
+      <name>CONFIG::debug</name>
+      <value>false</value>
+    </define>
+    <define append="true">
+      <name>CONFIG::release</name>
+      <value>true</value>
+    </define>
+    <verbose-stacktraces>true</verbose-stacktraces>
+    <source-path append="true">
+      <!-- Modify path as suitable for your operating system.-->
+      <path-element>src/</path-element>
+    </source-path>
+  </compiler>
+  <file-specs>
+    <path-element>src/Main.as</path-element>
+  </file-specs>
+  <!-- Gives the green color to the background.-->
+  <default-background-color>#00DBA8</default-background-color>
+  <!-- Set frame rate to maximum possible value '120' to increase Timer Accuracy.-->
+  <default-frame-rate>120</default-frame-rate>
+  <!-- Set stage size of client. Since the client uses a relative layout this value can be safely changed.-->
+  <default-size>
+    <width>600</width>
+    <height>480</height>
+  </default-size>
+</flex-config>
