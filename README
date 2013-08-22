@@ -19,14 +19,10 @@ i. If on Linux or Mac:
    from that file as well.
    
 ii.If on Windows :
-   In the src/GUI.as file, change the file paths at lines 40, 47 and 51 as indicated by
-   the comments.
-   Modify lines 19 and 24 in the same manner in the ndt-flash-config.xml file in the current
-   working directory as mentioned in the comments.
-   Call the mxmlc in the bin directory of the Flex SDK by passing the ndt-flash-config.xml
+   Call the mxmlc.exe in the bin directory of the Flex SDK by passing the ndt-flash-config.xml
    and src/Main.as files as arguments : 
    
-   {path-to-flex-sdk}\bin\mxmlc src\Main.as -o <Insert_Filename_Here>.swf -load-config+=ndt-flash-config.xml
+   {path-to-flex-sdk}\bin\mxmlc.exe src\Main.as -o <Insert_Filename_Here>.swf -load-config+=ndt-flash-config.xml
   
    Make sure to append ndt-flash-config.xml to -load-config instead of simply equating
    to ensure the default flex-config.xml file is also loaded as ndt uses crucial properties

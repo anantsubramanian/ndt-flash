@@ -15,12 +15,10 @@
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <!-- Modify path as suitable for your operating system.-->
       <path-element>src/</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <!-- Modify path as suitable for your operating system.-->
     <path-element>src/Main.as</path-element>
   </file-specs>
   <!-- Gives the green color to the background.-->

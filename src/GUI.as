@@ -36,18 +36,15 @@ package  {
     private var stageheight:int;
     private var parentObject:MainFrame;
     
-    // Windows users change '/' to '\' before compiling
     [Embed(source="../assets/mlab-logo.png")]
     private var mLabLogo:Class;
     private var Mlab_logo:DisplayObject;
     private var Mlab_url:String = "http://www.measurementlab.net";
     private var Url_request:URLRequest;
     private var Start_button:MovieClip;
-      // Windows users change '/' to '\' before compiling
       [Embed(source="../assets/Start_hover.png")]
       private var startHover:Class;
       private var Hover:DisplayObject;
-      // Windows users change '/' to '\' before compiling
       [Embed(source="../assets/Start_nohover.png")]
       private var startNoHover:Class;
       private var No_hover:DisplayObject;
