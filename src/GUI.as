@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package  {
-  
+package  {  
   import flash.display.Graphics;
   import flash.display.MovieClip;
   import flash.text.TextField;

@@ -3,3 +3,34 @@ NDT (Network Diagnostic Tool) is a client/server program that provides network
 configuration and performance testing to end-users' desktop, laptop, and mobile
 platforms.
 For more information about NDT, see https://code.google.com/p/ndt/.
+
+How to compile :
+1. Download the latest Flex SDK from http://www.adobe.com/devnet/flex/flex-sdk-download.html
+2. Change the current working directory to the location of this README file.
+3. Calling mxmlc from the command line :
+i. If on Linux or Mac:
+   Call the mxmlc in the bin directory of the Flex SDK by passing the Flex configuration 
+   file ndt-flash-config.xml and src/Main.as as arguments :
+
+   {path-to-flex-sdk}/bin/mxmlc src/Main.as -o <Insert_Filename_Here>.swf -load-config+=ndt-flash-config.xml
+
+   Make sure to append ndt-flash-config.xml to -load-config instead of simply equating
+   to ensure the default flex-config.xml file is also loaded as ndt uses crucial properties
+   from that file as well.
+   
+ii.If on Windows :
+   In the src/GUI.as file, change the file paths at lines 40, 47 and 51 as indicated by
+   the comments.
+   Modify lines 19 and 24 in the same manner in the ndt-flash-config.xml file in the current
+   working directory as mentioned in the comments.
+   Call the mxmlc in the bin directory of the Flex SDK by passing the ndt-flash-config.xml
+   and src/Main.as files as arguments : 
+   
+   {path-to-flex-sdk}\bin\mxmlc src\Main.as -o <Insert_Filename_Here>.swf -load-config+=ndt-flash-config.xml
+  
+   Make sure to append ndt-flash-config.xml to -load-config instead of simply equating
+   to ensure the default flex-config.xml file is also loaded as ndt uses crucial properties
+   from that file as well.
+   
+4. If there are no compilation errors, your compiled SWF should be created in the current
+   working directory.
