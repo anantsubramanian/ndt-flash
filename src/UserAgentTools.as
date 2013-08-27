@@ -26,24 +26,15 @@ package  {
    */
   public class UserAgentTools {
     private static function isLower(sParam:String):Boolean {
-      if (sParam == sParam.toLowerCase())
-        return true;
-      return false;
+      return (sParam == sParam.toLowerCase());
     }
     
     private static function isLetter(sParam:String):Boolean {
-      if (sParam == "A" || sParam == "z")
-        return true;
-      if (sParam > "A" && sParam < "z")
-        return true;
-      return false;
+      return (sParam >= "A" && sParam <= "z");
     }
     
     private static function isDigit(sParam:String):Boolean {
-      var num:Number = parseFloat(sParam);
-      if (isNaN(num))
-        return false;
-      return true;
+      return (sParam >= "0" && sParam <= "9");
     }
     
     public static function getFirstVersionNumber(a_userAgent:String,
@@ -62,6 +53,11 @@ package  {
       return res;
     }
     
+    /**
+     * Example UserAgent String:
+     * Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)
+     *  Chrome/29.0.1547.2 Safari/537.36
+     */
     public static function getVersionNumber(a_userAgent:String, 
                                             a_position:int):String {
       if(a_position < 0)

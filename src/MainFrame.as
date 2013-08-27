@@ -230,6 +230,10 @@ package  {
       if (guiEnabled) {
         gui.displayResults();
       }
+      trace("Console Output:\n" + TestResults.getConsoleOutput() + "\n");
+      trace("Statistics Output:\n" + TestResults.getStatsText() + "\n");
+      trace("Diagnosis Output:\n" + TestResults.getDiagnosisText() + "\n");
+      trace("Errors:\n" + TestResults.getErrMsg() + "\n");
     }
     
     /**

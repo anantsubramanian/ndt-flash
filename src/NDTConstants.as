@@ -18,7 +18,7 @@ package  {
    * constants are listed under appropriate "sections".
    */
   public class NDTConstants {
-    // Section : used in META test
+    // Section: used in META test
     public static const META_CLIENT_OS:String = "client.os.name";
     public static const META_BROWSER_OS:String = "client.browser.name";
     public static const META_CLIENT_KERNEL_VERSION:String = "client.kernel.version";
@@ -28,7 +28,15 @@ package  {
     // Version in code that needs compilation as changes to this
     // would generally be accompanied by changes in code that need
     // compilation
-    public static const VERSION:String = "4.0.0.0";
+    public static const VERSION:String = "1.0.0.0";
+    
+    // Section: Test type
+    public static const TEST_MID:int = (1 << 0);
+    public static const TEST_C2S:int = (1 << 1);
+    public static const TEST_S2C:int = (1 << 2);
+    public static const TEST_SFW:int = (1 << 3);
+    public static const TEST_STATUS:int = (1 << 4);
+    public static const TEST_META:int = (1 << 5);
     
     // NDT pre-fixed port ID
     public static const CONTROL_PORT_DEFAULT:int = 3001;
@@ -44,25 +52,9 @@ package  {
     public static const HOST_NAME:String = "utility.mlab.mlab1.nuq0t.measurement-lab.org";
     public static const CLIENT_ID:String = "swf";
     
-    // Section: Test type
-    public static const TEST_MID:int = (1 << 0);
-    public static const TEST_C2S:int = (1 << 1);
-    public static const TEST_S2C:int = (1 << 2);
-    public static const TEST_SFW:int = (1 << 3);
-    public static const TEST_STATUS:int = (1 << 4);
-    public static const TEST_META:int = (1 << 5);
-    
     public static const PREDEFINED_BUFFER_SIZE:int = 8192; // 8k buffer size
     
-    // constant to indicate protocol read success
-    public static const PROTOCOL_MSG_READ_SUCCESS:int = 0;
-    
-    // Section : Data units
-    public static const KILO:int = 1000;  // used in conversion from sec -> mS
-    public static const KILO_BITS:int = 1024; // used in kilobits->bits conv.
-    public static const EIGHT:Number = 8.0; // Used in octal number conv.
-    
-    // Section : Data rate indicator integers
+    // Section: Data rate indicator integers
     public static const DATA_RATE_INSUFFICIENT_DATA:int = -2;
     public static const DATA_RATE_SYSTEM_FAULT:int = -1;
     public static const DATA_RATE_RTT:int = 0;
@@ -75,8 +67,8 @@ package  {
     public static const DATA_RATE_GIGABIT_ETHERNET:int = 7;
     public static const DATA_RATE_OC_48:int = 8;
     public static const DATA_RATE_10G_ETHERNET:int = 9;
-    
-    // Section : Data rate indicator Strings
+        
+    // Section: Data rate indicator Strings
     public static const T1_STR:String = "T1";
     public static const T3_STR:String = "T3";
     public static const ETHERNET_STR:String = "Ethernet";
@@ -89,7 +81,22 @@ package  {
     public static const DIALUP_STR:String = "dialup2"; 
     public static const RTT_STR:String = "rtt";
     
-    // Section : Duplex mismatch conditions
+    // Section: RFC 1323 options
+    public static const RFC_1323_DISABLED:int = 0;
+    public static const RFC_1323_ENABLED:int = 1;
+    
+    // Section: Buffer limitation test threshholds
+    public static const BUFFER_LIMITED:Number = 0.15;
+    
+    // Section: TCP constants
+    public static const TCP_MAX_RECV_WIN_SIZE:int = 65535;
+    
+    // Section: Data units
+    public static const KILO:int = 1000;  // used in conversion from sec -> mS
+    public static const KILO_BITS:int = 1024; // used in kilobits->bits conv.
+    public static const EIGHT:Number = 8.0; // Used in octal number conv.
+    
+    // Section: Duplex mismatch conditions
     public static const DUPLEX_OK_INDICATOR:int = 0;
     public static const DUPLEX_NOK_INDICATOR:int = 1;
     public static const DUPLEX_SWITCH_FULL_HOST_HALF:int = 2;
@@ -98,27 +105,20 @@ package  {
     public static const DUPLEX_SWITCH_HALF_HOST_FULL_POSS:int = 5;
     public static const DUPLEX_SWITCH_HALF_HOST_FULL_WARN:int = 7;
     
-    // Section : Congestion status
-    public static const CONGESTION_NONE:int = 0;
-    public static const CONGESTION_FOUND:int = 1;
-    
-    // Section : Cable status indicators
+    // Section: Cable status indicators
     public static const CABLE_STATUS_OK:int = 0;
     public static const CABLE_STATUS_BAD:int = 1;
     
-    // Section : Miscellaneous
+    // Section: Congestion status
+    public static const CONGESTION_NONE:int = 0;
+    public static const CONGESTION_FOUND:int = 1;
+    
+    // Section: Miscellaneous
     public static const VIEW_DIFF:Number = 0.1;
     public static const PERCENTAGE:int = 100;
     
-    // Section : Buffer limitation test threshholds
-    public static const BUFFER_LIMITED:Number = 0.15;
-    
-    // Section : RFC 1323 options
-    public static const RFC_1323_DISABLED:int = 0;
-    public static const RFC_1323_ENABLED:int = 1;
-    
-    // Section : TCP constants
-    public static const TCP_MAX_RECV_WIN_SIZE:int = 65535;
+    // constant to indicate protocol read success
+    public static const PROTOCOL_MSG_READ_SUCCESS:int = 0;
   }
 }
 

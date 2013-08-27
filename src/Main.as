@@ -32,10 +32,9 @@ package {
       removeEventListener(Event.ADDED_TO_STAGE, init);
       // entry point
       stage.showDefaultContextMenu = false;
-      var hostname:String =  "utility.mlab.mlab1.nuq0t.measurement-lab.org";
       var Frame:MainFrame = new MainFrame(stage.stageWidth,
                                           stage.stageHeight,
-                                          hostname,
+                                          NDTConstants.HOST_NAME,
                                           true);
       Frame.x = Frame.y = 0;
       stage.addChild(Frame);

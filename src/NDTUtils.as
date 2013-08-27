@@ -18,9 +18,10 @@ package  {
    */
   public class NDTUtils {
     /**
-     * Utility method to print a double value upto the hundereth place. 
+     * Utility method to print a double value upto 2 digits after the decimal
+     * point. 
      * @param {Number} paramDblToFormat Double number to format
-     * @return {String} Value of double number upto hundereth place.
+     * @return {String} Formatted value of the number.
      */
     public static function prtdbl(paramDblToFormat:Number):String {
       var str:String = null;
@@ -70,44 +71,33 @@ package  {
      *  @return {String} Textual name for input parameter
      */
     public static function prttxt(paramIntVal:int):String {
-      var strNameTxt:String = null;
-  
       switch (paramIntVal) {
-      case (NDTConstants.DATA_RATE_SYSTEM_FAULT):
-        strNameTxt = DispMsgs.systemFault; 
-        break;
+      case NDTConstants.DATA_RATE_SYSTEM_FAULT:
+        return DispMsgs.systemFault;
       case NDTConstants.DATA_RATE_RTT:
-        strNameTxt = DispMsgs.rtt; 
-        break;
+        return DispMsgs.rtt;
       case NDTConstants.DATA_RATE_DIAL_UP:
-        strNameTxt = DispMsgs.dialup2;
-        break;
+        return DispMsgs.dialup2;
       case NDTConstants.DATA_RATE_T1:
-        strNameTxt = NDTConstants.T1_STR;
-        break;
+        return NDTConstants.T1_STR;
       case NDTConstants.DATA_RATE_ETHERNET:
-        strNameTxt = NDTConstants.ETHERNET_STR;
-        break;
+        return NDTConstants.ETHERNET_STR;
       case NDTConstants.DATA_RATE_T3:
-        strNameTxt = NDTConstants.T3_STR;
-        break;
+        return NDTConstants.T3_STR;
       case NDTConstants.DATA_RATE_FAST_ETHERNET:
-        strNameTxt = NDTConstants.FAST_ETHERNET; 
-        break;
+        return NDTConstants.FAST_ETHERNET; 
       case NDTConstants.DATA_RATE_OC_12:
-        strNameTxt = NDTConstants.OC_12_STR;
-        break;
+        return NDTConstants.OC_12_STR;
       case NDTConstants.DATA_RATE_GIGABIT_ETHERNET:
-        strNameTxt = NDTConstants.GIGABIT_ETHERNET_STR; 
-        break;
+        return NDTConstants.GIGABIT_ETHERNET_STR; 
       case NDTConstants.DATA_RATE_OC_48:
-        strNameTxt = NDTConstants.OC_48_STR;
-        break;
+        return NDTConstants.OC_48_STR;
       case NDTConstants.DATA_RATE_10G_ETHERNET:
-        strNameTxt = NDTConstants.TENGIGABIT_ETHERNET_STR; 
-        break;
+        return NDTConstants.TENGIGABIT_ETHERNET_STR; 
+      default:
+        TestResults.appendErrMsg("No matching value for Data Speed.");
       } // end switch
-      return (strNameTxt);
+      return null;
     } // prttxt() method ends
   }
 }
