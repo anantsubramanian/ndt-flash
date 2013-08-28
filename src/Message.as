@@ -24,8 +24,8 @@ package  {
    */
   public class Message {
     // variables declaration section
-    var _yType:int;
-    var _yaBody:ByteArray;
+    private var _yType:int;
+    public var _yaBody:ByteArray;
     
     /**
      * Function to get the Message Type

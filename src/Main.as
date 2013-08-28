@@ -21,6 +21,9 @@ package {
    * @author Anant Subramanian
    */
   public class Main extends Sprite {
+    
+    public static var guiEnabled:Boolean = true;
+    
     public function Main():void {
       if (stage) 
         init();
@@ -31,11 +34,15 @@ package {
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
       // entry point
+      CONFIG::runCmdLine {
+        // if noGui set to true while compiling skip GUI and start tests
+        guiEnabled = false;
+      }
       stage.showDefaultContextMenu = false;
       var Frame:MainFrame = new MainFrame(stage.stageWidth,
                                           stage.stageHeight,
                                           NDTConstants.HOST_NAME,
-                                          true);
+                                          guiEnabled);
       Frame.x = Frame.y = 0;
       stage.addChild(Frame);
     }

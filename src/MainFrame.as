@@ -26,6 +26,7 @@ package  {
   import flash.utils.Timer;
   import flash.events.TimerEvent;
   import flash.errors.IOError;
+  import flash.system.Capabilities;
   
   /**
    * Class responsible for establishing the socket
@@ -247,15 +248,19 @@ package  {
      */
     public function MainFrame(stageW:int,stageH:int,
                               hostname:String, guiEnbld:Boolean) {
+      // variables initialization
       guiEnabled = guiEnbld;
+      sHostName = NDTConstants.HOST_NAME;
+      clientId = NDTConstants.CLIENT_ID;
+      pub_host = "unknown";
       if (guiEnabled) {
         gui = new GUI(stageW, stageH, this);
         this.addChild(gui);
       }
-      // variables initialization
-      sHostName = NDTConstants.HOST_NAME;
-      clientId = NDTConstants.CLIENT_ID;
-      pub_host = "unknown";
+      CONFIG::runCmdLine {
+        // If noGui compiler flag set to true, don't wait for JS
+        dottcp();
+      }
     }
   }
 }

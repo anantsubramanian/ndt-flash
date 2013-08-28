@@ -53,11 +53,11 @@ package  {
       return res;
     }
     
-    /**
-     * Example UserAgent String:
-     * Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)
-     *  Chrome/29.0.1547.2 Safari/537.36
-     */
+    /*
+      Example UserAgent String:
+      Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)
+       Chrome/29.0.1547.2 Safari/537.36
+    */
     public static function getVersionNumber(a_userAgent:String, 
                                             a_position:int):String {
       if(a_position < 0)
@@ -148,8 +148,8 @@ package  {
           var ver2:String = getVersionNumber(userAgent, pos + 11);
           res = ["Opera", "Opera Mini", "Opera Mini " + ver2];
         } else if ((pos = userAgent.indexOf("Opera Mobi/")) > -1) {
-          var ver2:String = getVersionNumber(userAgent, pos + 11);
-          res = ["Opera", "Opera Mobi", "Opera Mobi " + ver2];
+          var vers2:String = getVersionNumber(userAgent, pos + 11);
+          res = ["Opera", "Opera Mobi", "Opera Mobi " + vers2];
         }
       } else if (userAgent.indexOf("MSIE") > -1) {
         if ((pos = userAgent.indexOf("MSIE 6.0")) > -1) {

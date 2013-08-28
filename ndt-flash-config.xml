@@ -13,6 +13,10 @@
       <name>CONFIG::release</name>
       <value>true</value>
     </define>
+    <define append="true">
+      <name>CONFIG::runCmdLine</name>
+      <value>false</value>
+    </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
       <path-element>src/</path-element>

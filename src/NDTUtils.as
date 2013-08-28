@@ -22,6 +22,7 @@ package  {
      * point. 
      * @param {Number} paramDblToFormat Double number to format
      * @return {String} Formatted value of the number.
+     * Examples: 15.2445-->15.24  34.4-->34.4  45-->45
      */
     public static function prtdbl(paramDblToFormat:Number):String {
       var str:String = null;
@@ -34,7 +35,7 @@ package  {
       str = paramDblToFormat.toString();
       i = str.indexOf(".");
       if (i == -1)
-        return (new String(str + ".0"));
+        return str;
       
       i += 3;
       if (i > str.length) {
