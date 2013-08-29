@@ -59,11 +59,11 @@ package  {
       while (sParam.charAt(i) == " ") {
         i++;
       }    
-      var j:int = sParam.length;
+      var j:int = sParam.length - 1;
       while (sParam.charAt(j) == " ") {
         j--;
       }
-      return sParam.substring(i, j);
+      return sParam.substring(i, j+1);
     }
     
     /**
