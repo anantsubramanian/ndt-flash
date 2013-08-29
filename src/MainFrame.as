@@ -26,8 +26,7 @@ package  {
   import flash.utils.Timer;
   import flash.events.TimerEvent;
   import flash.errors.IOError;
-  import flash.system.Capabilities;
-  
+    
   /**
    * Class responsible for establishing the socket
    * connection and initiating communications with the
@@ -35,13 +34,12 @@ package  {
    * Calls functions to perform the required tests
    * and to interpret the results.
    */
-  public class MainFrame extends Sprite{    
+  public class MainFrame extends Sprite{
     // variables declaration section
     private var gui:GUI;
     private static var sHostName:String = null;
     private static var clientId:String = null;
     private var pub_host:String;
-    public static var guiEnabled:Boolean = false;
     private var ctlSocket:Socket = null;
     private var protocolObj:Protocol;
     private var msg:Message;
@@ -107,17 +105,20 @@ package  {
      * Function that creates the Control Socket object
      * used to communicate with the server.
      */
-    public function dottcp():void {      
+    public function dottcp():void {
       pub_host = sHostName;
       // default control port used for the NDT tests session. NDT server
       // listens to this port
       var ctlport:int = NDTConstants.CONTROL_PORT_DEFAULT;
             
       TestResults.set_bFailed(false);  // test result status is false initially
-      TestResults.appendConsoleOutput(DispMsgs.connectingTo + " " + 
-                                      sHostName + " " + DispMsgs.toRunTest
-                                      + "\n");
-      
+      TestResults.appendConsoleOutput(
+        NDTConstants.RMANAGER.getString(
+          NDTConstants.BUNDLE_NAME, "connectingTo", null, Main.locale)
+        + " " + sHostName + " " + 
+        NDTConstants.RMANAGER.getString(
+          NDTConstants.BUNDLE_NAME, "toRunTest", null, Main.locale)
+        + "\n");
       ctlSocket = new Socket();
       addEventListeners();
       removeResponseListener(); // So it does not interfere with other tests
@@ -193,9 +194,11 @@ package  {
      private function getRemResults():void {
       while (ctlSocket.bytesAvailable > 0) {
         if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-          TestResults.appendErrMsg(DispMsgs.protocolError + 
-                                   parseInt(new String(msg.getBody()), 16)
-                                   + " instead\n");
+          TestResults.appendErrMsg(
+            NDTConstants.RMANAGER.getString(
+              NDTConstants.BUNDLE_NAME, "protocolError", null,Main.locale) 
+            + parseInt(new String(msg.getBody()), 16)
+            + " instead\n");
           TestResults.set_bFailed(true);
           return;
         }
@@ -207,7 +210,10 @@ package  {
         }
         // get results in the form of a human-readable string
         if (msg.getType() != MessageType.MSG_RESULTS) {
-          TestResults.appendErrMsg(DispMsgs.resultsWrongMessage + "\n");
+          TestResults.appendErrMsg(
+            NDTConstants.RMANAGER.getString(
+              NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
+            + "\n");
           TestResults.set_bFailed(true);
           return;
         }
@@ -228,7 +234,7 @@ package  {
       // temporarily set to view results using GUI
       if (_sTestResults != null)
         var interpRes:TestResults = new TestResults(_sTestResults, _yTests);
-      if (guiEnabled) {
+      if (Main.guiEnabled) {
         gui.displayResults();
       }
       trace("Console Output:\n" + TestResults.getConsoleOutput() + "\n");
@@ -247,9 +253,8 @@ package  {
      *    a Flash GUI (true=yes, false=no).
      */
     public function MainFrame(stageW:int,stageH:int,
-                              hostname:String, guiEnbld:Boolean) {
+                              hostname:String, guiEnabled:Boolean) {
       // variables initialization
-      guiEnabled = guiEnbld;
       sHostName = NDTConstants.HOST_NAME;
       clientId = NDTConstants.CLIENT_ID;
       pub_host = "unknown";
@@ -257,8 +262,8 @@ package  {
         gui = new GUI(stageW, stageH, this);
         this.addChild(gui);
       }
-      CONFIG::runCmdLine {
-        // If noGui compiler flag set to true, don't wait for JS
+      if (!guiEnabled) {
+        // If guiEnabled compiler flag set to false start tests immediately
         dottcp();
       }
     }

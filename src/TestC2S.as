@@ -90,8 +90,14 @@ package  {
      */
     private function onComplete():void {
       if (!c2sTest) {
-        TestResults.appendConsoleOutput(DispMsgs.c2sThroughputFailed + "\n");
-        TestResults.appendStatsText(DispMsgs.c2sThroughputFailed + "\n");
+        TestResults.appendConsoleOutput(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                          "c2sThroughputFailed",
+                                          null, Main.locale) + "\n");
+        TestResults.appendStatsText(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                          "c2sThroughputFailed",
+                                          null, Main.locale) + "\n");
       }
       if (!isNaN(_dC2sspd))
         TestResults.set_C2sspd(_dC2sspd);
@@ -211,16 +217,26 @@ package  {
      * to connect to the port specified by the server.
      */
     private function testPrepare():void {
-      TestResults.appendConsoleOutput(DispMsgs.runningOutboundTest + " " + "\n");
-      TestResults.appendStatsText(DispMsgs.runningOutboundTest + " ");
-      TestResults.appendEmailText(DispMsgs.runningOutboundTest + " ");
+      TestResults.appendConsoleOutput(
+        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                        "runningOutboundTest",
+                                        null, Main.locale) + " " + "\n");
+      TestResults.appendStatsText(
+        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                        "runningOutboundTest",
+                                        null, Main.locale) + " " + "\n");
+      TestResults.appendEmailText(
+        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                        "runningOutboundTest",
+                                        null, Main.locale) + " " + "\n");
       TestResults.set_pub_status("runningOutboundTest");
       
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
-        TestResults.appendErrMsg(DispMsgs.protocolError
-                                 + parseInt(new String(msg.getBody()), 16)
-                                 + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "protocolError", null, Main.locale)
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
@@ -229,7 +245,10 @@ package  {
       // containing the socket to connect to
       if (msg.getType() != MessageType.TEST_PREPARE) {
         // 'wrong' message type
-        TestResults.appendErrMsg(DispMsgs.outboundWrongMessage + "\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "outboundWrongMessage", 
+                                          null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: " 
                                    + parseInt(new String(msg.getBody()), 16)
@@ -277,9 +296,10 @@ package  {
       // read signal from server application
       // This signal tells the client to start pumping out data
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        TestResults.appendErrMsg(DispMsgs.protocolError
-                                 + parseInt(new String(msg.getBody()), 16)
-                                 + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "protocolError", null, Main.locale)
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
@@ -287,7 +307,10 @@ package  {
       // Expecting a TEST_START message from the server now.
       // Any other message is an error
       if (msg.getType() != MessageType.TEST_START) {
-        TestResults.appendErrMsg(DispMsgs.outboundWrongMessage + "\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "outboundWrongMessage",
+                                          null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg ("ERROR MSG: " 
                                     + parseInt(new String(msg.getBody()), 16)
@@ -359,16 +382,20 @@ package  {
       // expected to send a TEST_MSG message with the throughput it
       // calculated at its end.
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        TestResults.appendErrMsg(DispMsgs.protocolError
-                                 + parseInt(new String(msg.getBody()), 16)
-                                 + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "protocolError", null, Main.locale)
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
       }
       if (msg.getType() != MessageType.TEST_MSG) {
         // 'wrong' type received
-        TestResults.appendErrMsg(DispMsgs.outboundWrongMessage);
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "outboundWrongMessage",
+                                          null, Main.locale) + "\n");
         if(msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.getBody()), 16) 
@@ -398,12 +425,12 @@ package  {
     private function finalizeTest():void {
       // Print results in the most convinient units
       if (_dSc2sspd < 1.0) {
-        TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO)
-                                        + "kb/s\n");
-        TestResults.appendStatsText(NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) 
-                                    + "kb/s\n");
-        TestResults.appendEmailText(NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) 
-                                    + "kb/s\n%0A");
+        TestResults.appendConsoleOutput(
+          NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n");
+        TestResults.appendStatsText(
+          NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n");
+        TestResults.appendEmailText(
+          NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n%0A");
       } else {
         TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n");
         TestResults.appendStatsText(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n");
@@ -412,16 +439,20 @@ package  {
       
       // Server should close session with a TEST_FINALIZE message
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        TestResults.appendErrMsg(DispMsgs.protocolError 
-                                 + parseInt(new String(msg.getBody()), 16)
-                                 + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "protocolError", null, Main.locale) 
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
       }
       if (msg.getType() != MessageType.TEST_FINALIZE) {
         // 'wrong' message type
-        TestResults.appendErrMsg(DispMsgs.outboundWrongMessage);
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "outboundWrongMessage",
+                                          null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.getBody()), 16)

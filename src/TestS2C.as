@@ -106,8 +106,14 @@ package  {
      */
     public function onComplete():void {
       if (!s2cTest) {
-        TestResults.appendConsoleOutput(DispMsgs.s2cThroughputFailed + "\n");
-        TestResults.appendStatsText(DispMsgs.s2cThroughputFailed + "\n");
+        TestResults.appendConsoleOutput(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "s2cThroughputFailed",
+                                          null, Main.locale) + "\n");
+        TestResults.appendStatsText(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "s2cThroughputFailed",
+                                          null, Main.locale) + "\n");
       }      
       if (!isNaN(_dS2cspd))
         TestResults.set_S2cspd(_dS2cspd);
@@ -263,22 +269,32 @@ package  {
       msg = new Message();
       
       // start s2c tests
-      TestResults.appendConsoleOutput(DispMsgs.runningInboundTest + "\n");
-      TestResults.appendStatsText(DispMsgs.runningInboundTest);
+      TestResults.appendConsoleOutput(
+        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                        "runningInboundTest",
+                                        null, Main.locale) + "\n");
+      TestResults.appendStatsText(
+        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                        "runningInboundTest",
+                                        null, Main.locale) + "\n");
       TestResults.set_pub_status("runningInboundTest");
       // server sends TEST_PREPARE message with the port to bind
       // to as the message body
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        TestResults.appendErrMsg(DispMsgs.protocolError
-                                 + parseInt(new String(msg.getBody()), 16)
-                                 + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "protocolError", null, Main.locale)
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         s2cTest = false;
         onComplete();
         return;
       }
       if (msg.getType() != MessageType.TEST_PREPARE) {
         // no other message type expected at this point
-        TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "inboundWrongMessage",
+                                          null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MESSAGE : "
                                    + parseInt(new String(msg.getBody()), 16)
@@ -311,16 +327,19 @@ package  {
       
       // server now sends a TEST_START message
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        TestResults.appendErrMsg(DispMsgs.unknownServer
-                                + parseInt(new String(msg.getBody()), 16)
-                                + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "unknownServer", null, Main.locale)
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         s2cTest = false;
         onComplete();
         return;
       }      
       if (msg.getType() != MessageType.TEST_START) {
         // no other message type expected at this point
-        TestResults.appendErrMsg(DispMsgs.serverFail + "\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "serverFail", null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
                                    + parseInt(new String(msg.getBody()), 16) 
@@ -403,9 +422,10 @@ package  {
       //receive s2cspd from the server
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
-        TestResults.appendErrMsg(DispMsgs.protocolError
-                                 + parseInt(new String(msg.getBody()), 16)
-                                 + " instead\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                          "protocolError", null, Main.locale)
+          + parseInt(new String(msg.getBody()), 16) + " instead\n");
         s2cTest = false;
         onComplete();
         return;
@@ -413,7 +433,10 @@ package  {
       
       // Only message of type TEST_MSG expected from the server at this point
       if (msg.getType() != MessageType.TEST_MSG) {
-        TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "inboundWrongMessage",
+                                           null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
                                    + parseInt(new String(msg.getBody()), 16) 
@@ -430,8 +453,12 @@ package  {
       _dSs2cspd = parseFloat(tmpstr.substr(0, k1)) / NDTConstants.KILO;
       _iSsndqueue = parseInt((tmpstr.substr(k1+1)).substr(0, k2));
       _dSbytes = parseFloat((tmpstr.substr(k1+1)).substr(k2+1));
+      
       if (isNaN(_dSs2cspd) || isNaN(_iSsndqueue) || isNaN(_dSbytes)) {
-        TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
+        TestResults.appendErrMsg(
+          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                          "inboundWrongMessage",
+                                          null, Main.locale) + "\n");
         s2cTest = false;
         onComplete();
         return;
@@ -483,9 +510,10 @@ package  {
       while (ctlSocket.bytesAvailable > 0) {
         if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           // message not read / received correctly
-          TestResults.appendErrMsg(DispMsgs.protocolError
-                                   + parseInt(new String(msg.getBody()), 16)
-                                   + " instead\n");
+          TestResults.appendErrMsg(
+            NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                            "protocolError", null, Main.locale)
+            + parseInt(new String(msg.getBody()), 16) + " instead\n");
           s2cTest = false;
           onComplete();
           return;
@@ -502,7 +530,10 @@ package  {
         // Only a message of TEST_MSG type containing the web100 variables
         // is expected. Every other message is "incorrect"
         if (msg.getType() != MessageType.TEST_MSG) {
-          TestResults.appendErrMsg(DispMsgs.inboundWrongMessage + "\n");
+          TestResults.appendErrMsg(
+            NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+                                            "inboundWrongMessage",
+                                            null, Main.locale) + "\n");
           if (msg.getType() == MessageType.MSG_ERROR) {
             TestResults.appendErrMsg("ERROR MSG : "
                                      + parseInt(new String(msg.getBody()), 16) 

@@ -74,11 +74,14 @@ package  {
     public static function prttxt(paramIntVal:int):String {
       switch (paramIntVal) {
       case NDTConstants.DATA_RATE_SYSTEM_FAULT:
-        return DispMsgs.systemFault;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "systemFault", null, Main.locale);
       case NDTConstants.DATA_RATE_RTT:
-        return DispMsgs.rtt;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "rtt", null, Main.locale);
       case NDTConstants.DATA_RATE_DIAL_UP:
-        return DispMsgs.dialup2;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "dialup2", null, Main.locale);
       case NDTConstants.DATA_RATE_T1:
         return NDTConstants.T1_STR;
       case NDTConstants.DATA_RATE_ETHERNET:

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 package  {
+  import mx.resources.ResourceManager;
+  import mx.resources.IResourceManager;
   /**
    * Class that holds constants used by ndt. The different categories of 
    * constants are listed under appropriate "sections".
@@ -112,6 +114,10 @@ package  {
     // Section: Congestion status
     public static const CONGESTION_NONE:int = 0;
     public static const CONGESTION_FOUND:int = 1;
+    
+    // Section: Localization required constants
+    public static const RMANAGER:IResourceManager = ResourceManager.getInstance();
+    public static const BUNDLE_NAME:String = "DisplayMessages";
     
     // Section: Miscellaneous
     public static const VIEW_DIFF:Number = 0.1;
