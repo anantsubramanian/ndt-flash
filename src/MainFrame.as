@@ -252,17 +252,16 @@ package  {
      * @param {Boolean} guiEnbld A boolean representing necessity of
      *    a Flash GUI (true=yes, false=no).
      */
-    public function MainFrame(stageW:int,stageH:int,
-                              hostname:String, guiEnabled:Boolean) {
+    public function MainFrame(stageW:int,stageH:int, hostname:String) {
       // variables initialization
       sHostName = NDTConstants.HOST_NAME;
       clientId = NDTConstants.CLIENT_ID;
       pub_host = "unknown";
-      if (guiEnabled) {
+      if (Main.guiEnabled) {
         gui = new GUI(stageW, stageH, this);
         this.addChild(gui);
       }
-      if (!guiEnabled) {
+      if (!Main.guiEnabled) {
         // If guiEnabled compiler flag set to false start tests immediately
         dottcp();
       }

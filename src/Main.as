@@ -26,7 +26,7 @@ package {
   public class Main extends Sprite {
     
     public static var guiEnabled:Boolean = true;
-    public static var locale:String = "en_US";
+    public static var locale:String = CONFIG::defaultLocale;
     
     public function Main():void {
       if (stage) 
@@ -55,8 +55,7 @@ package {
       
       var Frame:MainFrame = new MainFrame(stage.stageWidth,
                                           stage.stageHeight,
-                                          NDTConstants.HOST_NAME,
-                                          guiEnabled);
+                                          NDTConstants.HOST_NAME);
       Frame.x = Frame.y = 0;
       stage.addChild(Frame);
     }
@@ -77,7 +76,7 @@ package {
         trace("Using locale " + locale);
       } else {
         trace("Error: ResourceBundle for provided locale not found.");
-        trace("Using default 'en_US'\n");
+        trace("Using default " + CONFIG::defaultLocale);
       }
     }
   }

@@ -70,19 +70,6 @@ package  {
     public static const DATA_RATE_OC_48:int = 8;
     public static const DATA_RATE_10G_ETHERNET:int = 9;
         
-    // Section: Data rate indicator Strings
-    public static const T1_STR:String = "T1";
-    public static const T3_STR:String = "T3";
-    public static const ETHERNET_STR:String = "Ethernet";
-    public static const FAST_ETHERNET:String = "FastE";
-    public static const OC_12_STR:String = "OC-12";
-    public static const GIGABIT_ETHERNET_STR:String = "GigE";
-    public static const OC_48_STR:String = "OC-48";
-    public static const TENGIGABIT_ETHERNET_STR:String = "10 Gig";
-    public static const SYSTEM_FAULT_STR:String = "systemFault";
-    public static const DIALUP_STR:String = "dialup2"; 
-    public static const RTT_STR:String = "rtt";
-    
     // Section: RFC 1323 options
     public static const RFC_1323_DISABLED:int = 0;
     public static const RFC_1323_ENABLED:int = 1;

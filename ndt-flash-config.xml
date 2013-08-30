@@ -18,6 +18,11 @@
       <name>CONFIG::guiEnabled</name>
       <value>true</value>
     </define>
+    <!-- The default/fall-back value for the locale if .properties file for another locale is not found -->
+    <define append="true">
+      <name>CONFIG::defaultLocale</name>
+      <value>"en_US"</value>
+    </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <!-- The locales to compile into the application-->
     <locale>

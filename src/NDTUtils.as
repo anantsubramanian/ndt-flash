@@ -83,21 +83,31 @@ package  {
         return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
                                                "dialup2", null, Main.locale);
       case NDTConstants.DATA_RATE_T1:
-        return NDTConstants.T1_STR;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "t1Str", null, Main.locale);
       case NDTConstants.DATA_RATE_ETHERNET:
-        return NDTConstants.ETHERNET_STR;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "ethernetStr", null, Main.locale);
       case NDTConstants.DATA_RATE_T3:
-        return NDTConstants.T3_STR;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "t3Str", null, Main.locale);
       case NDTConstants.DATA_RATE_FAST_ETHERNET:
-        return NDTConstants.FAST_ETHERNET; 
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "fastEthernet", null, Main.locale);
       case NDTConstants.DATA_RATE_OC_12:
-        return NDTConstants.OC_12_STR;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "oc12Str", null, Main.locale);
       case NDTConstants.DATA_RATE_GIGABIT_ETHERNET:
-        return NDTConstants.GIGABIT_ETHERNET_STR; 
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "gigabitEthernetStr", 
+                                               null, Main.locale); 
       case NDTConstants.DATA_RATE_OC_48:
-        return NDTConstants.OC_48_STR;
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "oc48Str", null, Main.locale);
       case NDTConstants.DATA_RATE_10G_ETHERNET:
-        return NDTConstants.TENGIGABIT_ETHERNET_STR; 
+        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+                                               "tengigabitEthernetStr", 
+                                               null, Main.locale); 
       default:
         TestResults.appendErrMsg("No matching value for Data Speed.");
       } // end switch
