@@ -7,21 +7,45 @@ package {
    public class TestNDTUtils extends Sprite{
      public function TestNDTUtils() {
        trace("Testing method prtdbl:");
-       trace("prtdbl(2365.43341) = " + NDTUtils.prtdbl(2365.43341));
-       trace("prtdbl(10.003) = " + NDTUtils.prtdbl(10.003));
-       trace("prtdbl(6543.1) = " + NDTUtils.prtdbl(6543.1));
-       trace("prtdbl(0) = " + NDTUtils.prtdbl(0));
-       trace("prtdbl(12.0) = " + NDTUtils.prtdbl(12.0));
-       trace("Finished testing method prtdbl.");
+       if (testprtdbl())
+         trace("Method prtdbl passed tests");
+       else
+         trace("Method prtdbl : test failed !");
        trace("Testing method trim: ");
-       trace('trim("   Anant") = "' + NDTUtils.trim("   Anant") + '"');
-       trace('trim("A    ") = "' + NDTUtils.trim("A    ") + '"');
-       trace('trim("   Anant    ") = "' + NDTUtils.trim("   Anant    ") + '"');
-       trace('trim("") = "' + NDTUtils.trim("") + '"');
-       trace('trim(" A n a n t  ") = "' + NDTUtils.trim(" A n a n t  ") + '"');
-       trace('trim(" A   na n  t  ") = "' + NDTUtils.trim(" A   na n  t  ") + '"');
-       trace('trim("     a       b   ") = "' + NDTUtils.trim("     a       b   ") + '"');
-       trace("Finished testing method trim.");
+       if (testtrim())
+         trace("Method trim passed tests");
+       else
+         trace("Method prtdbl : test failed !");
+     }
+     
+     private function testprtdbl():Boolean {
+       if (NDTUtils.prtdbl(2365.43341) != "2365.43")
+         return false;
+       if (NDTUtils.prtdbl(10.003) != "10.00")
+         return false;
+       if (NDTUtils.prtdbl(6543.1) != "6543.1")
+         return false;
+       if (NDTUtils.prtdbl(0) != "0")
+         return false;
+       if (NDTUtils.prtdbl(12.0) != "12")
+         return false;
+      return true;
+     }
+     
+     private function testtrim():Boolean {
+       if (NDTUtils.trim("   Anant") != "Anant")
+         return false;
+       if (NDTUtils.trim("A    ") != "A")
+         return false;
+       if (NDTUtils.trim("   Anant    ") != "Anant")
+         return false;
+       if (NDTUtils.trim("") != "")
+         return false;
+       if (NDTUtils.trim(" A n a n t  ") != "A n a n t")
+         return false;
+       if (NDTUtils.trim("     a       b   ") != "a       b")
+         return false;
+      return true;
      }
    }
 }
