@@ -272,11 +272,11 @@ package  {
       TestResults.appendConsoleOutput(
         NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
                                         "runningInboundTest",
-                                        null, Main.locale) + "\n");
+                                        null, Main.locale));
       TestResults.appendStatsText(
         NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
                                         "runningInboundTest",
-                                        null, Main.locale) + "\n");
+                                        null, Main.locale));
       TestResults.set_pub_status("runningInboundTest");
       // server sends TEST_PREPARE message with the port to bind
       // to as the message body

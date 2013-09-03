@@ -47,12 +47,12 @@
     <path-element>src/Main.as</path-element>
   </file-specs>
   <!-- Gives the green color to the background.-->
-  <default-background-color>#00DBA8</default-background-color>
+  <default-background-color>#62d992</default-background-color>
   <!-- Set frame rate to maximum possible value '120' to increase Timer Accuracy.-->
   <default-frame-rate>120</default-frame-rate>
-  <!-- Set stage size of client. Since the client uses a relative layout this value can be safely changed.-->
+  <!-- Set stage size of client. -->
   <default-size>
-    <width>600</width>
+    <width>640</width>
     <height>480</height>
   </default-size>
 </flex-config>
