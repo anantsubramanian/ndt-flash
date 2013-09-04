@@ -25,7 +25,7 @@ package {
   [ResourceBundle("DisplayMessages")]
   public class Main extends Sprite {
     
-    public static var guiEnabled:Boolean = true;
+    public static var guiEnabled:Boolean = false;
     public static var locale:String = CONFIG::defaultLocale;
     
     public function Main():void {
