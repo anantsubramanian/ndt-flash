@@ -3,9 +3,6 @@ if [ -z $5 ]; then
   exit 0
 fi
 MMCFG_FILE="~/mm.cfg"
-if [ -e ~/mm.cfg ]; then
-  echo "Yes"
-fi 
 if [ ! -e $MMCFG_FILE ]; then
   echo "ErrorReportingEnable=1\nTraceOutputFileEnable=1" > $MMCFG_FILE
 fi
