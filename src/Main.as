@@ -23,7 +23,11 @@ package {
   [ResourceBundle("DisplayMessages")]
   public class Main extends Sprite {
     
+<<<<<<< HEAD
     public static var guiEnabled:Boolean = CONFIG::guiEnabled;
+=======
+    public static var guiEnabled:Boolean = false;
+>>>>>>> Adding bash testing script
     public static var locale:String = CONFIG::defaultLocale;
     public static var gui:GUI;
     
