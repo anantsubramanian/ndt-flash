@@ -16,18 +16,18 @@ APPLET_RESULTS=appletresults.txt
 FLASH_RESULTS=flashresults.txt
 for (( i=1; i<=$testnum; i++ ))
 do
-  echo "Start Java test $testnum (time $(date -u))" >> APPLET_RESULTS
-  java -jar $applet $hostname >> APPLET_RESULTS &
+  echo "Start Java test $i (time $(date -u))" >> $APPLET_RESULTS
+  java -jar $applet $hostname >> $APPLET_RESULTS &
   javapid=$!
   sleep 90
   kill $javapid
-  echo "Start Flash test $testnum (time $(date -u))" >> FLASH_RESULTS
+  echo "Start Flash test $i (time $(date -u))" >> $FLASH_RESULTS
   cd $flashplayer
   ./flashplayerdebugger $curdir/$swf &
   flashpid=$!
   sleep 90
   kill $flashpid
   cd $curdir
-  cat ~/.macromedia/Flash_Player/Logs/flashlog.txt >> FLASH_RESULTS
+  cat ~/.macromedia/Flash_Player/Logs/flashlog.txt >> $FLASH_RESULTS
 done
 echo "Completed"
