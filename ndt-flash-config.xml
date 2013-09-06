@@ -16,18 +16,23 @@
     <!-- The flag indicating that tests should not be run through the command line without a GUI -->
     <define append="true">
       <name>CONFIG::guiEnabled</name>
-      <value>true</value>
+      <value>false</value>
     </define>
     <!-- The default/fall-back value for the locale if .properties file for another locale is not found -->
     <define append="true">
       <name>CONFIG::defaultLocale</name>
       <value>"en_US"</value>
     </define>
+<<<<<<< HEAD
     <!-- The current NDT client version -->
     <define append="true">
       <name>CONFIG::ndtVersion</name>
       <value>"1.0.0.0"</value>
     </define>
+=======
+    <!-- Enable debugging and trace messages output -->
+    <debug>true</debug>
+>>>>>>> Changes to automatically compile a debug version
     <verbose-stacktraces>true</verbose-stacktraces>
     <!-- The locales to compile into the application-->
     <locale>
