@@ -42,21 +42,16 @@ package  {
     private var Mlab_logo:DisplayObject;
     private var Mlab_url:String = "http://www.measurementlab.net";
     private var Url_request:URLRequest;
+    [Embed(source="../assets/hover.png")]
+    private var hover:Class;
+    [Embed(source="../assets/noHover.png")]
+    private var noHover:Class;
     private var Start_button:MovieClip;
-      [Embed(source="../assets/Start_hover.png")]
-      private var startHover:Class;
-      private var Hover:DisplayObject;
-      [Embed(source="../assets/Start_nohover.png")]
-      private var startNoHover:Class;
-      private var No_hover:DisplayObject;
-    
+      private var hoverButton:DisplayObject;
+      private var noHoverButton:DisplayObject;
     private var Learn_text_container:Sprite;
-      [Embed(source="../assets/Learn_nohover.png")]
-      private var learnNoHover:Class;
-      private var Learn_noHover:DisplayObject;
-      [Embed(source="../assets/Learn_hover.png")]
-      private var learnHover:Class;
-      private var Learn_Hover:DisplayObject;
+    private var Learn_more_text:TextField;
+    private var Learn_more_format:TextFormat;
     private var About_text_format:TextFormat;   
     private var About_ndt_text:TextField;
     private static var consoleText:TextField;
@@ -65,24 +60,12 @@ package  {
     private var resultsField:TextField;
     private var resultsTextFormat:TextFormat;
     private var resultsRect:MovieClip;
-    [Embed(source="../assets/Result_button.png")]
-    private var resultButton:Class;
-    private var buttonDisplayObject:DisplayObject;
-    [Embed(source="../assets/Result_overbutton.png")]
-    private var overResultButton:Class;
-    private var overButtonObject:DisplayObject;
     private var statsButton:MovieClip;
     private var mainResult:MovieClip;
     private var errorsButton:MovieClip;
     private var diagnosticsButton:MovieClip;
-    [Embed(source="../assets/Scroll_up.png")]
-    private var ScrollUp:Class;
-    private var scrollUpObject:DisplayObject;
-    private var scrollUp:MovieClip;
-    [Embed(source="../assets/Scroll_down.png")]
-    private var ScrollDown:Class;
-    private var scrollDownObject:DisplayObject;
-    private var scrollDown:MovieClip;
+    private var scrollBar:Sprite;
+    private var scrollBlock:Sprite;
     private var blur:BlurFilter;
     
     // Tween variables
@@ -90,19 +73,11 @@ package  {
     
     // event listener functions
     private function rollOverLearn(e:MouseEvent):void {
-      if(Learn_text_container.getChildAt(0))
-      {
-        Learn_text_container.removeChildAt(0);
-      }
-      Learn_text_container.addChild(Learn_Hover);
+      Learn_text_container.alpha = 0.40;
     }
     
     private function rollOutLearn(e:MouseEvent):void {
-      if(Learn_text_container.getChildAt(0))
-      {
-        Learn_text_container.removeChildAt(0);
-      }
-      Learn_text_container.addChild(Learn_noHover);
+      Learn_text_container.alpha = 1.0;
     }
     
     private function clickLearnText(e:MouseEvent):void {
@@ -114,17 +89,17 @@ package  {
     }
     
     private function rollOverStart(e:MouseEvent):void {
-      if (Start_button.getChildAt(0)) {
+      if (!(Start_button.getChildAt(0) is TextField)) {
          Start_button.removeChildAt(0);
       }
-      Start_button.addChild(Hover);   
+      Start_button.addChildAt(hoverButton, 0);   
     }
     
     private function rollOutStart(e:MouseEvent):void {
-      if (Start_button.getChildAt(0)) {
+      if (!(Start_button.getChildAt(0) is TextField)) {
          Start_button.removeChildAt(0);
       }
-      Start_button.addChild(No_hover);
+      Start_button.addChildAt(noHoverButton, 0);
     }
     
     private function clickStart(e:MouseEvent):void {
@@ -142,22 +117,23 @@ package  {
     private function rollOverResult(e:MouseEvent):void {
       if(!(e.target.getChildAt(0) is TextField))
         e.target.removeChildAt(0);
-      overButtonObject = new overResultButton();
-      overButtonObject.width *= 0.25;
-      overButtonObject.height *= 0.25; 
-      e.target.addChildAt(overButtonObject,0);
+      hoverButton = new hover();
+      hoverButton.width *= 0.25;
+      hoverButton.height *= 0.25;
+      e.target.addChildAt(hoverButton,0);
     }
     
     private function rollOutResult(e:MouseEvent):void {
       if(!(e.target.getChildAt(0) is TextField))
         e.target.removeChildAt(0);
-      buttonDisplayObject = new resultButton();
-      buttonDisplayObject.width *= 0.25;
-      buttonDisplayObject.height *= 0.25; 
-      e.target.addChildAt(buttonDisplayObject,0);
+      noHoverButton = new noHover();
+      noHoverButton.width *= 0.25;
+      noHoverButton.height *= 0.25;
+      e.target.addChildAt(noHoverButton,0);
     }
     
     private function clickMainResult(e:MouseEvent):void {
+      scrollBlock.y = 0;
       fadeEffect.play([resultsField], true);
       resultsField.text = TestResults.getConsoleOutput();
       resultsField.scrollV = 0;
@@ -165,6 +141,7 @@ package  {
       fadeEffect.play([resultsField]);
     }
     private function clickStats(e:MouseEvent):void {
+      scrollBlock.y = 0;
       fadeEffect.play([resultsField], true);
       resultsField.text = TestResults.getStatsText();
       resultsField.scrollV = 0;
@@ -172,6 +149,7 @@ package  {
       fadeEffect.play([resultsField]);
     }
     private function clickDiagnostics(e:MouseEvent):void {
+      scrollBlock.y = 0;
       fadeEffect.play([resultsField], true);
       resultsField.text = TestResults.getDiagnosisText();
       resultsField.scrollV = 0;
@@ -179,17 +157,51 @@ package  {
       fadeEffect.play([resultsField]);
     }
     private function clickErrors(e:MouseEvent):void {
+      scrollBlock.y = 0;
       fadeEffect.play([resultsField], true);
       resultsField.text = TestResults.getErrMsg();
       resultsField.scrollV = 0;
       fadeEffect.end();
       fadeEffect.play([resultsField]);
     }
-    private function vScrollDown(e:MouseEvent):void {
-      resultsField.scrollV++;
+    private function scrollBarMove(e:MouseEvent):void {
+      var scrollTo:int = 
+        int((Number(resultsField.maxScrollV) / scrollBar.height) * mouseY);
+      if (resultsField.scrollV != scrollTo)
+      {
+        resultsField.scrollV = scrollTo;        
+        scrollBlock.y = 
+          (Number(scrollBar.height) / resultsField.maxScrollV) * scrollTo;
+      }
     }
-    private function vScrollUp(e:MouseEvent):void {
-      resultsField.scrollV--;
+    private function moveScrollBlock(e:MouseEvent):void {
+      scrollBar.removeEventListener(MouseEvent.CLICK, scrollBarMove);
+      scrollBar.addEventListener(MouseEvent.MOUSE_MOVE, startDragging);
+    }
+    private function startDragging(e:MouseEvent):void {
+      scrollBlock.y = mouseY;
+    }
+    private function stopScrollBlock(e:MouseEvent):void {
+      scrollBar.removeEventListener(MouseEvent.MOUSE_MOVE, startDragging);
+      var scrollTo:int = 
+        int((Number(resultsField.maxScrollV) / scrollBar.height) * mouseY);
+      if (resultsField.scrollV != scrollTo)
+      {
+        resultsField.scrollV = scrollTo;        
+        scrollBlock.y = 
+          (Number(scrollBar.height) / resultsField.maxScrollV) * scrollTo;
+      }
+      else
+        scrollBlock.y = 
+          (Number(scrollBar.height) / resultsField.maxScrollV) * resultsField.scrollV;
+      scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
+    }
+    private function scrollResults(e:MouseEvent):void {
+      if(resultsField.scrollV >= resultsField.maxScrollV 
+          || resultsField.scrollV <= 0)
+        return;
+      scrollBlock.y = 
+          (Number(scrollBar.height) / resultsField.maxScrollV) * resultsField.scrollV;
     }
     // end event-listener functions
     
@@ -262,7 +274,7 @@ package  {
       
       resultsTextFormat = new TextFormat();
       resultsTextFormat.size = 14;
-      resultsTextFormat.color = 0xFFFFFF;
+      resultsTextFormat.color = 0x000000;
       
       resultsField = new TextField();
       resultsField.defaultTextFormat = resultsTextFormat;
@@ -279,6 +291,7 @@ package  {
         resultsField.appendText("\n" + TestResults.getConsoleOutput() + "\n");  
       var tempText:TextField = new TextField();
       resultsTextFormat.size = 18;
+      resultsTextFormat.color = 0xFFFFFF;
       resultsTextFormat.align = TextFormatAlign.CENTER;
       tempText.defaultTextFormat = resultsTextFormat;
       tempText.text = "Results";
@@ -286,85 +299,89 @@ package  {
       var diff:Number = stageheight / 3;
       
       // Results Button
-      buttonDisplayObject = new resultButton();
-      buttonDisplayObject.width *= 0.25;
-      buttonDisplayObject.height *= 0.25;
-      tempText.width = 0.75 * buttonDisplayObject.width;
-      tempText.height = 0.50 * buttonDisplayObject.height;
+      noHoverButton = new noHover();
+      noHoverButton.width *= 0.25;
+      noHoverButton.height *= 0.25;
+      tempText.width = 0.75 * noHoverButton.width;
+      tempText.height = 0.50 * noHoverButton.height;
       mainResult = new MovieClip();
-      mainResult.addChild(buttonDisplayObject);
+      mainResult.addChild(noHoverButton);
       mainResult.mouseChildren = false;
-      tempText.x = buttonDisplayObject.width/2 - tempText.width/2;
-      tempText.y = buttonDisplayObject.height/2 - tempText.height/2;
+      tempText.x = noHoverButton.width/2 - tempText.width/2;
+      tempText.y = noHoverButton.height/2 - tempText.height/2;
       mainResult.addChild(tempText);
       
-      // Statistics Button
+      // Details Button
+      noHoverButton = new noHover();
+      noHoverButton.width *= 0.25;
+      noHoverButton.height *= 0.25;
       tempText = new TextField();
-      buttonDisplayObject = new resultButton();
-      buttonDisplayObject.width *= 0.25;
-      buttonDisplayObject.height *= 0.25;
       tempText.defaultTextFormat = resultsTextFormat;
-      tempText.text = "Statistics";
-      tempText.width = 0.75 * buttonDisplayObject.width;
-      tempText.height = 0.50 * buttonDisplayObject.height;
+      tempText.text = "Details";
+      tempText.width = 0.75 * noHoverButton.width;
+      tempText.height = 0.50 * noHoverButton.height;
       statsButton = new MovieClip();
-      statsButton.addChild(buttonDisplayObject);
+      statsButton.addChild(noHoverButton);
       statsButton.mouseChildren = false;
-      tempText.x = buttonDisplayObject.width/2 - tempText.width/2;
-      tempText.y = buttonDisplayObject.height/2 - tempText.height/2;
+      tempText.x = noHoverButton.width/2 - tempText.width/2;
+      tempText.y = noHoverButton.height/2 - tempText.height/2;
       statsButton.addChild(tempText);
       
-      // Diagnostics Button
+      // Advanced Button
+      noHoverButton = new noHover();
+      noHoverButton.width *= 0.25;
+      noHoverButton.height *= 0.25;
       tempText = new TextField();
-      buttonDisplayObject = new resultButton();
-      buttonDisplayObject.width *= 0.25;
-      buttonDisplayObject.height *= 0.25;
       tempText.defaultTextFormat = resultsTextFormat;
-      tempText.text = "Diagnostics";
-      tempText.width = 0.75 * buttonDisplayObject.width;
-      tempText.height = 0.50 * buttonDisplayObject.height;
+      tempText.text = "Advanced";
+      tempText.width = 0.75 * noHoverButton.width;
+      tempText.height = 0.50 * noHoverButton.height;
       diagnosticsButton = new MovieClip();
-      diagnosticsButton.addChild(buttonDisplayObject);
+      diagnosticsButton.addChild(noHoverButton);
       diagnosticsButton.mouseChildren = false;
-      tempText.x = buttonDisplayObject.width/2 - tempText.width/2;
-      tempText.y = buttonDisplayObject.height/2 - tempText.height/2;
+      tempText.x = noHoverButton.width/2 - tempText.width/2;
+      tempText.y = noHoverButton.height/2 - tempText.height/2;
       diagnosticsButton.addChild(tempText);
       
       // Errors Button
       if (TestResults.getErrMsg() != "") {
         tempText = new TextField();
-        buttonDisplayObject = new resultButton();
-        buttonDisplayObject.width *= 0.25;
-        buttonDisplayObject.height *= 0.25;
+        noHoverButton = new noHover();
+        noHoverButton.width *= 0.25;
+        noHoverButton.height *= 0.25;
         tempText.defaultTextFormat = resultsTextFormat;
         tempText.text = "Errors";
-        tempText.width = 0.75 * buttonDisplayObject.width;
-        tempText.height = 0.50 * buttonDisplayObject.height;
+        tempText.width = 0.75 * noHoverButton.width;
+        tempText.height = 0.50 * noHoverButton.height;
         errorsButton = new MovieClip();
-        errorsButton.addChild(buttonDisplayObject);
+        errorsButton.addChild(noHoverButton);
         errorsButton.mouseChildren = false;
-        tempText.x = buttonDisplayObject.width/2 - tempText.width/2;
-        tempText.y = buttonDisplayObject.height/2 - tempText.height/2;
+        tempText.x = noHoverButton.width/2 - tempText.width/2;
+        tempText.y = noHoverButton.height/2 - tempText.height/2;
         errorsButton.addChild(tempText);
         diff = stageheight / 4;
       }
       
-      scrollUpObject = new ScrollUp();
-      scrollUp = new MovieClip();
-      scrollUp.addChild(scrollUpObject);
-      scrollUp.buttonMode = true;
-      scrollDownObject = new ScrollDown();
-      scrollDown = new MovieClip();
-      scrollDown.addChild(scrollDownObject);
-      scrollDown.buttonMode = true;
-      scrollUp.width *= 0.25;
-      scrollUp.height *= 0.25;  
-      scrollUp.x = stagewidth - scrollUp.width;
-      scrollUp.y = 0;    
-      scrollDown.width *= 0.25;
-      scrollDown.height *= 0.25;
-      scrollDown.x = stagewidth - scrollDown.width;
-      scrollDown.y = stageheight - scrollDown.height;
+      // create scrollbar     
+      scrollBar = new Sprite();
+      scrollBar.graphics.beginFill(0x000000, 0.25);
+      scrollBar.graphics.drawRect(0, 0, 6, stageheight);
+      scrollBar.graphics.endFill();
+      scrollBar.x = stagewidth - 10;
+      scrollBar.y = 0;
+      scrollBlock = new Sprite();
+      scrollBlock.graphics.beginFill(0x000000, 0.50);
+      scrollBlock.graphics.drawRect(-2, 0, 8, 30);
+      scrollBlock.graphics.endFill();
+      
+      scrollBar.addChild(scrollBlock);
+      scrollBar.mouseChildren = true;
+      scrollBar.buttonMode = true;
+      scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
+      scrollBlock.addEventListener(MouseEvent.MOUSE_DOWN, moveScrollBlock);
+      scrollBlock.addEventListener(MouseEvent.MOUSE_UP, stopScrollBlock);
+      
+      resultsField.addEventListener(MouseEvent.MOUSE_WHEEL, scrollResults);
             
       mainResult.y = 0.05 * stageheight;
       statsButton.y = mainResult.y + diff;
@@ -382,11 +399,7 @@ package  {
       this.addChild(diagnosticsButton);
       if (errorsButton)
         this.addChild(errorsButton);
-      this.addChild(scrollUp);
-      this.addChild(scrollDown);
-      
-      scrollUp.addEventListener(MouseEvent.CLICK, vScrollUp);
-      scrollDown.addEventListener(MouseEvent.CLICK, vScrollDown);
+      this.addChild(scrollBar);
       
       mainResult.addEventListener(MouseEvent.ROLL_OVER, rollOverResult);
       statsButton.addEventListener(MouseEvent.ROLL_OVER, rollOverResult);
@@ -424,28 +437,44 @@ package  {
       Mlab_logo = new mLabLogo();
       Url_request = new URLRequest(Mlab_url);
       Start_button = new MovieClip();
-        Hover = new startHover();
-        Hover.width *= 0.40;
-        Hover.height *= 0.40;
-        Hover.x -= Hover.width / 2;
-        Hover.y -= Hover.height / 2;
-        No_hover = new startNoHover();
-        No_hover.width *= 0.40;
-        No_hover.height *= 0.40;
-        No_hover.x -= No_hover.width / 2;
-        No_hover.y -= No_hover.height / 2;
-        Start_button.addChild(No_hover); 
+        hoverButton = new hover();
+        hoverButton.width *= 0.40;
+        hoverButton.height *= 0.40;
+        hoverButton.x -= hoverButton.width / 2;
+        hoverButton.y -= hoverButton.height / 2;
+        noHoverButton = new noHover();
+        noHoverButton.width *= 0.40;
+        noHoverButton.height *= 0.40;
+        noHoverButton.x -= noHoverButton.width / 2;
+        noHoverButton.y -= noHoverButton.height / 2;
+        var startText:TextField = new TextField();
+        var startTextFormat:TextFormat = new TextFormat();
+        startTextFormat.size = 24;
+        startTextFormat.align = TextFormatAlign.CENTER;
+        startTextFormat.color = 0xFFFFFF;
+        startText.defaultTextFormat = startTextFormat;
+        startText.width = noHoverButton.width;
+        startText.height = 28;
+        startText.x -= startText.width / 2;
+        startText.y -= startText.height / 2;
+        startText.text = "START";
+        Start_button.addChild(noHoverButton); 
+        Start_button.addChild(startText);
+        Start_button.mouseChildren = false;
         Start_button.buttonMode = true;
       About_text_format = new TextFormat();
         About_text_format.size = 17;
         About_text_format.align = TextFormatAlign.CENTER;
-        About_text_format.color = 0x000000;  
-      Learn_noHover = new learnNoHover();
-        Learn_noHover.width *= 0.30;
-        Learn_noHover.height *= 0.30;
-      Learn_Hover = new learnHover();
-        Learn_Hover.width *= 0.30;
-        Learn_Hover.height *= 0.30;
+        About_text_format.color = 0x000000; 
+      Learn_more_format = new TextFormat();
+        Learn_more_format.size = 14;
+        Learn_more_format.align = TextFormatAlign.CENTER;
+        Learn_more_format.color = 0x000000;
+      Learn_more_text = new TextField();
+        Learn_more_text.defaultTextFormat = Learn_more_format;
+        Learn_more_text.width = 0.50 * stagewidth;
+        Learn_more_text.height = 20;
+        Learn_more_text.text = "Learn more about Measurement Lab";
       About_ndt_text = new TextField();
       About_ndt_text.defaultTextFormat = About_text_format;
       About_ndt_text.width = 0.75 * stagewidth;
@@ -465,7 +494,7 @@ package  {
                             + "reports to their network administrator.";
                   
       Learn_text_container = new Sprite();
-        Learn_text_container.addChild(Learn_noHover);
+        Learn_text_container.addChild(Learn_more_text);
         Learn_text_container.buttonMode = true;
         Learn_text_container.mouseChildren = false;
       blur = new BlurFilter(16.0, 0, 1);
@@ -477,7 +506,7 @@ package  {
       Learn_text_container.x = (stagewidth/2) - (Learn_text_container.width/2);
       Learn_text_container.y = About_ndt_text.y + About_ndt_text.height;
       Start_button.x = (stagewidth / 2);
-      Start_button.y = Learn_text_container.y + 2.25*Learn_text_container.height;
+      Start_button.y = Learn_text_container.y + 4*Learn_text_container.height;
             
       // adding objects to the GUI Container
       this.addChild(Mlab_logo);
