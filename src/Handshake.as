@@ -15,6 +15,7 @@
 package  {
   import flash.net.Socket;
   import flash.events.ProgressEvent;
+  import mx.resources.ResourceManager;
   /**
    * This class handles the initial communication with the server before the
    * tests. It has an event handler function that call functions to handle the
@@ -72,11 +73,11 @@ package  {
     public function kickOldClients():void {
       // read the message that kicks old clients
       if (protocolObj.readn(msg, 13) != 13) {
-        trace(NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+        trace(ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                               "unsupportedClient", null,
                                               Main.locale));
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "unsupportedClient",
                                           null, Main.locale) + "\n");
         TestResults.set_bFailed(true);
@@ -98,7 +99,7 @@ package  {
       // that the test session starts now, return
       if (protocolObj.recv_msg(msg) != NDTConstants.SRV_QUEUE_TEST_STARTS_NOW) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         TestResults.set_bFailed(true);
@@ -107,7 +108,7 @@ package  {
       // If message is not of SRV_QUEUE type, it is incorrect at this stage.
       if (msg.getType() != MessageType.SRV_QUEUE) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "loggingWrongMessage",
                                           null, Main.locale) + "\n");
         TestResults.set_bFailed(true);
@@ -137,14 +138,14 @@ package  {
         if (iServerWaitFlag == 0) {
           // Message indicating server is busy,
           TestResults.appendErrMsg(
-            NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "serverBusy",null, Main.locale) + "\n");
           TestResults.set_bFailed(true);
           return;
         } else {
           // Server fault, return
           TestResults.appendErrMsg(
-            NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                             "serverFault", null, Main.locale) + "\n");
           TestResults.set_bFailed(true);
           return;
@@ -153,7 +154,7 @@ package  {
       // server busy for 60s, wait for previous test to finish
       if (wait == NDTConstants.SRV_QUEUE_SERVER_BUSY_60s) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "serverBusy60s", null, Main.locale) + "\n");
         TestResults.set_bFailed(true);
         return;
@@ -171,9 +172,9 @@ package  {
       // wait = minutes to wait = number of queued clients.
       wait = (wait * 45);
       TestResults.appendConsoleOutput(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "otherClient", null, Main.locale) + wait
-        + NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "seconds", null, Main.locale) + ".\n");
       iServerWaitFlag = 1;  // first message from server now already encountered
     }
@@ -188,7 +189,7 @@ package  {
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // there is a protocol error so return
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         TestResults.set_bFailed(true);
@@ -198,7 +199,7 @@ package  {
         // only this type of message should be received at this stage.
         // every other message is wrong.
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "versionWrongMessage", 
                                           null, Main.locale) + "\n");
         TestResults.set_bFailed(true);
@@ -208,7 +209,7 @@ package  {
       var vVersion:String = new String(msg.getBody());
       if (!(vVersion.indexOf("v") == 0)) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "incompatibleVersion",
                                           null, Main.locale) + "\n");
         TestResults.set_bFailed(true);
@@ -235,7 +236,7 @@ package  {
       // requested by the client earlier.
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         TestResults.set_bFailed(true);
@@ -245,7 +246,7 @@ package  {
         // only tests negotiation message expected at this point.
         // any other type is wrong.
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "testsuiteWrongMessage",
                                           null, Main.locale) + "\n");
         TestResults.set_bFailed(true);
