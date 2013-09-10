@@ -71,15 +71,7 @@ package  {
     // Tween variables
     private var fadeEffect:Fade;
     
-    // event listener functions
-    private function rollOverLearn(e:MouseEvent):void {
-      Learn_text_container.alpha = 0.40;
-    }
-    
-    private function rollOutLearn(e:MouseEvent):void {
-      Learn_text_container.alpha = 1.0;
-    }
-    
+    // event listener functions    
     private function clickLearnText(e:MouseEvent):void {
       try {
         navigateToURL(Url_request);
@@ -234,10 +226,6 @@ package  {
       }
       
       // removing initial event listeners
-      Learn_text_container.removeEventListener(MouseEvent.ROLL_OVER,
-                                               rollOverLearn);
-      Learn_text_container.removeEventListener(MouseEvent.ROLL_OUT, 
-                                               rollOutLearn);
       Learn_text_container.removeEventListener(MouseEvent.CLICK, 
                                                clickLearnText);
       Start_button.removeEventListener(MouseEvent.ROLL_OVER, rollOverStart);
@@ -273,6 +261,7 @@ package  {
       resultsRect.filters = [blur];
       
       resultsTextFormat = new TextFormat();
+      resultsTextFormat.font = "Verdana";
       resultsTextFormat.size = 14;
       resultsTextFormat.color = 0x000000;
       
@@ -288,9 +277,11 @@ package  {
       if (TestResults.get_bFailed())
         resultsField.appendText("Test Failed! View errors for more details.\n");
       else
-        resultsField.appendText("\n" + TestResults.getConsoleOutput() + "\n");  
+        resultsField.appendText("\n" + TestResults.getConsoleOutput() + "\n");
+          
       var tempText:TextField = new TextField();
       resultsTextFormat.size = 18;
+      resultsTextFormat.font = "Comic Sans";
       resultsTextFormat.color = 0xFFFFFF;
       resultsTextFormat.align = TextFormatAlign.CENTER;
       tempText.defaultTextFormat = resultsTextFormat;
@@ -450,6 +441,7 @@ package  {
         var startText:TextField = new TextField();
         var startTextFormat:TextFormat = new TextFormat();
         startTextFormat.size = 24;
+        startTextFormat.font = "Comic Sans";
         startTextFormat.align = TextFormatAlign.CENTER;
         startTextFormat.color = 0xFFFFFF;
         startText.defaultTextFormat = startTextFormat;
@@ -457,17 +449,20 @@ package  {
         startText.height = 28;
         startText.x -= startText.width / 2;
         startText.y -= startText.height / 2;
-        startText.text = "START";
+        startText.text = "Start";
         Start_button.addChild(noHoverButton); 
         Start_button.addChild(startText);
         Start_button.mouseChildren = false;
         Start_button.buttonMode = true;
       About_text_format = new TextFormat();
         About_text_format.size = 17;
+        About_text_format.font = "Verdana";
         About_text_format.align = TextFormatAlign.CENTER;
         About_text_format.color = 0x000000; 
       Learn_more_format = new TextFormat();
         Learn_more_format.size = 14;
+        Learn_more_format.underline = true;
+        Learn_more_format.font = "Verdana";
         Learn_more_format.align = TextFormatAlign.CENTER;
         Learn_more_format.color = 0x000000;
       Learn_more_text = new TextField();
@@ -522,8 +517,6 @@ package  {
       startUpAnimation();
       
       // Initial Event Listeners
-      Learn_text_container.addEventListener(MouseEvent.ROLL_OVER, rollOverLearn);
-      Learn_text_container.addEventListener(MouseEvent.ROLL_OUT, rollOutLearn);
       Learn_text_container.addEventListener(MouseEvent.CLICK, clickLearnText);
       Start_button.addEventListener(MouseEvent.ROLL_OVER, rollOverStart);
       Start_button.addEventListener(MouseEvent.ROLL_OUT, rollOutStart);
