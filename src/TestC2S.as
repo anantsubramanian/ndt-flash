@@ -24,6 +24,7 @@ package  {
   import flash.events.SecurityErrorEvent;
   import flash.events.OutputProgressEvent;
   import flash.errors.IOError;
+  import mx.resources.ResourceManager;
   
   /**
    * Class that contains functions that perform the Client-to-Server
@@ -91,11 +92,11 @@ package  {
     private function onComplete():void {
       if (!c2sTest) {
         TestResults.appendConsoleOutput(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "c2sThroughputFailed",
                                           null, Main.locale) + "\n");
         TestResults.appendStatsText(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "c2sThroughputFailed",
                                           null, Main.locale) + "\n");
       }
@@ -218,15 +219,15 @@ package  {
      */
     private function testPrepare():void {
       TestResults.appendConsoleOutput(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningOutboundTest",
                                         null, Main.locale) + " " + "\n");
       TestResults.appendStatsText(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningOutboundTest",
                                         null, Main.locale) + " " + "\n");
       TestResults.appendEmailText(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningOutboundTest",
                                         null, Main.locale) + " " + "\n");
       TestResults.set_pub_status("runningOutboundTest");
@@ -234,7 +235,7 @@ package  {
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
@@ -246,7 +247,7 @@ package  {
       if (msg.getType() != MessageType.TEST_PREPARE) {
         // 'wrong' message type
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "outboundWrongMessage", 
                                           null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
@@ -297,7 +298,7 @@ package  {
       // This signal tells the client to start pumping out data
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
@@ -308,7 +309,7 @@ package  {
       // Any other message is an error
       if (msg.getType() != MessageType.TEST_START) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "outboundWrongMessage",
                                           null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
@@ -383,7 +384,7 @@ package  {
       // calculated at its end.
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
@@ -393,7 +394,7 @@ package  {
       if (msg.getType() != MessageType.TEST_MSG) {
         // 'wrong' type received
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "outboundWrongMessage",
                                           null, Main.locale) + "\n");
         if(msg.getType() == MessageType.MSG_ERROR) {
@@ -426,21 +427,21 @@ package  {
       // Print results in the most convinient units
       if (_dSc2sspd < 1.0) {
         TestResults.appendConsoleOutput(
-          NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n");
+          (_dSc2sspd * NDTConstants.KILO).toFixed(2) + "kb/s\n");
         TestResults.appendStatsText(
-          NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n");
+          (_dSc2sspd * NDTConstants.KILO).toFixed(2) + "kb/s\n");
         TestResults.appendEmailText(
-          NDTUtils.prtdbl(_dSc2sspd * NDTConstants.KILO) + "kb/s\n%0A");
+          (_dSc2sspd * NDTConstants.KILO).toFixed(2) + "kb/s\n%0A");
       } else {
-        TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n");
-        TestResults.appendStatsText(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n");
-        TestResults.appendEmailText(NDTUtils.prtdbl(_dSc2sspd) + "Mb/s\n%0A");
+        TestResults.appendConsoleOutput((_dSc2sspd).toFixed(2) + "Mb/s\n");
+        TestResults.appendStatsText((_dSc2sspd).toFixed(2) + "Mb/s\n");
+        TestResults.appendEmailText((_dSc2sspd).toFixed(2) + "Mb/s\n%0A");
       }
       
       // Server should close session with a TEST_FINALIZE message
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         c2sTest = false;
@@ -450,7 +451,7 @@ package  {
       if (msg.getType() != MessageType.TEST_FINALIZE) {
         // 'wrong' message type
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "outboundWrongMessage",
                                           null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {

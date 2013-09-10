@@ -23,6 +23,7 @@ package  {
   import flash.utils.Timer;
   import flash.events.TimerEvent;
   import flash.utils.getTimer;
+  import mx.resources.ResourceManager;
   
   /**
    * This class contains the functions used to perform the Server-to-Client
@@ -107,11 +108,11 @@ package  {
     public function onComplete():void {
       if (!s2cTest) {
         TestResults.appendConsoleOutput(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "s2cThroughputFailed",
                                           null, Main.locale) + "\n");
         TestResults.appendStatsText(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "s2cThroughputFailed",
                                           null, Main.locale) + "\n");
       }      
@@ -270,11 +271,11 @@ package  {
       
       // start s2c tests
       TestResults.appendConsoleOutput(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningInboundTest",
                                         null, Main.locale));
       TestResults.appendStatsText(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningInboundTest",
                                         null, Main.locale));
       TestResults.set_pub_status("runningInboundTest");
@@ -282,7 +283,7 @@ package  {
       // to as the message body
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         s2cTest = false;
@@ -292,7 +293,7 @@ package  {
       if (msg.getType() != MessageType.TEST_PREPARE) {
         // no other message type expected at this point
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "inboundWrongMessage",
                                           null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
@@ -328,7 +329,7 @@ package  {
       // server now sends a TEST_START message
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "unknownServer", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         s2cTest = false;
@@ -338,7 +339,7 @@ package  {
       if (msg.getType() != MessageType.TEST_START) {
         // no other message type expected at this point
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "serverFail", null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
@@ -423,7 +424,7 @@ package  {
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         s2cTest = false;
@@ -434,7 +435,7 @@ package  {
       // Only message of type TEST_MSG expected from the server at this point
       if (msg.getType() != MessageType.TEST_MSG) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "inboundWrongMessage",
                                            null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
@@ -456,7 +457,7 @@ package  {
       
       if (isNaN(_dSs2cspd) || isNaN(_iSsndqueue) || isNaN(_dSbytes)) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "inboundWrongMessage",
                                           null, Main.locale) + "\n");
         s2cTest = false;
@@ -466,13 +467,13 @@ package  {
       
       // Represent throughput using optimal units (i.e. kbps / mbps)
       if (_dS2cspd < 1.0) {
-        TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) 
+        TestResults.appendConsoleOutput((_dS2cspd * NDTConstants.KILO).toFixed(2)
                                         + "kb/s\n");
-        TestResults.appendStatsText(NDTUtils.prtdbl(_dS2cspd * NDTConstants.KILO) 
+        TestResults.appendStatsText((_dS2cspd * NDTConstants.KILO).toFixed(2) 
                                     + "kb/s\n");
       } else {
-        TestResults.appendConsoleOutput(NDTUtils.prtdbl(_dS2cspd) + "Mb/s\n");
-        TestResults.appendStatsText(NDTUtils.prtdbl(_dS2cspd) + "Mb/s\n");
+        TestResults.appendConsoleOutput((_dS2cspd).toFixed(2) + "Mb/s\n");
+        TestResults.appendStatsText((_dS2cspd).toFixed(2) + "Mb/s\n");
       }
       
       // Set result for JavaScript access
@@ -511,7 +512,7 @@ package  {
         if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           // message not read / received correctly
           TestResults.appendErrMsg(
-            NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                             "protocolError", null, Main.locale)
             + parseInt(new String(msg.getBody()), 16) + " instead\n");
           s2cTest = false;
@@ -531,7 +532,7 @@ package  {
         // is expected. Every other message is "incorrect"
         if (msg.getType() != MessageType.TEST_MSG) {
           TestResults.appendErrMsg(
-            NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME, 
+            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "inboundWrongMessage",
                                             null, Main.locale) + "\n");
           if (msg.getType() == MessageType.MSG_ERROR) {

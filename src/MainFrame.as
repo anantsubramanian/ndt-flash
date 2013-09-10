@@ -26,6 +26,8 @@ package  {
   import flash.utils.Timer;
   import flash.events.TimerEvent;
   import flash.errors.IOError;
+  import mx.resources.ResourceManager;
+  import mx.utils.StringUtil;
     
   /**
    * Class responsible for establishing the socket
@@ -34,9 +36,8 @@ package  {
    * Calls functions to perform the required tests
    * and to interpret the results.
    */
-  public class MainFrame extends Sprite{
+  public class MainFrame {
     // variables declaration section
-    private var gui:GUI;
     private static var sHostName:String = null;
     private static var clientId:String = null;
     private var pub_host:String;
@@ -113,10 +114,10 @@ package  {
             
       TestResults.set_bFailed(false);  // test result status is false initially
       TestResults.appendConsoleOutput(
-        NDTConstants.RMANAGER.getString(
+        ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "connectingTo", null, Main.locale)
         + " " + sHostName + " " + 
-        NDTConstants.RMANAGER.getString(
+        ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "toRunTest", null, Main.locale)
         + "\n");
       ctlSocket = new Socket();
@@ -146,7 +147,7 @@ package  {
      */
     public function initiateTests(protocolObj:Protocol, msg:Message):void {
       var tStr:String = new String(msg.getBody());
-      tStr = new String(NDTUtils.trim(tStr));
+      tStr = new String(StringUtil.trim(tStr));
       tests = tStr.split(" ");
       testNo = 0;
       runTests(protocolObj);
@@ -195,7 +196,7 @@ package  {
       while (ctlSocket.bytesAvailable > 0) {
         if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           TestResults.appendErrMsg(
-            NDTConstants.RMANAGER.getString(
+            ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "protocolError", null,Main.locale) 
             + parseInt(new String(msg.getBody()), 16)
             + " instead\n");
@@ -211,7 +212,7 @@ package  {
         // get results in the form of a human-readable string
         if (msg.getType() != MessageType.MSG_RESULTS) {
           TestResults.appendErrMsg(
-            NDTConstants.RMANAGER.getString(
+            ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
             + "\n");
           TestResults.set_bFailed(true);
@@ -235,7 +236,7 @@ package  {
       if (_sTestResults != null)
         var interpRes:TestResults = new TestResults(_sTestResults, _yTests);
       if (Main.guiEnabled) {
-        gui.displayResults();
+        Main.gui.displayResults();
       }
       trace("Console Output:\n" + TestResults.getConsoleOutput() + "\n");
       trace("Statistics Output:\n" + TestResults.getStatsText() + "\n");
@@ -245,26 +246,14 @@ package  {
     
     /**
      * The constructor of the MainFrame class which is used to pass initial data
-     * from JavaScript. 
-     * @param {int} stageW The width of the stage to which this object is added.
-     * @param {int} stageH The height of the stage.
+     * from JavaScript.
      * @param {String} hostname The hostname of the server recvd from JavaScript.
-     * @param {Boolean} guiEnbld A boolean representing necessity of
-     *    a Flash GUI (true=yes, false=no).
      */
-    public function MainFrame(stageW:int,stageH:int, hostname:String) {
+    public function MainFrame(hostname:String) {
       // variables initialization
       sHostName = NDTConstants.HOST_NAME;
       clientId = NDTConstants.CLIENT_ID;
       pub_host = "unknown";
-      if (Main.guiEnabled) {
-        gui = new GUI(stageW, stageH, this);
-        this.addChild(gui);
-      }
-      if (!Main.guiEnabled) {
-        // If guiEnabled compiler flag set to false start tests immediately
-        dottcp();
-      }
     }
   }
 }

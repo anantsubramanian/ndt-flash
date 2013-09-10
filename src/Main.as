@@ -16,17 +16,19 @@ package {
   import flash.display.Sprite;
   import flash.events.Event;
   import flash.external.ExternalInterface;
-  import flash.system.Capabilities;
   import flash.globalization.LocaleID;
+  import flash.system.Capabilities;
   import mx.resources.ResourceBundle;
+  import mx.resources.ResourceManager;
   /**
    * @author Anant Subramanian
    */
   [ResourceBundle("DisplayMessages")]
   public class Main extends Sprite {
     
-    public static var guiEnabled:Boolean = true;
+    public static var guiEnabled:Boolean = CONFIG::guiEnabled;
     public static var locale:String = CONFIG::defaultLocale;
+    public static var gui:GUI;
     
     public function Main():void {
       if (stage) 
@@ -45,19 +47,18 @@ package {
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
       // entry point
-      CONFIG::guiEnabled {
-        // if guiEnabled set to false while compiling skip GUI and start tests
-        Main.guiEnabled = true;
-      }
-      var lId:LocaleID = new LocaleID(Capabilities.language);
-      initializeLocale(lId.getLanguage(), lId.getRegion());
+      initializeLocale();
       stage.showDefaultContextMenu = false;
       
-      var Frame:MainFrame = new MainFrame(stage.stageWidth,
-                                          stage.stageHeight,
-                                          NDTConstants.HOST_NAME);
-      Frame.x = Frame.y = 0;
-      stage.addChild(Frame);
+      var frame:MainFrame = new MainFrame(NDTConstants.HOST_NAME);
+      if (guiEnabled) {
+        gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
+        this.addChild(gui);
+      }
+      if (!guiEnabled) {
+        // If guiEnabled compiler flag set to false start tests immediately
+        frame.dottcp();
+      }
     }
     
     /**
@@ -66,11 +67,13 @@ package {
      * @param {String} lang The language part of the locale
      * @param {String} region The region part of the locale
      */ 
-    private function initializeLocale(lang:String, region:String):void {
-      if (lang == null || region == null)
-        return;
-      if (NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
-                                         "test", null, lang+"_"+region) != null) {
+    private function initializeLocale():void {
+      var localeId:LocaleID = new LocaleID(Capabilities.language);
+      var lang:String = localeId.getLanguage();
+      var region:String = localeId.getRegion();
+      if (lang != null && region == null
+          && (ResourceManager.getInstance().getResourceBundle(
+                lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
         locale = new String(lang + "_" + region);
         trace("Using locale " + locale);

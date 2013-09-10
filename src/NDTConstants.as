@@ -13,8 +13,6 @@
 // limitations under the License.
 
 package  {
-  import mx.resources.ResourceManager;
-  import mx.resources.IResourceManager;
   /**
    * Class that holds constants used by ndt. The different categories of 
    * constants are listed under appropriate "sections".
@@ -27,10 +25,8 @@ package  {
     public static const META_CLIENT_VERSION:String = "client.version";
     public static const META_CLIENT_APPLICATION:String = "client.application";
     
-    // Version in code that needs compilation as changes to this
-    // would generally be accompanied by changes in code that need
-    // compilation
-    public static const VERSION:String = "1.0.0.0";
+    // Current NDT version number set from ndt-flash-config.xml
+    public static const VERSION:String = CONFIG::ndtVersion;
     
     // Section: Test type
     public static const TEST_MID:int = (1 << 0);
@@ -51,6 +47,7 @@ package  {
     public static const SRV_QUEUE_SERVER_BUSY_60s:int = 9999;
 
     // NDT Server hardcoded hostname
+    // TODO: Get hostname from mlab-ns.
     public static const HOST_NAME:String = "utility.mlab.mlab1.nuq0t.measurement-lab.org";
     public static const CLIENT_ID:String = "swf";
     
@@ -103,7 +100,6 @@ package  {
     public static const CONGESTION_FOUND:int = 1;
     
     // Section: Localization required constants
-    public static const RMANAGER:IResourceManager = ResourceManager.getInstance();
     public static const BUNDLE_NAME:String = "DisplayMessages";
     
     // Section: Miscellaneous
