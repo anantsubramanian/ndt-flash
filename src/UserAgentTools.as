@@ -1,5 +1,7 @@
 ﻿// This class has code taken from
 // http://nerds.palmdrive.net/useragent/code.html
+// In that page the author of the code states that the code is free for all the
+// uses and he believes it is too small to be copyrightable.
 
 // Copyright 2013 M-Lab
 //
