@@ -66,6 +66,12 @@ package  {
     private var diagnosticsButton:MovieClip;
     private var scrollBar:Sprite;
     private var scrollBlock:Sprite;
+    [Embed(source="../assets/scrollUp.png")]
+    private var scrollUp:Class;
+    [Embed(source="../assets/scrollDown.png")]
+    private var scrollDown:Class;
+    private var scrollUpButton:MovieClip;
+    private var scrollDownButton:MovieClip;
     private var blur:BlurFilter;
     
     // Tween variables
@@ -125,36 +131,40 @@ package  {
     }
     
     private function clickMainResult(e:MouseEvent):void {
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField], true);
+      fadeEffect.play([resultsField, scrollBlock], true);
       resultsField.text = TestResults.getConsoleOutput();
       resultsField.scrollV = 0;
       fadeEffect.end();
-      fadeEffect.play([resultsField]);
+      scrollBlock.height = scrollBar.height / resultsField.maxScrollV;
+      scrollBlock.y = 0;
+      fadeEffect.play([resultsField, scrollBlock]);
     }
     private function clickStats(e:MouseEvent):void {
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField], true);
+      fadeEffect.play([resultsField, scrollBlock], true);
       resultsField.text = TestResults.getStatsText();
       resultsField.scrollV = 0;
       fadeEffect.end();
-      fadeEffect.play([resultsField]);
+      scrollBlock.height = scrollBar.height / resultsField.maxScrollV;
+      scrollBlock.y = 0;
+      fadeEffect.play([resultsField, scrollBlock]);
     }
     private function clickDiagnostics(e:MouseEvent):void {
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField], true);
+      fadeEffect.play([resultsField, scrollBlock], true);
       resultsField.text = TestResults.getDiagnosisText();
       resultsField.scrollV = 0;
       fadeEffect.end();
-      fadeEffect.play([resultsField]);
+      scrollBlock.height = 2 * scrollBar.height / resultsField.maxScrollV;
+      scrollBlock.y = 0;
+      fadeEffect.play([resultsField, scrollBlock]);
     }
     private function clickErrors(e:MouseEvent):void {
-      scrollBlock.y = 0;
       fadeEffect.play([resultsField], true);
       resultsField.text = TestResults.getErrMsg();
       resultsField.scrollV = 0;
       fadeEffect.end();
-      fadeEffect.play([resultsField]);
+      scrollBlock.height = scrollBar.height / resultsField.maxScrollV;
+      scrollBlock.y = 0;
+      fadeEffect.play([resultsField, scrollBlock]);
     }
     private function scrollBarMove(e:MouseEvent):void {
       var scrollTo:int = 
@@ -189,11 +199,29 @@ package  {
       scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
     }
     private function scrollResults(e:MouseEvent):void {
-      if(resultsField.scrollV >= resultsField.maxScrollV 
-          || resultsField.scrollV <= 0)
+      if (resultsField.scrollV == resultsField.maxScrollV)
+      {
+        scrollBlock.y = scrollBar.height - scrollBlock.height;
+        return;
+      }
+      else if (resultsField.scrollV == 1)
+      {
+        scrollBlock.y = 0;
+        return;
+      }
+      else if (resultsField.scrollV > resultsField.maxScrollV 
+          || resultsField.scrollV < 0)
         return;
       scrollBlock.y = 
           (Number(scrollBar.height) / resultsField.maxScrollV) * resultsField.scrollV;
+    }
+    private function scrollResultsUp(e:MouseEvent):void {
+      resultsField.scrollV--;
+      scrollResults(e);
+    }
+    private function scrollResultsDown(e:MouseEvent):void {
+      resultsField.scrollV++;
+      scrollResults(e);
     }
     // end event-listener functions
     
@@ -262,7 +290,7 @@ package  {
       
       resultsTextFormat = new TextFormat();
       resultsTextFormat.font = "Verdana";
-      resultsTextFormat.size = 14;
+      resultsTextFormat.size = 12;
       resultsTextFormat.color = 0x000000;
       
       resultsField = new TextField();
@@ -282,6 +310,7 @@ package  {
       var tempText:TextField = new TextField();
       resultsTextFormat.size = 18;
       resultsTextFormat.font = "Comic Sans";
+      resultsTextFormat.bold = true;
       resultsTextFormat.color = 0xFFFFFF;
       resultsTextFormat.align = TextFormatAlign.CENTER;
       tempText.defaultTextFormat = resultsTextFormat;
@@ -355,23 +384,41 @@ package  {
       
       // create scrollbar     
       scrollBar = new Sprite();
-      scrollBar.graphics.beginFill(0x000000, 0.25);
-      scrollBar.graphics.drawRect(0, 0, 6, stageheight);
+      scrollBar.graphics.beginFill(0x808080, 0.35);
+      scrollBar.graphics.drawRect(0, 0, 8, stageheight - 30);
       scrollBar.graphics.endFill();
-      scrollBar.x = stagewidth - 10;
-      scrollBar.y = 0;
+      scrollBar.x = stagewidth - 8;
+      scrollBar.y = 15;
       scrollBlock = new Sprite();
-      scrollBlock.graphics.beginFill(0x000000, 0.50);
-      scrollBlock.graphics.drawRect(-2, 0, 8, 30);
+      scrollBlock.graphics.beginFill(0xC0C0C0, 0.50);
+      scrollBlock.graphics.drawRect(1, 0, 6, scrollBar.height/resultsField.maxScrollV);
       scrollBlock.graphics.endFill();
       
+      scrollUpButton = new MovieClip();
+      scrollDownButton = new MovieClip();
+      scrollUpButton.x = stagewidth - 8;
+      scrollUp.y = 0;
+      scrollUpButton.addChild(new scrollUp());
+      scrollUpButton.width = 8;
+      scrollUpButton.height = 15;
+      scrollUpButton.buttonMode = true;
+      scrollDownButton.x = stagewidth - 8;
+      scrollDownButton.y = stageheight - 15;
+      scrollDownButton.addChild(new scrollDown());
+      scrollDownButton.width = 8;
+      scrollDownButton.height = 15;
+      scrollDownButton.buttonMode = true;
+            
       scrollBar.addChild(scrollBlock);
+      this.addChild(scrollUpButton);
+      this.addChild(scrollDownButton);
       scrollBar.mouseChildren = true;
       scrollBar.buttonMode = true;
       scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
       scrollBlock.addEventListener(MouseEvent.MOUSE_DOWN, moveScrollBlock);
       scrollBlock.addEventListener(MouseEvent.MOUSE_UP, stopScrollBlock);
-      
+      scrollUpButton.addEventListener(MouseEvent.CLICK, scrollResultsUp);
+      scrollDownButton.addEventListener(MouseEvent.CLICK, scrollResultsDown);
       resultsField.addEventListener(MouseEvent.MOUSE_WHEEL, scrollResults);
             
       mainResult.y = 0.05 * stageheight;
@@ -440,13 +487,14 @@ package  {
         noHoverButton.y -= noHoverButton.height / 2;
         var startText:TextField = new TextField();
         var startTextFormat:TextFormat = new TextFormat();
-        startTextFormat.size = 24;
+        startTextFormat.size = 26;
         startTextFormat.font = "Comic Sans";
+        startTextFormat.bold = true;
         startTextFormat.align = TextFormatAlign.CENTER;
         startTextFormat.color = 0xFFFFFF;
         startText.defaultTextFormat = startTextFormat;
         startText.width = noHoverButton.width;
-        startText.height = 28;
+        startText.height = 30;
         startText.x -= startText.width / 2;
         startText.y -= startText.height / 2;
         startText.text = "Start";
@@ -455,7 +503,7 @@ package  {
         Start_button.mouseChildren = false;
         Start_button.buttonMode = true;
       About_text_format = new TextFormat();
-        About_text_format.size = 17;
+        About_text_format.size = 14;
         About_text_format.font = "Verdana";
         About_text_format.align = TextFormatAlign.CENTER;
         About_text_format.color = 0x000000; 
@@ -468,7 +516,7 @@ package  {
       Learn_more_text = new TextField();
         Learn_more_text.defaultTextFormat = Learn_more_format;
         Learn_more_text.width = 0.50 * stagewidth;
-        Learn_more_text.height = 20;
+        Learn_more_text.height = 22;
         Learn_more_text.text = "Learn more about Measurement Lab";
       About_ndt_text = new TextField();
       About_ndt_text.defaultTextFormat = About_text_format;
