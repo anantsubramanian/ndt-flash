@@ -181,7 +181,7 @@ package  {
       scrollBar.addEventListener(MouseEvent.MOUSE_MOVE, startDragging);
     }
     private function startDragging(e:MouseEvent):void {
-      scrollBlock.y = mouseY;
+      scrollBlock.y = mouseY - scrollBlock.height / 2;
     }
     private function stopScrollBlock(e:MouseEvent):void {
       scrollBar.removeEventListener(MouseEvent.MOUSE_MOVE, startDragging);
