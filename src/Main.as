@@ -71,7 +71,7 @@ package {
       var localeId:LocaleID = new LocaleID(Capabilities.language);
       var lang:String = localeId.getLanguage();
       var region:String = localeId.getRegion();
-      if (lang != null && region == null
+      if (lang != null && region != null
           && (ResourceManager.getInstance().getResourceBundle(
                 lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
