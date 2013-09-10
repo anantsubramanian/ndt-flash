@@ -25,6 +25,7 @@ package  {
   import flash.system.Security;
   import flash.text.TextField;
   import flash.utils.Timer;
+  import flash.errors.IOError;
   import mx.resources.ResourceManager;
   import mx.utils.StringUtil;
     

@@ -16,7 +16,11 @@ package {
   import flash.display.DisplayObject;
   import flash.display.Sprite;
   import flash.events.Event;
+  import flash.external.ExternalInterface;
+  import flash.globalization.LocaleID;
+  import flash.system.Capabilities;
   import mx.resources.ResourceBundle;
+  import mx.resources.ResourceManager;
   /**
    * @author Anant Subramanian
    */
@@ -26,7 +30,7 @@ package {
     public static var guiEnabled:Boolean = CONFIG::guiEnabled;
     public static var locale:String = CONFIG::defaultLocale;
     public static var gui:GUI;
-
+    
     public function Main():void {
       if (stage) 
         init();
