@@ -51,7 +51,7 @@ package  {
     private var readCount:int;
     private var _yTests:int =  NDTConstants.TEST_C2S | NDTConstants.TEST_S2C
                                | NDTConstants.TEST_META;
-    
+        
     // socket event listener functions
     public function onConnect(e:Event):void {
       trace("Socket connected.");
@@ -107,6 +107,7 @@ package  {
      * used to communicate with the server.
      */
     public function dottcp():void {
+      TestResults.set_StartTime();
       pub_host = sHostName;
       // default control port used for the NDT tests session. NDT server
       // listens to this port
@@ -163,17 +164,35 @@ package  {
       if (testNo < tests.length) {
         var test:int = parseInt(tests[testNo]);
         switch (test) {
-          case NDTConstants.TEST_C2S: var C2S:TestC2S = 
+          case NDTConstants.TEST_C2S: NDTUtils.callExternalFunction(
+                                          "testStarted", "ClientToServerThroughput");
+                                      var C2S:TestC2S = 
                                       new TestC2S(ctlSocket, protocolObj,
                                                   sHostName, this);
+                                      NDTUtils.callExternalFunction(
+                                        "testCompleted", 
+                                        "ClientToServerThroughput",
+                                        (!TestResults.get_c2sFailed()).toString());  
                                       break;
-          case NDTConstants.TEST_S2C: var S2C:TestS2C =
+          case NDTConstants.TEST_S2C: NDTUtils.callExternalFunction(
+                                        "testStarted", "ServerToClientThroughput");
+                                      var S2C:TestS2C =
                                       new TestS2C(ctlSocket, protocolObj, 
                                                   sHostName, this);
+                                      NDTUtils.callExternalFunction(
+                                        "testCompleted", 
+                                        "ServerToClientThroughput",
+                                        (!TestResults.get_s2cFailed()).toString());
                                       break;
-          case NDTConstants.TEST_META: var META:TestMETA =
+          case NDTConstants.TEST_META: NDTUtils.callExternalFunction(
+                                         "testStarted", "Meta");
+                                       var META:TestMETA =
                                        new TestMETA(ctlSocket, protocolObj, 
                                                     clientId, this);
+                                       NDTUtils.callExternalFunction(
+                                         "testCompleted", 
+                                         "Meta",
+                                         (!TestResults.get_metaFailed()).toString());
                                        break;
         }
       } else {
@@ -227,14 +246,18 @@ package  {
      * retrieval of the last set of results.
      */
     public function finishedAll():void {
+      if(TestResults.get_bFailed())
+        NDTUtils.callExternalFunction("fatalErrorOccured");
+      NDTUtils.callExternalFunction("allTestsCompleted");
       try {
         ctlSocket.close();
       } catch (e:IOError) {
         TestResults.appendErrMsg("Client failed to close Control Socket Connection\n");
       }
-      // temporarily set to view results using GUI
       if (_sTestResults != null)
         var interpRes:TestResults = new TestResults(_sTestResults, _yTests);
+      NDTUtils.callExternalFunction("resultsProcessed");
+      TestResults.set_EndTime();
       if (Main.guiEnabled) {
         Main.gui.displayResults();
       }

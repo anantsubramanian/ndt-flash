@@ -120,6 +120,7 @@ package  {
         TestResults.set_S2cspd(_dS2cspd);
       if (!isNaN(_dSs2cspd))
         TestResults.set_Ss2cspd(_dSs2cspd);
+      TestResults.set_s2cFailed(!s2cTest);
       
       removeResponseListener();
       // Increase testNo to mark the test as complete

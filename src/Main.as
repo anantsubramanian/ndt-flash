@@ -13,11 +13,13 @@
 // limitations under the License.
 
 package {
+  import flash.display.DisplayObject;
   import flash.display.Sprite;
   import flash.events.Event;
   import flash.external.ExternalInterface;
   import flash.globalization.LocaleID;
   import flash.system.Capabilities;
+  import flash.system.Security;
   import mx.resources.ResourceBundle;
   import mx.resources.ResourceManager;
   /**
@@ -47,7 +49,10 @@ package {
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
       // entry point
-      initializeLocale();
+      // set the properties of the SWF from its HTML tags
+      if(!NDTUtils.initializeTagsFromHTML(this.root))
+        initializeLocale();
+      
       stage.showDefaultContextMenu = false;
       
       var frame:MainFrame = new MainFrame(NDTConstants.HOST_NAME);
@@ -59,6 +64,7 @@ package {
         // If guiEnabled compiler flag set to false start tests immediately
         frame.dottcp();
       }
+      addJSCallbacks();
     }
     
     /**
@@ -80,6 +86,24 @@ package {
       } else {
         trace("Error: ResourceBundle for provided locale not found.");
         trace("Using default " + CONFIG::defaultLocale);
+      }
+    }
+    
+    /**
+     * Function that adds the callbacks to allow data access from, and to allow
+     * data to be sent to JavaScript.
+     */
+    private function addJSCallbacks():void {
+      Security.allowDomain("*");
+      try {
+        ExternalInterface.addCallback("getStandardOutput", NDTUtils.getStandardOut);
+        ExternalInterface.addCallback("getDebugOutput", NDTUtils.getDebugOut);
+        ExternalInterface.addCallback("getDetails", NDTUtils.getDetailedInfo);
+        ExternalInterface.addCallback("getAdvanced", NDTUtils.getAdvancedInfo);
+        ExternalInterface.addCallback("getErrors", NDTUtils.getErrorInfo);
+        ExternalInterface.addCallback("getNDTvar", NDTUtils.getNDTvariables);
+      } catch (e:Error) {
+        TestResults.appendErrMsg("Container doesn't support callbacks.\n");
       }
     }
   }

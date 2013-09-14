@@ -104,6 +104,7 @@ package  {
         TestResults.set_C2sspd(_dC2sspd);
       if (!isNaN(_dSc2sspd))
         TestResults.set_Sc2sspd(_dSc2sspd);
+      TestResults.set_c2sFailed(!c2sTest);
       
       // mark this test as complete and continue
       callerObj.testNo++;

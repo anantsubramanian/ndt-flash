@@ -13,6 +13,9 @@
 // limitations under the License.
 
 package  {
+  import flash.display.DisplayObject;
+  import flash.display.LoaderInfo;
+  import flash.external.ExternalInterface;
   import mx.resources.ResourceManager;
   /**
    * Class that defines utility methods used by NDT.
@@ -20,7 +23,7 @@ package  {
   public class NDTUtils {    
     /**
      *  Utility method to print Text values for data speed related keys.
-     *  @param {int} paramIntVal Parameter for which we find text value
+     *  @param {int} dataRateInt Parameter for which we find text value
      *  @return {String} Textual name for input parameter
      */
     public static function getDataRateString(dataRateInt:int):String {
@@ -62,6 +65,134 @@ package  {
                                                null, Main.locale);
       } // end switch
       return null;
+    }
+    
+    /**
+     * Function that returns the current text that should be displayed as
+     * Standard Output.
+     * @return {String} The standard output text
+     */
+    public static function getStandardOut():String {
+      return TestResults.getConsoleOutput();
+    }
+    
+    /**
+     * Function that returns the current text that should be displayed as
+     * Debug Output.
+     * @return {String} The debug output text
+     */
+    public static function getDebugOut():String {
+      return TestResults.getTraceOutput();
+    }
+    
+    /**
+     * Function that return text that is an analysis of the test results.
+     * @return {String} The analyzed text or 'Details'.
+     */
+    public static function getDetailedInfo():String {
+      return TestResults.getStatsText();
+    }
+    
+    /**
+     * Function that returns the set of web100 variables or advanced information.
+     * @return {String} 'Advanced' text to be displayed.
+     */
+    public static function getAdvancedInfo():String {
+      return TestResults.getDiagnosisText();
+    }
+    
+    /**
+     * Function that returns any errors that may have occured during the program
+     * run.
+     * @return {String} Errors that may have occured, each one on a new line.
+     */
+    public static function getErrorInfo():String {
+      return TestResults.getErrMsg();
+    } 
+    
+    /**
+     * Function that return a variable corresponding to the parameter passed to
+     * it as a request.
+     * @param {String} The parameter which the caller is seeking.
+     * @return {String} The value of the desired parameter.
+     */
+    public static function getNDTvariables(varName:String):String {
+      switch(varName) {
+        case "TestList": 
+          var testSuite:String = "";
+          if(TestResults.get_testSuite() & NDTConstants.TEST_C2S)
+            testSuite += "CLIENT_TO_SERVER_THROUGHPUT\n";
+          if(TestResults.get_testSuite() & NDTConstants.TEST_S2C)
+            testSuite += "SERVER_TO_CLIENT_THROUGHPUT\n";
+          if(TestResults.get_testSuite() & NDTConstants.TEST_META)
+            testSuite += "META_TEST\n";
+          return testSuite;
+        case "TestDuration":
+          return (TestResults.get_EndTime() - TestResults.get_StartTime()).toString();
+        case "ClientToServerSpeed":
+          return TestResults.get_c2sspd();
+        case "ServerToClientSpeed":
+          return TestResults.get_s2cspd();
+        case "PacketLoss":
+          return TestResults.get_loss();
+        case "MaxRTT":
+          return TestResults.get_MaxRTT();
+        case "AverageRTT":
+          return TestResults.get_avgrtt();
+        case "MinRTT":
+          return TestResults.get_Ping();
+        case "Jitter":
+          return TestResults.get_jitter();
+        case "OperatingSystem":
+          return TestResults.get_osName();
+        case "ClientVersion":
+          return NDTConstants.VERSION;
+        case "FlashVersion":
+          return TestResults.get_flashVer();
+        case "OsArch":
+          return TestResults.get_osArch();
+      }
+      return null;
+    }
+    /**
+     * Function that calls a JS function through the ExternalInterface class if it
+     * exists by the name specified in the parameter.
+     * @param {String} functionName The name of the JS function to call.
+     * @param {...} args A variable length array that contains the parameters to
+     *     pass to the JS function
+     */
+    public static function callExternalFunction(functionName:String, ... args):void {
+      try {
+        switch (args.length) {
+          case 0: ExternalInterface.call(functionName);
+                  break;
+          case 1: ExternalInterface.call(functionName, args[0]);
+                  break;
+          case 2: ExternalInterface.call(functionName, args[0], args[1]);
+                  break;
+        }
+      } catch (e:Error) {
+        trace("No ExternalInterface detected.");
+      }
+    }
+    /**
+     * Function that reads the HTML parameter tags for the SWF file and
+     * initializes the variables in the SWF accordingly.
+     * @return {Boolean} Whether the locale was set or not.
+     */
+    public static function initializeTagsFromHTML(root:DisplayObject):Boolean {
+      var paramObject:Object = LoaderInfo(root.loaderInfo).parameters;
+      var localeSet:Boolean = false;
+      var key:String;
+      for (key in paramObject) {
+        if (key == "Locale") {
+          Main.locale = paramObject[key];
+          localeSet = true;
+        }
+        else if (key == "UserAgentString")
+          TestResults.set_UserAgent(paramObject[key]);
+      }
+      return localeSet;
     }
   }
 }

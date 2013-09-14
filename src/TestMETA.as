@@ -72,6 +72,7 @@ package  {
      */
     private function onComplete():void {
       removeResponseListener();
+      TestResults.set_metaFailed(!metaTest);
       callerObj.testNo++;
       callerObj.runTests(protocolObj);
     }

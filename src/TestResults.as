@@ -129,6 +129,8 @@ package  {
     private static var _dSs2cspd:Number = 0.0;
     private static var _dS2cspd:Number = 0.0;
     private static var _dC2sspd:Number = 0.0;
+    private static var _dStartTime:Number = 0.0;
+    private static var _dEndTime:Number = 0.0;
     
     // Section : Misc variables
     private static var _sUserAgent:String = null;            
@@ -142,6 +144,9 @@ package  {
     private static var emailText:String = "";
     
     private static var _bFailed:Boolean = false;
+    private static var s2cFailed:Boolean = false;
+    private static var c2sFailed:Boolean = false;
+    private static var metaFailed:Boolean = false;
     // end variables declaration
     
     // Accessor methods for "pub_xxx" variables
@@ -258,6 +263,24 @@ package  {
     public static function get_bFailed():Boolean {
       return _bFailed;
     }
+    public static function get_testSuite():int {
+      return _yTests;
+    }
+    public static function get_StartTime():Number {
+      return _dStartTime;
+    }
+    public static function get_EndTime():Number {
+      return _dEndTime;
+    }
+    public static function get_s2cFailed():Boolean {
+      return s2cFailed;
+    }
+    public static function get_c2sFailed():Boolean {
+      return c2sFailed;
+    }
+    public static function get_metaFailed():Boolean {
+      return metaFailed;
+    }
     
     // Setter methods
     public static function set_bFailed(b:Boolean):void {
@@ -287,12 +310,28 @@ package  {
     public static function set_UserAgent(sParam:String):void {
       _sUserAgent = sParam;
     }
+    public static function set_StartTime():void {
+      _dStartTime = getTimer();
+    }    
+    public static function set_EndTime():void {
+      _dEndTime = getTimer();
+    }
+    public static function set_s2cFailed(bParam:Boolean):void {
+      s2cFailed = bParam;
+    }
+    public static function set_c2sFailed(bParam:Boolean):void {
+      c2sFailed = bParam;
+    }
+    public static function set_metaFailed(bParam:Boolean):void {
+      metaFailed = bParam;
+    }
     
     // Output handler functions
     public static function appendConsoleOutput(sParam:String):void {
       consoleOutput += sParam;
       if (Main.guiEnabled)
         GUI.addConsoleOutput(sParam);
+      NDTUtils.callExternalFunction("appendStandardOutput", sParam);
     }    
     public static function appendStatsText(sParam:String):void {
       statsText += sParam;
@@ -310,6 +349,7 @@ package  {
     }    
     public static function appendErrMsg(sParam:String):void {
       errMsg += sParam;
+      NDTUtils.callExternalFunction("appendErrors", sParam);
     }    
     public static function getConsoleOutput():String {
       return consoleOutput;
