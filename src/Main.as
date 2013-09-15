@@ -30,7 +30,7 @@ package {
     public static var guiEnabled:Boolean = CONFIG::guiEnabled;
     public static var locale:String = CONFIG::defaultLocale;
     public static var gui:GUI;
-    
+
     public function Main():void {
       if (stage) 
         init();
@@ -50,12 +50,12 @@ package {
       
       // set the properties of the SWF from its HTML tags
       NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);      
-      stage.showDefaultContextMenu = false;
       
       var frame:MainFrame = new MainFrame(NDTConstants.SERVER_HOSTNAME);
 
       stage.showDefaultContextMenu = false;
       if (guiEnabled) {
+        stage.showDefaultContextMenu = false;
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);
       } else {
