@@ -100,7 +100,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         metaTest = false;
         onComplete();
         return;
@@ -113,7 +113,7 @@ package  {
                                           null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.getBody()), 16)
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         metaTest = false;
@@ -136,7 +136,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         metaTest = false;
         onComplete();
         return;
@@ -149,7 +149,7 @@ package  {
                                            null, Main.locale) + "\n"); 
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.getBody()), 16)
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         metaTest = false;
@@ -211,7 +211,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         metaTest = false;
         onComplete();
         return;
@@ -223,7 +223,7 @@ package  {
                                           "metaWrongMessage", null, Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.getBody()), 16)
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         metaTest = false;

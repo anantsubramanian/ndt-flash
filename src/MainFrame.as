@@ -143,7 +143,7 @@ package  {
      * @param {Message} msg An object that contains the test suite message.
      */
     public function initiateTests(protocolObj:Protocol, msg:Message):void {
-      var tStr:String = new String(msg.getBody());
+      var tStr:String = new String(msg.body);
       tStr = new String(StringUtil.trim(tStr));
       tests = tStr.split(" ");
       testNo = 0;
@@ -213,7 +213,7 @@ package  {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "protocolError", null,Main.locale) 
-            + parseInt(new String(msg.getBody()), 16)
+            + parseInt(new String(msg.body), 16)
             + " instead\n");
           TestResults.set_bFailed(true);
           return;
@@ -233,7 +233,7 @@ package  {
           TestResults.set_bFailed(true);
           return;
         }
-        _sTestResults += new String(msg.getBody());
+        _sTestResults += new String(msg.body);
       }
     }
     

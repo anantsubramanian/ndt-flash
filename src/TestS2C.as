@@ -286,7 +286,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         s2cTest = false;
         onComplete();
         return;
@@ -299,7 +299,7 @@ package  {
                                           null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MESSAGE : "
-                                   + parseInt(new String(msg.getBody()), 16)
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         s2cTest = false;
@@ -307,7 +307,7 @@ package  {
         return;
       }
       // get port to bind to for the s2c tests
-      iS2cport = parseInt(new String(msg.getBody()));
+      iS2cport = parseInt(new String(msg.body));
       iBitCount = 0;
       inlth = 0;
       comStage = TEST_START;
@@ -332,7 +332,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "unknownServer", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         s2cTest = false;
         onComplete();
         return;
@@ -344,7 +344,7 @@ package  {
                                           "serverFail", null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
-                                   + parseInt(new String(msg.getBody()), 16) 
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         s2cTest = false;
@@ -427,7 +427,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         s2cTest = false;
         onComplete();
         return;
@@ -441,7 +441,7 @@ package  {
                                            null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
-                                   + parseInt(new String(msg.getBody()), 16) 
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         s2cTest = false;
@@ -449,7 +449,7 @@ package  {
         return;
       }
       // get data from message and check for errors
-      var tmpstr:String = new String(msg.getBody());
+      var tmpstr:String = new String(msg.body);
       var k1:int = tmpstr.indexOf(" ");
       var k2:int = (tmpstr.substr(k1+1)).indexOf(" ");
       _dSs2cspd = parseFloat(tmpstr.substr(0, k1)) / NDTConstants.SEC2MSEC;
@@ -515,7 +515,7 @@ package  {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                             "protocolError", null, Main.locale)
-            + parseInt(new String(msg.getBody()), 16) + " instead\n");
+            + parseInt(new String(msg.body), 16) + " instead\n");
           s2cTest = false;
           onComplete();
           return;
@@ -538,7 +538,7 @@ package  {
                                             null, Main.locale) + "\n");
           if (msg.type == MessageType.MSG_ERROR) {
             TestResults.appendErrMsg("ERROR MSG : "
-                                     + parseInt(new String(msg.getBody()), 16) 
+                                     + parseInt(new String(msg.body), 16)
                                      + "\n");
           }
           s2cTest = false;
@@ -546,7 +546,7 @@ package  {
           return;
         }
         // get all web100 variables as name-value string pairs
-        _sTestResults += new String(msg.getBody());
+        _sTestResults += new String(msg.body);
       }
     }
     

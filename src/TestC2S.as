@@ -238,7 +238,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
@@ -253,7 +253,7 @@ package  {
                                           null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: " 
-                                   + parseInt(new String(msg.getBody()), 16)
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         c2sTest = false;
@@ -274,7 +274,7 @@ package  {
       trace("******Send buffer size = " + i);
       
       // get port to bind to from message
-      var iC2sport:int = parseInt(new String(msg.getBody()));
+      var iC2sport:int = parseInt(new String(msg.body));
       comStage = TEST_START;
       outSocket = new Socket(sHostname, iC2sport);
       addEventListeners();
@@ -301,7 +301,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
@@ -315,7 +315,7 @@ package  {
                                           null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg ("ERROR MSG: " 
-                                    + parseInt(new String(msg.getBody()), 16)
+                                    + parseInt(new String(msg.body), 16)
                                     + "\n");
         }
         c2sTest = false;
@@ -387,7 +387,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
@@ -400,7 +400,7 @@ package  {
                                           null, Main.locale) + "\n");
         if(msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.getBody()), 16) 
+                                   + parseInt(new String(msg.body), 16) 
                                    + "\n");
         }
         c2sTest = false;
@@ -409,7 +409,7 @@ package  {
       }
       
       // Get throughput calculated by the server
-      var tmpstr:String = new String(msg.getBody());
+      var tmpstr:String = new String(msg.body);
       _dSc2sspd = parseFloat(tmpstr) / NDTConstants.SEC2MSEC;
       // Display server calculated throughput value
       trace("Server calculated throughput value = " + _dSc2sspd + " Mb/s");
@@ -444,7 +444,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         c2sTest = false;
         onComplete();
         return;
@@ -457,7 +457,7 @@ package  {
                                           null, Main.locale) + "\n");
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.getBody()), 16)
+                                   + parseInt(new String(msg.body), 16)
                                    + "\n");
         }
         c2sTest = false;
