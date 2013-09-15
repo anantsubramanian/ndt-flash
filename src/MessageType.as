@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package  {
+package {
   /** 
-   * Class that defines the NDTP control message types.
+   * Class that defines the NDTP control message types, as expected by the NDT
+   * server.
    */
   public class MessageType {
     public static const COMM_FAILURE:uint = 0;
