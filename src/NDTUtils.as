@@ -16,6 +16,9 @@ package  {
   import flash.display.DisplayObject;
   import flash.display.LoaderInfo;
   import flash.external.ExternalInterface;
+  import flash.globalization.LocaleID;
+  import flash.system.Capabilities;
+  import flash.system.Security;
   import mx.resources.ResourceManager;
   /**
    * Class that defines utility methods used by NDT.
@@ -68,55 +71,12 @@ package  {
     }
     
     /**
-     * Function that returns the current text that should be displayed as
-     * Standard Output.
-     * @return {String} The standard output text
-     */
-    public static function getStandardOut():String {
-      return TestResults.getConsoleOutput();
-    }
-    
-    /**
-     * Function that returns the current text that should be displayed as
-     * Debug Output.
-     * @return {String} The debug output text
-     */
-    public static function getDebugOut():String {
-      return TestResults.getTraceOutput();
-    }
-    
-    /**
-     * Function that return text that is an analysis of the test results.
-     * @return {String} The analyzed text or 'Details'.
-     */
-    public static function getDetailedInfo():String {
-      return TestResults.getStatsText();
-    }
-    
-    /**
-     * Function that returns the set of web100 variables or advanced information.
-     * @return {String} 'Advanced' text to be displayed.
-     */
-    public static function getAdvancedInfo():String {
-      return TestResults.getDiagnosisText();
-    }
-    
-    /**
-     * Function that returns any errors that may have occured during the program
-     * run.
-     * @return {String} Errors that may have occured, each one on a new line.
-     */
-    public static function getErrorInfo():String {
-      return TestResults.getErrMsg();
-    } 
-    
-    /**
      * Function that return a variable corresponding to the parameter passed to
      * it as a request.
      * @param {String} The parameter which the caller is seeking.
      * @return {String} The value of the desired parameter.
      */
-    public static function getNDTvariables(varName:String):String {
+    public static function getNDTvarJSCallback(varName:String):String {
       switch(varName) {
         case "TestList": 
           var testSuite:String = "";
@@ -178,10 +138,8 @@ package  {
     /**
      * Function that reads the HTML parameter tags for the SWF file and
      * initializes the variables in the SWF accordingly.
-     * @return {Boolean} Whether the locale was set or not.
      */
-    public static function initializeTagsFromHTML(root:DisplayObject):Boolean {
-      var paramObject:Object = LoaderInfo(root.loaderInfo).parameters;
+    public static function initializeFromHTML(paramObject:Object):void {
       var localeSet:Boolean = false;
       var key:String;
       for (key in paramObject) {
@@ -192,7 +150,53 @@ package  {
         else if (key == "UserAgentString")
           TestResults.set_UserAgent(paramObject[key]);
       }
-      return localeSet;
+      if(!localeSet)
+        initializeLocale();
+    } 
+    
+    /**
+     * Initializes the locale used by the tool to match the environment of the
+     * SWF.
+     */ 
+    public static function initializeLocale():void {
+      var localeId:LocaleID = new LocaleID(Capabilities.language);
+      var lang:String = localeId.getLanguage();
+      var region:String = localeId.getRegion();
+      if (lang != null && region != null
+          && (ResourceManager.getInstance().getResourceBundle(
+                lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
+        // Bundle for specified locale found, change value of locale
+        Main.locale = new String(lang + "_" + region);
+        trace("Using locale " + locale);
+      } else {
+        trace("Error: ResourceBundle for provided locale not found.");
+        trace("Using default " + CONFIG::defaultLocale);
+      }
+    }
+    
+    /**
+     * Function that adds the callbacks to allow data access from, and to allow
+     * data to be sent to JavaScript.
+     */
+    public static function addJSCallbacks():void {
+      // TODO: restrict domain to the M-Lab website / server
+      Security.allowDomain("*");
+      try {
+        ExternalInterface.addCallback("getStandardOutput", 
+                                      TestResults.getConsoleOutput);
+        ExternalInterface.addCallback("getDebugOutput", 
+                                      TestResults.getTraceOutput);
+        ExternalInterface.addCallback("getDetails", 
+                                      TestResults.getStatsText);
+        ExternalInterface.addCallback("getAdvanced", 
+                                      TestResults.getDiagnosisText);
+        ExternalInterface.addCallback("getErrors", TestResults.getErrMsg);
+        ExternalInterface.addCallback("getNDTvar", getNDTvarJSCallback);
+      } catch (e:Error) {
+        TestResults.appendErrMsg("Container doesn't support callbacks.\n");
+      } catch (se:SecurityError) {
+        TestResults.appendErrMsg("Security error " + se.toString());
+      }
     }
   }
 }

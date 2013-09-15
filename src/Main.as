@@ -14,14 +14,10 @@
 
 package {
   import flash.display.DisplayObject;
+  import flash.display.LoaderInfo;
   import flash.display.Sprite;
   import flash.events.Event;
-  import flash.external.ExternalInterface;
-  import flash.globalization.LocaleID;
-  import flash.system.Capabilities;
-  import flash.system.Security;
   import mx.resources.ResourceBundle;
-  import mx.resources.ResourceManager;
   /**
    * @author Anant Subramanian
    */
@@ -49,10 +45,9 @@ package {
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
       // entry point
-      // set the properties of the SWF from its HTML tags
-      if(!NDTUtils.initializeTagsFromHTML(this.root))
-        initializeLocale();
       
+      // set the properties of the SWF from its HTML tags
+      NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);      
       stage.showDefaultContextMenu = false;
       
       var frame:MainFrame = new MainFrame(NDTConstants.HOST_NAME);
@@ -64,47 +59,7 @@ package {
         // If guiEnabled compiler flag set to false start tests immediately
         frame.dottcp();
       }
-      addJSCallbacks();
-    }
-    
-    /**
-     * Initializes the locale variable of this class to match the environment
-     * of the SWF.
-     * @param {String} lang The language part of the locale
-     * @param {String} region The region part of the locale
-     */ 
-    private function initializeLocale():void {
-      var localeId:LocaleID = new LocaleID(Capabilities.language);
-      var lang:String = localeId.getLanguage();
-      var region:String = localeId.getRegion();
-      if (lang != null && region != null
-          && (ResourceManager.getInstance().getResourceBundle(
-                lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
-        // Bundle for specified locale found, change value of locale
-        locale = new String(lang + "_" + region);
-        trace("Using locale " + locale);
-      } else {
-        trace("Error: ResourceBundle for provided locale not found.");
-        trace("Using default " + CONFIG::defaultLocale);
-      }
-    }
-    
-    /**
-     * Function that adds the callbacks to allow data access from, and to allow
-     * data to be sent to JavaScript.
-     */
-    private function addJSCallbacks():void {
-      Security.allowDomain("*");
-      try {
-        ExternalInterface.addCallback("getStandardOutput", NDTUtils.getStandardOut);
-        ExternalInterface.addCallback("getDebugOutput", NDTUtils.getDebugOut);
-        ExternalInterface.addCallback("getDetails", NDTUtils.getDetailedInfo);
-        ExternalInterface.addCallback("getAdvanced", NDTUtils.getAdvancedInfo);
-        ExternalInterface.addCallback("getErrors", NDTUtils.getErrorInfo);
-        ExternalInterface.addCallback("getNDTvar", NDTUtils.getNDTvariables);
-      } catch (e:Error) {
-        TestResults.appendErrMsg("Container doesn't support callbacks.\n");
-      }
+      NDTUtils.addJSCallbacks();
     }
   }
 }

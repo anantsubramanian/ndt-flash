@@ -350,6 +350,7 @@ package  {
     public static function appendErrMsg(sParam:String):void {
       errMsg += sParam;
       NDTUtils.callExternalFunction("appendErrors", sParam);
+      trace(sParam);
     }    
     public static function getConsoleOutput():String {
       return consoleOutput;
