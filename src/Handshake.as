@@ -101,7 +101,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         TestResults.set_bFailed(true);
         return;
       }
@@ -117,7 +117,7 @@ package  {
       
       // Handling different queued-client cases below
       // Get wait flag value
-      var tmpstr:String = new String(msg.getBody());
+      var tmpstr:String = new String(msg.body);
       wait = parseInt(tmpstr);
       trace("Wait flag received = " + String(wait));
       TestResults.appendTraceOutput("Wait flag received = " 
@@ -191,7 +191,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         TestResults.set_bFailed(true);
         return;
       }
@@ -206,7 +206,7 @@ package  {
         return;
       }
       // version compatibility between server and client must be verified.
-      var vVersion:String = new String(msg.getBody());
+      var vVersion:String = new String(msg.body);
       if (!(vVersion.indexOf("v") == 0)) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -238,7 +238,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.getBody()), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead\n");
         TestResults.set_bFailed(true);
         return;
       }

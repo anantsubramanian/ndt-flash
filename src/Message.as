@@ -26,19 +26,20 @@ package  {
    */
   public class Message {
     public function get type():uint {
-      if (_yaBody.length > 0)
-        return _yaBody[0];
+      if (body_.length > 0)
+        return body_[0];
       else
         return MessageType.UNDEF_TYPE;
     }
-    public var _yaBody:ByteArray;
+    // TODO: Change to private.
+    public var body_:ByteArray;
     
     /**
      * Function to get the Message body as an array
      * @return {ByteArray} The message body
      */
-    public function getBody():ByteArray {
-      return _yaBody;
+    public function get body():ByteArray {
+      return body_;
     }
     
     /**
@@ -50,8 +51,8 @@ package  {
       if (baParamBody != null) {
         iParamSize = baParamBody.length;
       }
-      _yaBody = new ByteArray();
-      arraycopy(baParamBody, 0, _yaBody, 0, iParamSize);
+      body_ = new ByteArray();
+      arraycopy(baParamBody, 0, body_, 0, iParamSize);
       
     }
 
@@ -60,13 +61,13 @@ package  {
      * @param {int} iParamSize ByteArray size
      */
     public function initBodySize(iParamSize:int):void {
-      this._yaBody = new ByteArray();
+      this.body_ = new ByteArray();
       var pos:int = 0;
-      while (_yaBody.length < iParamSize) {
-        _yaBody[pos] = 0;
+      while (body_.length < iParamSize) {
+        body_[pos] = 0;
         pos++;
       }
-      _yaBody.position = 0;
+      body_.position = 0;
     }
     
     /**
