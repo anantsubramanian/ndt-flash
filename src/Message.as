@@ -25,37 +25,20 @@ package  {
    * - a body.
    */
   public class Message {
+    // TODO: Change to private.
+    public var body_:ByteArray;
+
     public function get type():uint {
       if (body_.length > 0)
         return body_[0];
       else
         return MessageType.UNDEF_TYPE;
     }
-    // TODO: Change to private.
-    public var body_:ByteArray;
-    
-    /**
-     * Function to get the Message body as an array
-     * @return {ByteArray} The message body
-     */
+
     public function get body():ByteArray {
       return body_;
     }
     
-    /**
-     * Function to set the Message body, given a byte array input.
-     * @param {ByteArray} baParamBody Message body byte array
-     */
-    public function setBody(baParamBody:ByteArray):void {
-      var iParamSize:int = 0;
-      if (baParamBody != null) {
-        iParamSize = baParamBody.length;
-      }
-      body_ = new ByteArray();
-      arraycopy(baParamBody, 0, body_, 0, iParamSize);
-      
-    }
-
     /**
      * Utility method to initialize Message body
      * @param {int} iParamSize ByteArray size
@@ -68,24 +51,6 @@ package  {
         pos++;
       }
       body_.position = 0;
-    }
-    
-    /**
-     * Function to copy given number of bytes from a particular position of 
-     * source ByteArray to a particular position of the destination ByteArray.
-     * @param {ByteArray} src The source ByteArray
-     * @param {int} srcpos Position to start copying from source
-     * @param {ByteArray} dest Destination ByteArray
-     * @param {int} destpos Position to start copying to at the destination
-     * @param {int} len Length of array to be copied
-     */
-    private function arraycopy(src:ByteArray, srcpos:int, dest:ByteArray,
-                               destpos:int, len:int):void {
-      var srccounter:int = srcpos;
-      var destcounter:int = destpos;
-      for (; srccounter < len; srccounter++, destcounter++) {
-        dest[destcounter] = src[srccounter];
-      }
     }
   }
 }
