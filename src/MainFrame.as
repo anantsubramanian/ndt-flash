@@ -200,13 +200,13 @@ package  {
           return;
         }
         // all results obtained. "Log Out" message received now
-        if (msg.getType() == MessageType.MSG_LOGOUT) {
+        if (msg.type == MessageType.MSG_LOGOUT) {
           readTimer.stop();
           removeResponseListener();
           finishedAll();
         }
         // get results in the form of a human-readable string
-        if (msg.getType() != MessageType.MSG_RESULTS) {
+        if (msg.type != MessageType.MSG_RESULTS) {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)

@@ -290,13 +290,13 @@ package  {
         onComplete();
         return;
       }
-      if (msg.getType() != MessageType.TEST_PREPARE) {
+      if (msg.type != MessageType.TEST_PREPARE) {
         // no other message type expected at this point
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "inboundWrongMessage",
                                           null, Main.locale) + "\n");
-        if (msg.getType() == MessageType.MSG_ERROR) {
+        if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MESSAGE : "
                                    + parseInt(new String(msg.getBody()), 16)
                                    + "\n");
@@ -336,12 +336,12 @@ package  {
         onComplete();
         return;
       }      
-      if (msg.getType() != MessageType.TEST_START) {
+      if (msg.type != MessageType.TEST_START) {
         // no other message type expected at this point
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "serverFail", null, Main.locale) + "\n");
-        if (msg.getType() == MessageType.MSG_ERROR) {
+        if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
                                    + parseInt(new String(msg.getBody()), 16) 
                                    + "\n");
@@ -433,12 +433,12 @@ package  {
       }
       
       // Only message of type TEST_MSG expected from the server at this point
-      if (msg.getType() != MessageType.TEST_MSG) {
+      if (msg.type != MessageType.TEST_MSG) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "inboundWrongMessage",
                                            null, Main.locale) + "\n");
-        if (msg.getType() == MessageType.MSG_ERROR) {
+        if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
                                    + parseInt(new String(msg.getBody()), 16) 
                                    + "\n");
@@ -519,7 +519,7 @@ package  {
           onComplete();
           return;
         }
-        if (msg.getType() == MessageType.TEST_FINALIZE) {
+        if (msg.type == MessageType.TEST_FINALIZE) {
           // all web100 variables have been sent by the server
           TestResults.set_pub_status("done");
           comStage = ALL_COMPLETE;
@@ -530,12 +530,12 @@ package  {
         
         // Only a message of TEST_MSG type containing the web100 variables
         // is expected. Every other message is "incorrect"
-        if (msg.getType() != MessageType.TEST_MSG) {
+        if (msg.type != MessageType.TEST_MSG) {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "inboundWrongMessage",
                                             null, Main.locale) + "\n");
-          if (msg.getType() == MessageType.MSG_ERROR) {
+          if (msg.type == MessageType.MSG_ERROR) {
             TestResults.appendErrMsg("ERROR MSG : "
                                      + parseInt(new String(msg.getBody()), 16) 
                                      + "\n");

@@ -16,32 +16,22 @@ package  {
   import flash.utils.ByteArray;
   
   /**
-   * Class to define Message. Messages are composed of a "type" and a body. Some
-   * examples of message types are : COMM_FAILURE, SRV_QUEUE, MSG_LOGIN,
-   * TEST_PREPARE. Messages are defined to have a "length" field too. Currently,
-   * 2 bytes of the message "body" byte array are often used to store length (For
-   * example, second/third array positions)
+   * Class to define an NDT message. A message is characterized by
+   * - a type:
+   *     The type of a message is stored in the 1st byte of the body.
+         All the valid types are defined in the class MessageType.
+   * - a lenght:
+   *     The lenght of a message is stored in the 2nd and 3rd bytes of the body.
+   * - a body.
    */
   public class Message {
-    // variables declaration section
-    private var _yType:int;
+    public function get type():uint {
+      if (_yaBody.length > 0)
+        return _yaBody[0];
+      else
+        return MessageType.UNDEF_TYPE;
+    }
     public var _yaBody:ByteArray;
-    
-    /**
-     * Function to get the Message Type
-     * @return {int} indicating Message Type
-     */
-    public function getType():int {
-      return _yType;
-    }
-    
-    /**
-     * Function to set the Message Type
-     * @param {int} bParamType The Message Type
-     */
-    public function setType(bParamType:int):void {
-      this._yType = bParamType;
-    }
     
     /**
      * Function to get the Message body as an array
