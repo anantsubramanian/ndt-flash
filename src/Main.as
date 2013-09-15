@@ -23,13 +23,13 @@ package {
   /**
    * @author Anant Subramanian
    */
+
   [ResourceBundle("DisplayMessages")]
   public class Main extends Sprite {
-    
     public static var guiEnabled:Boolean = CONFIG::guiEnabled;
     public static var locale:String = CONFIG::defaultLocale;
     public static var gui:GUI;
-    
+
     public function Main():void {
       if (stage) 
         init();
@@ -46,16 +46,14 @@ package {
      */
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
-      // entry point
       initializeLocale();
-      stage.showDefaultContextMenu = false;
-      
       var frame:MainFrame = new MainFrame(NDTConstants.SERVER_HOSTNAME);
+
       if (guiEnabled) {
+        stage.showDefaultContextMenu = false;
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);
-      }
-      if (!guiEnabled) {
+      } else {
         // If guiEnabled compiler flag set to false start tests immediately
         frame.dottcp();
       }
@@ -71,13 +69,13 @@ package {
       var region:String = localeId.getRegion();
       if (lang != null && region != null
           && (ResourceManager.getInstance().getResourceBundle(
-                lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
+                lang + "_" + region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
         locale = new String(lang + "_" + region);
         trace("Using locale " + locale);
       } else {
         trace("Error: ResourceBundle for provided locale not found.");
-        trace("Using default " + CONFIG::defaultLocale);
+        trace("Using default locale " + CONFIG::defaultLocale);
       }
     }
   }
