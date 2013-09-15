@@ -18,7 +18,6 @@ package {
    * server.
    */
   public class MessageType {
-    public static const UNDEF_TYPE:int = -1;
     public static const COMM_FAILURE:int = 0;
     public static const SRV_QUEUE:int = 1;
     public static const MSG_LOGIN:int = 2;

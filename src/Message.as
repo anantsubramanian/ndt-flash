@@ -16,23 +16,25 @@ package  {
   import flash.utils.ByteArray;
   
   /**
-   * Class to define an NDT message. A message is characterized by
-   * - a type:
-   *     The type of a message is stored in the 1st byte of the body.
-         All the valid types are defined in the class MessageType.
-   * - a lenght:
-   *     The lenght of a message is stored in the 2nd and 3rd bytes of the body.
-   * - a body.
+   * Class to define an NDT message. A message is characterized by a type,
+   * a length and a body. All the types are defined in the class MessageType.
+   * All the valid types are defined in the class MessageType.
+   * The client and server exchange messages as sequence of bytes, where
+   * - the 1st byte contains the type of a message,
+   * - the 2nd and 3rd bytes contain the length of the message.
    */
   public class Message {
+    private var type_:int;
     // TODO: Change to private.
     public var body_:ByteArray;
 
-    public function get type():uint {
-      if (body_.length > 0)
-        return body_[0];
-      else
-        return MessageType.UNDEF_TYPE;
+    public function get type():int {
+      return type_;
+    }
+    public function setType(rawMessage:ByteArray):void {
+      if (rawMessage.length == 0)
+         throw new Error("Message without type");
+      type_ = rawMessage[0];
     }
 
     public function get body():ByteArray {
