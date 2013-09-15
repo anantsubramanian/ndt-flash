@@ -15,52 +15,49 @@
 package  {
   import mx.resources.ResourceManager;
   /**
-   * Class that defines utility methods used by NDT.
+   * Class that defines utility methods used by the NDT client.
    */
   public class NDTUtils {    
     /**
-     *  Utility method to print Text values for data speed related keys.
-     *  @param {int} paramIntVal Parameter for which we find text value
-     *  @return {String} Textual name for input parameter
+     *  Return text representation of data speed values.
      */
     public static function getDataRateString(dataRateInt:int):String {
       switch (dataRateInt) {
       case NDTConstants.DATA_RATE_SYSTEM_FAULT:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "systemFault", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "systemFault", null, Main.locale);
       case NDTConstants.DATA_RATE_RTT:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "rtt", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "rtt", null, Main.locale);
       case NDTConstants.DATA_RATE_DIAL_UP:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "dialup2", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "dialup2", null, Main.locale);
       case NDTConstants.DATA_RATE_T1:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "t1Str", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "t1Str", null, Main.locale);
       case NDTConstants.DATA_RATE_ETHERNET:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "ethernetStr", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "ethernetStr", null, Main.locale);
       case NDTConstants.DATA_RATE_T3:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "t3Str", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "t3Str", null, Main.locale);
       case NDTConstants.DATA_RATE_FAST_ETHERNET:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "fastEthernet", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "fastEthernet", null, Main.locale);
       case NDTConstants.DATA_RATE_OC_12:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "oc12Str", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "oc12Str", null, Main.locale);
       case NDTConstants.DATA_RATE_GIGABIT_ETHERNET:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "gigabitEthernetStr", 
-                                               null, Main.locale); 
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "gigabitEthernetStr", null, Main.locale); 
       case NDTConstants.DATA_RATE_OC_48:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "oc48Str", null, Main.locale);
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "oc48Str", null, Main.locale);
       case NDTConstants.DATA_RATE_10G_ETHERNET:
-        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                               "tengigabitEthernetStr", 
-                                               null, Main.locale);
-      } // end switch
+        return ResourceManager.getInstance().getString(
+	    NDTConstants.BUNDLE_NAME, "tengigabitEthernetStr", null,
+	    Main.locale);
+      }
       return null;
     }
   }
