@@ -133,6 +133,7 @@ package  {
       }
       
       var yaMsgBody:ByteArray = msgParam.body;
+      msgParam.setType(yaMsgBody);
       // Get data length
       Length = (int(yaMsgBody[1]) & 0xFF) << 8;
       Length += int(yaMsgBody[2]) & 0xFF;
