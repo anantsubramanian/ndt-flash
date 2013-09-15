@@ -75,7 +75,8 @@ package  {
       var tmp:int;
       msgParam.initBodySize(iParamAmount);
       while (read != iParamAmount) {
-        tmp = readBytesAndReturn(ctlSocket, msgParam._yaBody,
+        // TODO: Change not to access directly the message body.
+        tmp = readBytesAndReturn(ctlSocket, msgParam.body_,
                                  read, iParamAmount - read);
         if (tmp <= 0) {
           // end of file 
@@ -131,7 +132,7 @@ package  {
         return 1;
       }
       
-      var yaMsgBody:ByteArray = msgParam.getBody();
+      var yaMsgBody:ByteArray = msgParam.body;
       // Get data length
       Length = (int(yaMsgBody[1]) & 0xFF) << 8;
       Length += int(yaMsgBody[2]) & 0xFF;
