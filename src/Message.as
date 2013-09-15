@@ -38,6 +38,7 @@ package  {
     }
     public function get body():ByteArray {
       return body_;
+    
     }
     public static function getBody(intToSend:int): ByteArray {
       var body:ByteArray = new ByteArray();
