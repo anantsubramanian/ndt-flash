@@ -229,7 +229,7 @@ package  {
       return pub_pctRcvrLimited.toString();
     }    
     public static function get_optimalRcvrBuffer():String {
-      return (pub_MaxRwinRcvd * NDTConstants.KILO).toString();
+      return (pub_MaxRwinRcvd * NDTConstants.SEC2MSEC).toString();
     }    
     public static function get_clientIP():String {
       return pub_clientIP;
@@ -255,7 +255,7 @@ package  {
     public static function get_instSpeed():String {
       // get speed in bits, hence multiply by 8
       // for bit->byte conversion
-      return ((pub_bytes * NDTConstants.EIGHT) / (getTimer() - pub_time)).toString();      
+      return ((pub_bytes * NDTConstants.BYTES2BITS) / (getTimer() - pub_time)).toString();
     }    
     public static function get_UserAgent():String {
       return _sUserAgent;
@@ -684,8 +684,8 @@ package  {
                 // multiplied by 2 to counter round-trip
                 // Link speed is in Mbps. Convert it back to kbps (*1000),
                 // and bytes (/8)
-                j = Number(((mylink * _dAvgrtt) * NDTConstants.KILO)) / 
-                           NDTConstants.EIGHT / NDTConstants.KILO_BITS;
+                j = Number(((mylink * _dAvgrtt) * NDTConstants.SEC2MSEC)) /
+                           NDTConstants.BYTES2BITS / NDTConstants.KBITS2BITS;
                 if (j > Number(_iMaxRwinRcvd)) {
                   consoleOutput += 
                     ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -711,7 +711,7 @@ package  {
               break;
         }
         // C2S throughput test: Packet queueing
-        if ((_yTests & NDTConstants.TEST_C2S) == NDTConstants.TEST_C2S) {
+        if ((_yTests & TestType.C2S) == TestType.C2S) {
           if (_dSc2sspd < (_dC2sspd * (1.0 - NDTConstants.VIEW_DIFF))) {
             consoleOutput += 
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -720,7 +720,7 @@ package  {
           }
         }
         // S2C throughput test: Packet queueing
-        if ((_yTests & NDTConstants.TEST_S2C) == NDTConstants.TEST_S2C) {
+        if ((_yTests & TestType.S2C) == TestType.S2C) {
           if (_dS2cspd < (_dSs2cspd * (1.0 - NDTConstants.VIEW_DIFF))) {
             consoleOutput += 
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -1031,7 +1031,7 @@ package  {
       
       // Add Packet queueing details found during C2S throughput test to the
       // stats pane. Data is displayed as percentage
-      if ((_yTests & NDTConstants.TEST_C2S) == NDTConstants.TEST_C2S) {
+      if ((_yTests & TestType.C2S) == TestType.C2S) {
         if (_dC2sspd > _dSc2sspd) {
           if (_dSc2sspd < (_dC2sspd * (1.0 - NDTConstants.VIEW_DIFF))) {
             statsText += 
@@ -1056,7 +1056,7 @@ package  {
       
       // Add packet queueing details found during S2C throughput test to
       // the statistics pane. Data is displayed as a percentage.
-      if ((_yTests & NDTConstants.TEST_S2C) == NDTConstants.TEST_S2C) {
+      if ((_yTests & TestType.S2C) == TestType.S2C) {
         if (_dSs2cspd > _dS2cspd) {
           if (_dSs2cspd < (_dSs2cspd * (1.0 - NDTConstants.VIEW_DIFF))) {
             statsText += 
@@ -1081,7 +1081,7 @@ package  {
       
       // Add connection details to the statistics pane
       // Is the connection receiver limited ?
-      if (_dRwintime > NDTConstants.BUFFER_LIMITED) {
+      if (_dRwintime > NDTConstants.SND_LIM_TIME_THRESHOLD) {
         statsText += 
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "thisConnIs", null, Main.locale)
@@ -1104,14 +1104,14 @@ package  {
           statsText += 
             " " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "incrRxBuf", null, Main.locale) 
-            + " (" + (_iMaxRwinRcvd / NDTConstants.KILO_BITS).toFixed(2)
+            + " (" + (_iMaxRwinRcvd / NDTConstants.KBITS2BITS).toFixed(2)
             + " KB)" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                        "willImprove",
                                                        null, Main.locale) + "\n";
         }
       }
       // Is the connection sender limited ?
-      if (_dSendtime > NDTConstants.BUFFER_LIMITED) {
+      if (_dSendtime > NDTConstants.SND_LIM_TIME_THRESHOLD) {
         statsText += 
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "thisConnIs", null, Main.locale) 
@@ -1134,7 +1134,7 @@ package  {
           statsText += 
             " " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "incrRxBuf", null, Main.locale) 
-            + " (" + (_iSndbuf / (2 * NDTConstants.KILO_BITS)).toFixed(2)
+            + " (" + (_iSndbuf / (2 * NDTConstants.KBITS2BITS)).toFixed(2)
             + " KB)" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                        "willImprove",
                                                        null, Main.locale) + "\n";
@@ -1265,14 +1265,14 @@ package  {
       diagnosisText += 
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "ndtServerHas", null, Main.locale)
-        + " " + (_iSndbuf / (2 * NDTConstants.KILO_BITS)).toFixed(2) + " "
+        + " " + (_iSndbuf / (2 * NDTConstants.KBITS2BITS)).toFixed(2) + " "
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "kbyteBufferLimits", null, Main.locale) 
         + " " + (_dSwin / _dRttsec).toFixed(2) + " Mbps\n";
       emailText += 
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "ndtServerHas", null, Main.locale)
-        + " " + (_iSndbuf / (2 * NDTConstants.KILO_BITS)).toFixed(2) + " "
+        + " " + (_iSndbuf / (2 * NDTConstants.KBITS2BITS)).toFixed(2) + " "
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "kbyteBufferLimits", null, Main.locale) 
         + " " + (_dSwin / _dRttsec).toFixed(2) + " Mbps\n%0A";
@@ -1280,14 +1280,14 @@ package  {
       diagnosisText += 
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "yourPcHas", null, Main.locale) 
-        + " " + (_iMaxRwinRcvd / NDTConstants.KILO_BITS).toFixed(2) + " "
+        + " " + (_iMaxRwinRcvd / NDTConstants.KBITS2BITS).toFixed(2) + " "
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "kbyteBufferLimits", null, Main.locale) 
         + " " + (_dRwin / _dRttsec).toFixed(2) + " Mbps\n";
       emailText += 
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "yourPcHas", null, Main.locale) 
-        + " " + (_iMaxRwinRcvd / NDTConstants.KILO_BITS).toFixed(2) + " "
+        + " " + (_iMaxRwinRcvd / NDTConstants.KBITS2BITS).toFixed(2) + " "
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "kbyteBufferLimits", null, Main.locale) 
         + " " + (_dRwin / _dRttsec).toFixed(2) + " Mbps\n%0A";

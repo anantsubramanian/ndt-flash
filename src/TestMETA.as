@@ -177,13 +177,13 @@ package  {
       protocolObj.send_msg_array(MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
-      toSend.writeUTFBytes(new String(NDTConstants.META_BROWSER_OS + ":" 
+      toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_BROWSER + ":"
                            + UserAgentTools.getBrowser(TestResults.get_UserAgent())[2]));
       protocolObj.send_msg_array(MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_VERSION + ":"
-                           + NDTConstants.VERSION));
+                           + NDTConstants.CLIENT_VERSION));
       protocolObj.send_msg_array(MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();

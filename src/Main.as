@@ -49,7 +49,7 @@ package {
       NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);      
       stage.showDefaultContextMenu = false;
       
-      var frame:MainFrame = new MainFrame(NDTConstants.HOST_NAME);
+      var frame:MainFrame = new MainFrame(NDTConstants.SERVER_HOSTNAME);
       if (guiEnabled) {
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);

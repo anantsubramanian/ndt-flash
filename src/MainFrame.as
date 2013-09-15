@@ -13,31 +13,27 @@
 // limitations under the License.
 
 package  {  
-  import flash.text.TextField;
-  import flash.text.*;
-  import flash.display.Sprite;
-  import flash.events.Event;
-  import flash.net.*;
   import flash.display.DisplayObjectContainer;
+  import flash.display.Sprite;
+  import flash.errors.IOError;
+  import flash.events.Event;
   import flash.events.IOErrorEvent;
-  import flash.system.Security;
   import flash.events.ProgressEvent;
   import flash.events.SecurityErrorEvent;
-  import flash.utils.Timer;
   import flash.events.TimerEvent;
-  import flash.errors.IOError;
+  import flash.net.Socket;
+  import flash.system.Security;
+  import flash.text.TextField;
+  import flash.utils.Timer;
   import mx.resources.ResourceManager;
   import mx.utils.StringUtil;
     
   /**
-   * Class responsible for establishing the socket
-   * connection and initiating communications with the
-   * server (NDTP-Control).
-   * Calls functions to perform the required tests
-   * and to interpret the results.
+   * Class responsible for establishing the socket connection and initiating
+   * communications with the server (NDTP-Control).
+   * Calls functions to perform the required tests and to interpret the results.
    */
   public class MainFrame {
-    // variables declaration section
     private static var sHostName:String = null;
     private static var clientId:String = null;
     private var pub_host:String;
@@ -49,9 +45,9 @@ package  {
     public var testNo:int;
     private var readTimer:Timer;
     private var readCount:int;
-    private var _yTests:int =  NDTConstants.TEST_C2S | NDTConstants.TEST_S2C
-                               | NDTConstants.TEST_META;
-        
+    private var _yTests:int =  TestType.C2S | TestType.S2C
+                               | TestType.META;
+    
     // socket event listener functions
     public function onConnect(e:Event):void {
       trace("Socket connected.");
@@ -111,7 +107,7 @@ package  {
       pub_host = sHostName;
       // default control port used for the NDT tests session. NDT server
       // listens to this port
-      var ctlport:int = NDTConstants.CONTROL_PORT_DEFAULT;
+      var ctlport:uint = NDTConstants.CONTROL_PORT_DEFAULT;
             
       TestResults.set_bFailed(false);  // test result status is false initially
       TestResults.appendConsoleOutput(
@@ -164,7 +160,7 @@ package  {
       if (testNo < tests.length) {
         var test:int = parseInt(tests[testNo]);
         switch (test) {
-          case NDTConstants.TEST_C2S: NDTUtils.callExternalFunction(
+          case TestType.C2S: NDTUtils.callExternalFunction(
                                           "testStarted", "ClientToServerThroughput");
                                       var C2S:TestC2S = 
                                       new TestC2S(ctlSocket, protocolObj,
@@ -174,7 +170,7 @@ package  {
                                         "ClientToServerThroughput",
                                         (!TestResults.get_c2sFailed()).toString());  
                                       break;
-          case NDTConstants.TEST_S2C: NDTUtils.callExternalFunction(
+          case TestType.S2C: NDTUtils.callExternalFunction(
                                         "testStarted", "ServerToClientThroughput");
                                       var S2C:TestS2C =
                                       new TestS2C(ctlSocket, protocolObj, 
@@ -184,7 +180,7 @@ package  {
                                         "ServerToClientThroughput",
                                         (!TestResults.get_s2cFailed()).toString());
                                       break;
-          case NDTConstants.TEST_META: NDTUtils.callExternalFunction(
+          case TestType.META: NDTUtils.callExternalFunction(
                                          "testStarted", "Meta");
                                        var META:TestMETA =
                                        new TestMETA(ctlSocket, protocolObj, 
@@ -274,7 +270,7 @@ package  {
      */
     public function MainFrame(hostname:String) {
       // variables initialization
-      sHostName = NDTConstants.HOST_NAME;
+      sHostName = hostname;
       clientId = NDTConstants.CLIENT_ID;
       pub_host = "unknown";
     }
