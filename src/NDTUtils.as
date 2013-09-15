@@ -22,6 +22,8 @@ package  {
   import flash.net.Socket;
   import flash.utils.ByteArray;
   import mx.resources.ResourceManager;
+  /**
+   * Class that defines utility methods used by the NDT client.
    */
   public class NDTUtils {    
     /**
