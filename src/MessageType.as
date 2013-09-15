@@ -18,17 +18,18 @@ package {
    * server.
    */
   public class MessageType {
-    public static const COMM_FAILURE:uint = 0;
-    public static const SRV_QUEUE:uint = 1;
-    public static const MSG_LOGIN:uint = 2;
-    public static const TEST_PREPARE:uint = 3;
-    public static const TEST_START:uint = 4;
-    public static const TEST_MSG:uint = 5;
-    public static const TEST_FINALIZE:uint = 6;
-    public static const MSG_ERROR:uint = 7;
-    public static const MSG_RESULTS:uint = 8;
-    public static const MSG_LOGOUT:uint = 9;
-    public static const MSG_WAITING:uint = 10;
+    public static const UNDEF_TYPE:int = -1;
+    public static const COMM_FAILURE:int = 0;
+    public static const SRV_QUEUE:int = 1;
+    public static const MSG_LOGIN:int = 2;
+    public static const TEST_PREPARE:int = 3;
+    public static const TEST_START:int = 4;
+    public static const TEST_MSG:int = 5;
+    public static const TEST_FINALIZE:int = 6;
+    public static const MSG_ERROR:int = 7;
+    public static const MSG_RESULTS:int = 8;
+    public static const MSG_LOGOUT:int = 9;
+    public static const MSG_WAITING:int = 10;
   }
 }
 
