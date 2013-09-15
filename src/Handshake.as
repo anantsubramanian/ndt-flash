@@ -106,7 +106,7 @@ package  {
         return;
       }
       // If message is not of SRV_QUEUE type, it is incorrect at this stage.
-      if (msg.getType() != MessageType.SRV_QUEUE) {
+      if (msg.type != MessageType.SRV_QUEUE) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "loggingWrongMessage",
@@ -195,7 +195,7 @@ package  {
         TestResults.set_bFailed(true);
         return;
       }
-      if (msg.getType() != MessageType.MSG_LOGIN) {
+      if (msg.type != MessageType.MSG_LOGIN) {
         // only this type of message should be received at this stage.
         // every other message is wrong.
         TestResults.appendErrMsg(
@@ -242,7 +242,7 @@ package  {
         TestResults.set_bFailed(true);
         return;
       }
-      if (msg.getType() != MessageType.MSG_LOGIN) {
+      if (msg.type != MessageType.MSG_LOGIN) {
         // only tests negotiation message expected at this point.
         // any other type is wrong.
         TestResults.appendErrMsg(

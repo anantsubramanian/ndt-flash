@@ -105,13 +105,13 @@ package  {
         onComplete();
         return;
       }
-      if (msg.getType() != MessageType.TEST_PREPARE) {
+      if (msg.type != MessageType.TEST_PREPARE) {
         // any other message type is 'wrong'
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaWrongMessage",
                                           null, Main.locale) + "\n");
-        if (msg.getType() == MessageType.MSG_ERROR) {
+        if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.getBody()), 16)
                                    + "\n");
@@ -142,12 +142,12 @@ package  {
         return;
       }
       // Only TEST_START message expected here. Everything else is 'wrong'
-      if (msg.getType() != MessageType.TEST_START) {
+      if (msg.type != MessageType.TEST_START) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaWrongMessage",
                                            null, Main.locale) + "\n"); 
-        if (msg.getType() == MessageType.MSG_ERROR) {
+        if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.getBody()), 16)
                                    + "\n");
@@ -216,12 +216,12 @@ package  {
         onComplete();
         return;
       }
-      if (msg.getType() != MessageType.TEST_FINALIZE) {
+      if (msg.type != MessageType.TEST_FINALIZE) {
         // any other message is 'wrong'
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaWrongMessage", null, Main.locale));
-        if (msg.getType() == MessageType.MSG_ERROR) {
+        if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.getBody()), 16)
                                    + "\n");
