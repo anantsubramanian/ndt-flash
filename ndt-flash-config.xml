@@ -25,7 +25,7 @@
     </define>
     <!-- The current NDT client version -->
     <define append="true">
-      <name>CONFIG::ndtVersion</name>
+      <name>CONFIG::ndtClientVersion</name>
       <value>"1.0.0.0"</value>
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>

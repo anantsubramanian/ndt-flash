@@ -384,15 +384,15 @@ package  {
      * and _dTime.
      */
     private function calculateThroughput():void {
-      trace(iBitCount + " bytes " + (NDTConstants.EIGHT * iBitCount) / _dTime 
-            + " kb/s " + _dTime / NDTConstants.KILO + " secs");
+      trace(iBitCount + " bytes " + (NDTConstants.BYTES2BITS * iBitCount) / _dTime
+            + " kb/s " + _dTime / NDTConstants.SEC2MSEC + " secs");
       TestResults.appendTraceOutput(new String(iBitCount + " bytes " 
-                                    + (NDTConstants.EIGHT * iBitCount) / _dTime 
-                                    + " kb/s " + _dTime / NDTConstants.KILO 
+                                    + (NDTConstants.BYTES2BITS * iBitCount) / _dTime
+                                    + " kb/s " + _dTime / NDTConstants.SEC2MSEC
                                     + " secs\n"));
       
       // calculate throughput
-      _dS2cspd = ((NDTConstants.EIGHT * iBitCount) / NDTConstants.KILO) / _dTime;
+      _dS2cspd = ((NDTConstants.BYTES2BITS * iBitCount) / NDTConstants.SEC2MSEC) / _dTime;
       comStage = COMPARE_SERVER;
       addResponseListener();    // adding event listeners back to ctlSocket
       if (ctlSocket.bytesAvailable > MIN_MSG_SIZE) {
@@ -451,7 +451,7 @@ package  {
       var tmpstr:String = new String(msg.getBody());
       var k1:int = tmpstr.indexOf(" ");
       var k2:int = (tmpstr.substr(k1+1)).indexOf(" ");
-      _dSs2cspd = parseFloat(tmpstr.substr(0, k1)) / NDTConstants.KILO;
+      _dSs2cspd = parseFloat(tmpstr.substr(0, k1)) / NDTConstants.SEC2MSEC;
       _iSsndqueue = parseInt((tmpstr.substr(k1+1)).substr(0, k2));
       _dSbytes = parseFloat((tmpstr.substr(k1+1)).substr(k2+1));
       
@@ -467,9 +467,9 @@ package  {
       
       // Represent throughput using optimal units (i.e. kbps / mbps)
       if (_dS2cspd < 1.0) {
-        TestResults.appendConsoleOutput((_dS2cspd * NDTConstants.KILO).toFixed(2)
+        TestResults.appendConsoleOutput((_dS2cspd * NDTConstants.SEC2MSEC).toFixed(2)
                                         + "kb/s\n");
-        TestResults.appendStatsText((_dS2cspd * NDTConstants.KILO).toFixed(2) 
+        TestResults.appendStatsText((_dS2cspd * NDTConstants.SEC2MSEC).toFixed(2)
                                     + "kb/s\n");
       } else {
         TestResults.appendConsoleOutput((_dS2cspd).toFixed(2) + "Mb/s\n");
@@ -479,7 +479,7 @@ package  {
       // Set result for JavaScript access
       TestResults.set_pub_status("done");
       buff = new ByteArray();
-      buff.writeUTFBytes((_dS2cspd * NDTConstants.KILO).toString());
+      buff.writeUTFBytes((_dS2cspd * NDTConstants.SEC2MSEC).toString());
       var tmpstr2:String = buff.toString();
       trace("Sending '" + tmpstr2 + "' back to server");
       TestResults.appendTraceOutput("Sending '" + tmpstr2 + "' back to server\n");

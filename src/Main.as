@@ -50,7 +50,7 @@ package {
       initializeLocale();
       stage.showDefaultContextMenu = false;
       
-      var frame:MainFrame = new MainFrame(NDTConstants.HOST_NAME);
+      var frame:MainFrame = new MainFrame(NDTConstants.SERVER_HOSTNAME);
       if (guiEnabled) {
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);
@@ -64,8 +64,6 @@ package {
     /**
      * Initializes the locale variable of this class to match the environment
      * of the SWF.
-     * @param {String} lang The language part of the locale
-     * @param {String} region The region part of the locale
      */ 
     private function initializeLocale():void {
       var localeId:LocaleID = new LocaleID(Capabilities.language);

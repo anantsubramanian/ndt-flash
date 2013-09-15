@@ -33,7 +33,7 @@ package  {
    */
   public class TestC2S {
     // Constants used in this class
-    private static const buffSize:int = 64 * NDTConstants.KILO_BITS;
+    private static const buffSize:int = 64 * NDTConstants.KBITS2BITS;
     private static const MIN_MSG_SIZE:int   = 1;
     private static const PKT_WAIT_SIZE:int   = 5;
     private static const TEST_PREPARE:int   = 0;
@@ -357,10 +357,10 @@ package  {
       
       // Calculate C2S throughput in kbps
       // 8 for calculating bits
-      trace(((NDTConstants.EIGHT * _dPktsSent) / _dTime), "kb/s outbound");
-      TestResults.appendTraceOutput((NDTConstants.EIGHT * _dPktsSent) / _dTime 
+      trace(((NDTConstants.BYTES2BITS * _dPktsSent) / _dTime), "kb/s outbound");
+      TestResults.appendTraceOutput((NDTConstants.BYTES2BITS * _dPktsSent) / _dTime
                                     + " kb/s outbound\n");
-      _dC2sspd = ((NDTConstants.EIGHT * _dPktsSent) / NDTConstants.KILO) / _dTime;
+      _dC2sspd = ((NDTConstants.BYTES2BITS * _dPktsSent) / NDTConstants.SEC2MSEC) / _dTime;
       
       comStage = COMP_SERVER;
       addResponseListener();
@@ -409,7 +409,7 @@ package  {
       
       // Get throughput calculated by the server
       var tmpstr:String = new String(msg.getBody());
-      _dSc2sspd = parseFloat(tmpstr) / NDTConstants.KILO;
+      _dSc2sspd = parseFloat(tmpstr) / NDTConstants.SEC2MSEC;
       // Display server calculated throughput value
       trace("Server calculated throughput value = " + _dSc2sspd + " Mb/s");
       TestResults.appendTraceOutput("Server calculated throughput value = " 
@@ -427,11 +427,11 @@ package  {
       // Print results in the most convinient units
       if (_dSc2sspd < 1.0) {
         TestResults.appendConsoleOutput(
-          (_dSc2sspd * NDTConstants.KILO).toFixed(2) + "kb/s\n");
+          (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s\n");
         TestResults.appendStatsText(
-          (_dSc2sspd * NDTConstants.KILO).toFixed(2) + "kb/s\n");
+          (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s\n");
         TestResults.appendEmailText(
-          (_dSc2sspd * NDTConstants.KILO).toFixed(2) + "kb/s\n%0A");
+          (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s\n%0A");
       } else {
         TestResults.appendConsoleOutput((_dSc2sspd).toFixed(2) + "Mb/s\n");
         TestResults.appendStatsText((_dSc2sspd).toFixed(2) + "Mb/s\n");
