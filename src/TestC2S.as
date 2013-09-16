@@ -233,7 +233,8 @@ package  {
                                         null, Main.locale) + " " + "\n");
       TestResults.set_pub_status("runningOutboundTest");
       
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -297,7 +298,8 @@ package  {
       
       // read signal from server application
       // This signal tells the client to start pumping out data
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
@@ -383,7 +385,8 @@ package  {
       // The client has stopped streaming data, and the server is now
       // expected to send a TEST_MSG message with the throughput it
       // calculated at its end.
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
@@ -440,7 +443,8 @@ package  {
       }
       
       // Server should close session with a TEST_FINALIZE message
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
