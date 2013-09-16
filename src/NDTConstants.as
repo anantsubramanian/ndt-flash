@@ -49,6 +49,7 @@ package  {
     public static const META_CLIENT_APPLICATION:String = "client.application";
     
     // TCP constants.
+    // Max size that can be sent, because 2 bytes are used to hold data length.
     public static const TCP_MAX_RECV_WIN_SIZE:int = 65535; // bytes
     public static const PREDEFINED_BUFFER_SIZE:int = 8192; // bytes
     // See http://www.web100.org/download/kernel/tcp-kis.txt.

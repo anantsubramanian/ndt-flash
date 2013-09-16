@@ -496,7 +496,7 @@ package  {
       
       // Client has to send its throughput to the server inside
       // a TEST_MSG message
-      protocolObj.send_msg_array(MessageType.TEST_MSG, buff);
+      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, buff);
       _sTestResults = "";
       if (ctlSocket.bytesAvailable > WEB100_VARS_MIN_SIZE) {
         getWeb100();
