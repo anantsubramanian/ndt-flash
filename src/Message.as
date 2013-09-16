@@ -39,6 +39,19 @@ package  {
     public function get body():ByteArray {
       return body_;
     }
+    public static function getBody(intToSend:int): ByteArray {
+      var body:ByteArray = new ByteArray();
+      // TODO: Verify if writeInteger should be used instead.
+      body.writeByte(intToSend);
+      return body;
+    }
+    public static function createHeader(type:int, length:int):ByteArray {
+      var header:ByteArray = new ByteArray();
+      header[0] = type;
+      header[1] = (length >> 8);
+      header[2] = length;
+      return header;
+    }
 
     private function readHeader(socket:Socket):Boolean {
       var header:ByteArray = new ByteArray();
@@ -97,6 +110,18 @@ package  {
       }
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
     }
+
+     /**
+      * Send protocol messages given their type and data byte array
+      * @param {int} bParamType Control Message Type
+      * @param {ByteArray} bParamToSend Data value array to send
+      */
+     public static function sendMessage(
+         socket:Socket, type:int, body:ByteArray):void {
+       socket.writeBytes(createHeader(type, body.length));
+       socket.writeBytes(body);
+       socket.flush();
+      }
   }
 }
 

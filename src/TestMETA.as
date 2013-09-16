@@ -175,17 +175,17 @@ package  {
       var toSend:ByteArray = new ByteArray();
       
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_OS + ":" + Capabilities.os));
-      protocolObj.send_msg_array(MessageType.TEST_MSG, toSend);
+      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_BROWSER + ":"
                            + UserAgentTools.getBrowser(TestResults.get_UserAgent())[2]));
-      protocolObj.send_msg_array(MessageType.TEST_MSG, toSend);
+      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_VERSION + ":"
                            + NDTConstants.CLIENT_VERSION));
-      protocolObj.send_msg_array(MessageType.TEST_MSG, toSend);
+      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_APPLICATION
@@ -194,7 +194,7 @@ package  {
       // Client can send any number of such meta data in a TEST_MSG
       // format and signal the send of the transmission using an empty
       // TEST_MSG
-      protocolObj.send_msg_array(MessageType.TEST_MSG, new ByteArray());
+      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, new ByteArray());
       comStage = FINALIZE_TEST;
       if (ctlSocket.bytesAvailable > MIN_MSG_SIZE)
         finalizeTest();

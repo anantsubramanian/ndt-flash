@@ -14,9 +14,6 @@
 
 package  {
   import flash.net.Socket;
-  import flash.utils.ByteArray;
-  import flash.errors.EOFError;
-  import flash.utils.getTimer;
   
   /**
    * Class aggregating operations that can be performed for sending / receiving
@@ -31,36 +28,6 @@ package  {
      */
     public function Protocol(ctlSocketParam:Socket) {
       ctlSocket = ctlSocketParam;      
-    }
-    
-    /**
-     * Send message given its Type and data
-     * @param {int} bParamType Control Message Type
-     * @param {int} bParamToSend Data value to send
-     */
-    public function send_msg(bParamType:int, bParamToSend:int):void {
-      var tab:ByteArray = new ByteArray();
-      tab.writeByte(bParamToSend);
-      send_msg_array(bParamType, tab);
-    }
-    
-    /**
-     * Send protocol messages given their type and data byte array
-     * @param {int} bParamType Control Message Type
-     * @param {ByteArray} bParamToSend Data value array to send
-     */
-    public function send_msg_array(bParamType:int, bParamToSend:ByteArray):void {
-      var header:ByteArray = new ByteArray();
-      header[0] = bParamType;
-      
-      // 2 bytes are used to hold data length. Thus, max(data length) = 65535
-      header[1] = (bParamToSend.length >> 8);
-      header[2] = bParamToSend.length;
-      
-      // write data to Socket
-      ctlSocket.writeBytes(header);
-      ctlSocket.writeBytes(bParamToSend);
-      ctlSocket.flush();
     }
   }
 }
