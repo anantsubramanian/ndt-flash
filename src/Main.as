@@ -50,8 +50,8 @@ package {
       
       var frame:MainFrame = new MainFrame(NDTConstants.SERVER_HOSTNAME);
 
+      stage.showDefaultContextMenu = false;
       if (guiEnabled) {
-        stage.showDefaultContextMenu = false;
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);
       } else {
