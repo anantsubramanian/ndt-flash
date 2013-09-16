@@ -13,11 +13,9 @@
 // limitations under the License.
 
 package {
+  import flash.display.DisplayObject;
   import flash.display.Sprite;
   import flash.events.Event;
-  import flash.external.ExternalInterface;
-  import flash.system.Capabilities;
-  import flash.globalization.LocaleID;
   import mx.resources.ResourceBundle;
   /**
    * @author Anant Subramanian
@@ -25,8 +23,9 @@ package {
   [ResourceBundle("DisplayMessages")]
   public class Main extends Sprite {
     
-    public static var guiEnabled:Boolean = true;
+    public static var guiEnabled:Boolean = CONFIG::guiEnabled;
     public static var locale:String = CONFIG::defaultLocale;
+    public static var gui:GUI;
     
     public function Main():void {
       if (stage) 
@@ -45,39 +44,21 @@ package {
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
       // entry point
-      CONFIG::guiEnabled {
-        // if guiEnabled set to false while compiling skip GUI and start tests
-        Main.guiEnabled = true;
-      }
-      var lId:LocaleID = new LocaleID(Capabilities.language);
-      initializeLocale(lId.getLanguage(), lId.getRegion());
+      
+      // set the properties of the SWF from its HTML tags
+      NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);      
       stage.showDefaultContextMenu = false;
       
-      var Frame:MainFrame = new MainFrame(stage.stageWidth,
-                                          stage.stageHeight,
-                                          NDTConstants.HOST_NAME);
-      Frame.x = Frame.y = 0;
-      stage.addChild(Frame);
-    }
-    
-    /**
-     * Initializes the locale variable of this class to match the environment
-     * of the SWF.
-     * @param {String} lang The language part of the locale
-     * @param {String} region The region part of the locale
-     */ 
-    private function initializeLocale(lang:String, region:String):void {
-      if (lang == null || region == null)
-        return;
-      if (NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
-                                         "test", null, lang+"_"+region) != null) {
-        // Bundle for specified locale found, change value of locale
-        locale = new String(lang + "_" + region);
-        trace("Using locale " + locale);
-      } else {
-        trace("Error: ResourceBundle for provided locale not found.");
-        trace("Using default " + CONFIG::defaultLocale);
+      var frame:MainFrame = new MainFrame(NDTConstants.HOST_NAME);
+      if (guiEnabled) {
+        gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
+        this.addChild(gui);
       }
+      if (!guiEnabled) {
+        // If guiEnabled compiler flag set to false start tests immediately
+        frame.dottcp();
+      }
+      NDTUtils.addJSCallbacks();
     }
   }
 }

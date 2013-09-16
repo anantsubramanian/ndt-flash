@@ -13,106 +13,187 @@
 // limitations under the License.
 
 package  {
+  import flash.display.DisplayObject;
+  import flash.display.LoaderInfo;
+  import flash.external.ExternalInterface;
+  import flash.globalization.LocaleID;
+  import flash.system.Capabilities;
+  import flash.system.Security;
+  import mx.resources.ResourceManager;
   /**
-   * Class that defines utility methods used by the NDT.
+   * Class that defines utility methods used by NDT.
    */
-  public class NDTUtils {
-    /**
-     * Utility method to print a double value upto 2 digits after the decimal
-     * point. 
-     * @param {Number} paramDblToFormat Double number to format
-     * @return {String} Formatted value of the number.
-     * Examples: 15.2445-->15.24  34.4-->34.4  45-->45
-     */
-    public static function prtdbl(paramDblToFormat:Number):String {
-      var str:String = null;
-      var i:int;
-      
-      if (paramDblToFormat == 0) {
-        return("0");
-      }
-      
-      str = paramDblToFormat.toString();
-      i = str.indexOf(".");
-      if (i == -1)
-        return str;
-      
-      i += 3;
-      if (i > str.length) {
-        i -= 1;
-      }
-      if (i > str.length) {
-        i -= 1;
-      }
-      return (str.substring(0, i));
-    }
-    
-    /**
-     * Function that trims the spaces before and after a String.
-     */
-    public static function trim(sParam:String):String {
-      var i:int = 0;
-      
-      if (sParam == null)
-        return null;
-      
-      while (sParam.charAt(i) == " ") {
-        i++;
-      }    
-      var j:int = sParam.length - 1;
-      while (sParam.charAt(j) == " ") {
-        j--;
-      }
-      return sParam.substring(i, j+1);
-    }
-    
+  public class NDTUtils {    
     /**
      *  Utility method to print Text values for data speed related keys.
-     *  @param {int} paramIntVal Parameter for which we find text value
+     *  @param {int} dataRateInt Parameter for which we find text value
      *  @return {String} Textual name for input parameter
      */
-    public static function prttxt(paramIntVal:int):String {
-      switch (paramIntVal) {
+    public static function getDataRateString(dataRateInt:int):String {
+      switch (dataRateInt) {
       case NDTConstants.DATA_RATE_SYSTEM_FAULT:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "systemFault", null, Main.locale);
       case NDTConstants.DATA_RATE_RTT:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "rtt", null, Main.locale);
       case NDTConstants.DATA_RATE_DIAL_UP:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "dialup2", null, Main.locale);
       case NDTConstants.DATA_RATE_T1:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "t1Str", null, Main.locale);
       case NDTConstants.DATA_RATE_ETHERNET:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "ethernetStr", null, Main.locale);
       case NDTConstants.DATA_RATE_T3:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "t3Str", null, Main.locale);
       case NDTConstants.DATA_RATE_FAST_ETHERNET:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "fastEthernet", null, Main.locale);
       case NDTConstants.DATA_RATE_OC_12:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "oc12Str", null, Main.locale);
       case NDTConstants.DATA_RATE_GIGABIT_ETHERNET:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "gigabitEthernetStr", 
                                                null, Main.locale); 
       case NDTConstants.DATA_RATE_OC_48:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "oc48Str", null, Main.locale);
       case NDTConstants.DATA_RATE_10G_ETHERNET:
-        return NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                "tengigabitEthernetStr", 
-                                               null, Main.locale); 
-      default:
-        TestResults.appendErrMsg("No matching value for Data Speed.");
+                                               null, Main.locale);
       } // end switch
       return null;
-    } // prttxt() method ends
+    }
+    
+    /**
+     * Function that return a variable corresponding to the parameter passed to
+     * it as a request.
+     * @param {String} The parameter which the caller is seeking.
+     * @return {String} The value of the desired parameter.
+     */
+    public static function getNDTVariable(varName:String):String {
+      switch(varName) {
+        case "TestList": 
+          var testSuite:String = "";
+          if(TestResults.get_testSuite() & NDTConstants.TEST_C2S)
+            testSuite += "CLIENT_TO_SERVER_THROUGHPUT\n";
+          if(TestResults.get_testSuite() & NDTConstants.TEST_S2C)
+            testSuite += "SERVER_TO_CLIENT_THROUGHPUT\n";
+          if(TestResults.get_testSuite() & NDTConstants.TEST_META)
+            testSuite += "META_TEST\n";
+          return testSuite;
+        case "TestDuration":
+          return (TestResults.get_EndTime() - TestResults.get_StartTime()).toString();
+        case "ClientToServerSpeed":
+          return TestResults.get_c2sspd();
+        case "ServerToClientSpeed":
+          return TestResults.get_s2cspd();
+        case "PacketLoss":
+          return TestResults.get_loss();
+        case "MaxRTT":
+          return TestResults.get_MaxRTT();
+        case "AverageRTT":
+          return TestResults.get_avgrtt();
+        case "MinRTT":
+          return TestResults.get_Ping();
+        case "Jitter":
+          return TestResults.get_jitter();
+        case "OperatingSystem":
+          return TestResults.get_osName();
+        case "ClientVersion":
+          return NDTConstants.VERSION;
+        case "FlashVersion":
+          return TestResults.get_flashVer();
+        case "OsArch":
+          return TestResults.get_osArch();
+      }
+      return null;
+    }
+    /**
+     * Function that calls a JS function through the ExternalInterface class if it
+     * exists by the name specified in the parameter.
+     * @param {String} functionName The name of the JS function to call.
+     * @param {...} args A variable length array that contains the parameters to
+     *     pass to the JS function
+     */
+    public static function callExternalFunction(functionName:String, ... args):void {
+      try {
+        switch (args.length) {
+          case 0: ExternalInterface.call(functionName);
+                  break;
+          case 1: ExternalInterface.call(functionName, args[0]);
+                  break;
+          case 2: ExternalInterface.call(functionName, args[0], args[1]);
+                  break;
+        }
+      } catch (e:Error) {
+        trace("No ExternalInterface detected.");
+      }
+    }
+    /**
+     * Function that reads the HTML parameter tags for the SWF file and
+     * initializes the variables in the SWF accordingly.
+     */
+    public static function initializeFromHTML(paramObject:Object):void {
+      if (NDTConstants.HTML_LOCALE in paramObject) {
+        Main.locale = paramObject[NDTConstants.HTML_LOCALE];
+      } else {
+        initializeLocale();
+      }
+      if (NDTConstants.HTML_USERAGENT in paramObject) {
+        TestResults.set_UserAgent(paramObject[NDTConstants.HTML_USERAGENT]);
+      }
+    }
+    
+    /**
+     * Initializes the locale used by the tool to match the environment of the
+     * SWF.
+     */ 
+    public static function initializeLocale():void {
+      var localeId:LocaleID = new LocaleID(Capabilities.language);
+      var lang:String = localeId.getLanguage();
+      var region:String = localeId.getRegion();
+      if (lang != null && region != null
+          && (ResourceManager.getInstance().getResourceBundle(
+                lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
+        // Bundle for specified locale found, change value of locale
+        Main.locale = new String(lang + "_" + region);
+        trace("Using locale " + locale);
+      } else {
+        trace("Error: ResourceBundle for provided locale not found.");
+        trace("Using default " + CONFIG::defaultLocale);
+      }
+    }
+    
+    /**
+     * Function that adds the callbacks to allow data access from, and to allow
+     * data to be sent to JavaScript.
+     */
+    public static function addJSCallbacks():void {
+      // TODO: restrict domain to the M-Lab website / server
+      Security.allowDomain("*");
+      try {
+        ExternalInterface.addCallback("getStandardOutput", 
+                                      TestResults.getConsoleOutput);
+        ExternalInterface.addCallback("getDebugOutput", 
+                                      TestResults.getTraceOutput);
+        ExternalInterface.addCallback("getDetails", 
+                                      TestResults.getStatsText);
+        ExternalInterface.addCallback("getAdvanced", 
+                                      TestResults.getDiagnosisText);
+        ExternalInterface.addCallback("getErrors", TestResults.getErrMsg);
+        ExternalInterface.addCallback("getNDTvar", getNDTVariable);
+      } catch (e:Error) {
+        TestResults.appendErrMsg("Container doesn't support callbacks.\n");
+      } catch (se:SecurityError) {
+        TestResults.appendErrMsg("Security error " + se.toString());
+      }
+    }
   }
 }
 

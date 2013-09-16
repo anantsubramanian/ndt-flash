@@ -18,6 +18,8 @@
 // limitations under the License.
 
 package  {
+  import mx.resources.ResourceManager;
+  import mx.utils.StringUtil;
   /**
    * This class is use to obtain information about who is accessing a web-server.
    * When a web browser accesses a web-server, it usually transmits a "User-Agent"
@@ -78,7 +80,7 @@ package  {
             status = 1;
           case 1: // Version number in progress
             if (c == ';' || c == '/' || c == ')' || c == '(' || c == '[')
-              return NDTUtils.trim(res);
+              return StringUtil.trim(res);
             if (c == ' ')
               status = 2;
             res = new String(res + c);
@@ -87,12 +89,12 @@ package  {
             if ((isLetter(c) && isLower(c)) || isDigit(c)) {
               res = new String(res + c);
               status = 1;
-            } else return NDTUtils.trim(res);
+            } else return StringUtil.trim(res);
             break;
         }
         a_position++;
       }
-      return NDTUtils.trim(res);
+      return StringUtil.trim(res);
     }
     
     public static function getBotName(userAgent:String):Array {
