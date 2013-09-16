@@ -39,7 +39,7 @@ package  {
     }
 
     private function readHeader(protocolObj:Protocol):Boolean {
-      if (readBytes(protocolObj, NDTConstants.MSG_HEADER_LENGTH) !=
+      if (readBody(protocolObj, NDTConstants.MSG_HEADER_LENGTH) !=
           NDTConstants.MSG_HEADER_LENGTH) {
         return false;
       }
@@ -54,12 +54,12 @@ package  {
      * @param {int}  Number of bytes to read.
      * @return {int} Number of bytes read.
      */
-     private function readBytes(protocolObj:Protocol, bytesToRead:int):int {
+     private function readBody(protocolObj:Protocol, bytesToRead:int):int {
        var bytesRead:int = 0;
        var currentBytesRead:int;
        initBodySize(bytesToRead);
        while (bytesRead != bytesToRead) {
-         currentBytesRead = protocolObj.readBytesAndReturn(
+         currentBytesRead = NDTUtils.readBytes(
              protocolObj.ctlSocket, body_, bytesRead, bytesToRead - bytesRead);
          if (currentBytesRead <= 0) {
            // end of file 
@@ -81,7 +81,7 @@ package  {
      public function receiveMessage(protocolObj:Protocol,
                                     kickOldClientsMsg:Boolean=false):int {
        if (kickOldClientsMsg) {
-         if (readBytes(protocolObj, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
+         if (readBody(protocolObj, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
              NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) {
            return NDTConstants.PROTOCOL_MSG_READ_ERROR;
          } else {
@@ -89,7 +89,7 @@ package  {
          }
        }
        if (!readHeader(protocolObj) ||
-           (readBytes(protocolObj, length) != length)) {
+           (readBody(protocolObj, length) != length)) {
          return NDTConstants.PROTOCOL_MSG_READ_ERROR;
        }
        return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;

@@ -363,10 +363,8 @@ package  {
      * 3. More than 14.5 seconds have elapsed since the beginning of the test.
      */
     private function receiveData():void {
-      while ((inlth = tempProtObj.readBytesAndReturn(inSocket, 
-                                                     buff, 
-                                                     0, 
-                                                     buffLen)) > 0) {
+      while ((inlth = NDTUtils.readBytes(
+          inSocket, buff, 0, buffLen)) > 0) {
         iBitCount += inlth; // incrementing bit count
         if ((getTimer() - _dTime) > 14500) {
           // get time duration during which bytes were received
