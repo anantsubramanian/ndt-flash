@@ -72,7 +72,8 @@ package  {
      */
     public function kickOldClients():void {
       // read the message that kicks old clients
-      if (msg.readBytes(protocolObj, 13) != 13) {
+      if (msg.receiveMessage(protocolObj, true) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         trace(ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                               "unsupportedClient", null,
                                               Main.locale));
