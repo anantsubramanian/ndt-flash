@@ -94,7 +94,7 @@ package  {
     // Miscellaneous.
     public static const VIEW_DIFF:Number = 0.1;
     
-    // HTML tag constants
+    // HTML tags.
     public static const HTML_LOCALE:String = "Locale";
     public static const HTML_USERAGENT:String = "UserAgentString";
   }
