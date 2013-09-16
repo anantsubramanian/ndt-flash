@@ -164,7 +164,8 @@ package  {
       // server sends signal to see if client is still alive
       // client should respond with a MSG_WAITING message
       if (wait == NDTConstants.SRV_QUEUE_HEARTBEAT) {
-        protocolObj.send_msg(MessageType.MSG_WAITING, _yTests);
+        Message.sendMessage(protocolObj.ctlSocket, MessageType.MSG_WAITING,
+	                    Message.getBody(_yTests));
         return;
       }
       
@@ -297,7 +298,8 @@ package  {
       // The beginning of the protocol
       // write out test suite request by sending a login message
       // _yTests indicates the requested test-suite
-      protocolObj.send_msg(MessageType.MSG_LOGIN, _yTests);      
+      Message.sendMessage(protocolObj.ctlSocket, MessageType.MSG_LOGIN,
+                          Message.getBody(_yTests));
     }
   }
 }
