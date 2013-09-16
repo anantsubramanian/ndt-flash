@@ -23,7 +23,7 @@ package  {
    * or reading Protocol messages.  
    */
   public class Protocol {
-    private var ctlSocket:Socket = null;
+    public var ctlSocket:Socket = null;
     
     /**
      * Constructor that accepts socket over which to communicate as parameter
@@ -61,30 +61,6 @@ package  {
       ctlSocket.writeBytes(header);
       ctlSocket.writeBytes(bParamToSend);
       ctlSocket.flush();
-    }
-    
-    /**
-     * Populate Message byte array with specific number of bytes of data from
-     * socket
-     * @param {Message} msgParam Message object to be populated
-     * @param {int} iParamAmount Specified number of bytes to be read
-     * @return {int} Number of bytes populated
-     */
-    public function readn(msgParam:Message, iParamAmount:int):int {
-      var read:int = 0;
-      var tmp:int;
-      msgParam.initBodySize(iParamAmount);
-      while (read != iParamAmount) {
-        // TODO: Change not to access directly the message body.
-        tmp = readBytesAndReturn(ctlSocket, msgParam.body_,
-                                 read, iParamAmount - read);
-        if (tmp <= 0) {
-          // end of file 
-          return read;
-        }
-        read += tmp;
-      }
-      return read;
     }
     
     /**

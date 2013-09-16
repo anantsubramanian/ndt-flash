@@ -26,8 +26,7 @@ package  {
   public class Message {
     private var type_:int;
     private var length_:int;
-    // TODO: Change to private.
-    public var body_:ByteArray;
+    private var body_:ByteArray;
 
     public function get type():int {
       return type_;
@@ -40,7 +39,7 @@ package  {
     }
 
     private function readHeader(protocolObj:Protocol):Boolean {
-      if (protocolObj.readn(this, NDTConstants.MSG_HEADER_LENGTH) !=
+      if (readBytes(protocolObj, NDTConstants.MSG_HEADER_LENGTH) !=
           NDTConstants.MSG_HEADER_LENGTH) {
         return false;
       }
@@ -51,15 +50,37 @@ package  {
     }
 
     /**
+     * Read bytes from the protocol socket.
+     * @param {int}  Number of bytes to read.
+     * @return {int} Number of bytes read.
+     */
+     public function readBytes(protocolObj:Protocol, bytesToRead:int):int {
+       var bytesRead:int = 0;
+       var currentBytesRead:int;
+       initBodySize(bytesToRead);
+       while (bytesRead != bytesToRead) {
+         currentBytesRead = protocolObj.readBytesAndReturn(
+             protocolObj.ctlSocket, body_, bytesRead, bytesToRead - bytesRead);
+         if (currentBytesRead <= 0) {
+           // end of file 
+           break;
+         }
+         bytesRead += currentBytesRead;
+       }
+       return bytesRead;
+     }
+
+    /**
      * Receive message.
      * @return {int} Values:
      *   a) NDTConstants.PROTOCOL_MSG_READ_SUCCESS, in case of success.
+                             successfully read expected number of bytes.
      *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
             header or if the message body is shorther than expected. 
      */
      public function receiveMessage(protocolObj:Protocol):int {
        if (!readHeader(protocolObj) ||
-           (protocolObj.readn(this, length) != length)) {
+           (readBytes(protocolObj, length) != length)) {
          return NDTConstants.PROTOCOL_MSG_READ_ERROR;
        }
        return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
