@@ -18,6 +18,7 @@ package  {
   import flash.events.ProgressEvent;
   import flash.utils.ByteArray;
   import flash.system.Capabilities;
+  import mx.resources.ResourceManager;
   
   /**
    * This class performs the META test. The META test allows the Client
@@ -71,6 +72,7 @@ package  {
      */
     private function onComplete():void {
       removeResponseListener();
+      TestResults.set_metaFailed(!metaTest);
       callerObj.testNo++;
       callerObj.runTests(protocolObj);
     }
@@ -80,15 +82,15 @@ package  {
      */    
     private function testPrepare():void {
       TestResults.appendConsoleOutput(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "sendingMetaInformation",
                                         null, Main.locale) + " ");
       TestResults.appendStatsText(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "sendingMetaInformation",
                                         null, Main.locale) + " ");
       TestResults.appendEmailText(
-        NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "sendingMetaInformation",
                                         null, Main.locale) + " ");
       TestResults.set_pub_status("sendingMetaInformation");
@@ -96,7 +98,7 @@ package  {
       // Server starts with a TEST_PREPARE messsage.
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         metaTest = false;
@@ -106,7 +108,7 @@ package  {
       if (msg.getType() != MessageType.TEST_PREPARE) {
         // any other message type is 'wrong'
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaWrongMessage",
                                           null, Main.locale) + "\n");
         if (msg.getType() == MessageType.MSG_ERROR) {
@@ -132,7 +134,7 @@ package  {
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // message not received / read correctly
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         metaTest = false;
@@ -142,7 +144,7 @@ package  {
       // Only TEST_START message expected here. Everything else is 'wrong'
       if (msg.getType() != MessageType.TEST_START) {
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaWrongMessage",
                                            null, Main.locale) + "\n"); 
         if (msg.getType() == MessageType.MSG_ERROR) {
@@ -207,7 +209,7 @@ package  {
       if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error receiving / reading message
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.getBody()), 16) + " instead\n");
         metaTest = false;
@@ -217,7 +219,7 @@ package  {
       if (msg.getType() != MessageType.TEST_FINALIZE) {
         // any other message is 'wrong'
         TestResults.appendErrMsg(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaWrongMessage", null, Main.locale));
         if (msg.getType() == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
@@ -235,23 +237,23 @@ package  {
       // Display status as "complete" and assign status
       if (metaTest) {
         TestResults.appendConsoleOutput(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "done", null, Main.locale) + "\n");
         TestResults.appendStatsText(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "done", null, Main.locale) + "\n");
         TestResults.appendEmailText(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "done", null, Main.locale) + "\n%0A");
       } else {
         TestResults.appendConsoleOutput(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaFailed", null, Main.locale) + "\n");
         TestResults.appendStatsText(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaFailed", null, Main.locale) + "\n");
         TestResults.appendEmailText(
-          NDTConstants.RMANAGER.getString(NDTConstants.BUNDLE_NAME,
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaFailed", null, Main.locale) + "\n%0A");
       }
       TestResults.set_pub_status("done");
