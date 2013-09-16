@@ -79,11 +79,11 @@ package  {
       switch(varName) {
         case "TestList": 
           var testSuite:String = "";
-          if(TestResults.get_testSuite() & NDTConstants.TEST_C2S)
+          if(TestResults.get_testSuite() & TestType.C2S)
             testSuite += "CLIENT_TO_SERVER_THROUGHPUT\n";
-          if(TestResults.get_testSuite() & NDTConstants.TEST_S2C)
+          if(TestResults.get_testSuite() & TestType.S2C)
             testSuite += "SERVER_TO_CLIENT_THROUGHPUT\n";
-          if(TestResults.get_testSuite() & NDTConstants.TEST_META)
+          if(TestResults.get_testSuite() & TestType.META)
             testSuite += "META_TEST\n";
           return testSuite;
         case "TestDuration":
@@ -105,7 +105,7 @@ package  {
         case "OperatingSystem":
           return TestResults.get_osName();
         case "ClientVersion":
-          return NDTConstants.VERSION;
+          return NDTConstants.CLIENT_VERSION;
         case "FlashVersion":
           return TestResults.get_flashVer();
         case "OsArch":
@@ -194,25 +194,24 @@ package  {
       }
     }
 
-      /**
-       * Reads bytes from a socket into a ByteArray and returns the number of
-       * successfully read bytes.
-       * @param {Socket} socket Socket object to read from.
-       * @param {ByteArray} bytes ByteArray where to store the read bytes.
-       * @param {uint} offset Position of the ByteArray from where to start
-                              storing the read values.
-       * @param {uint} byteToRead Number of bytes to read.
-       * @return {int} Number of successfully read bytes.
-       */
-      public static function readBytes(socket:Socket, bytes:ByteArray,
-                                       offset:uint, bytesToRead:uint):int {
-        var bytesRead:int = 0;
-        while (socket.bytesAvailable && bytesRead < bytesToRead) {
-          bytes[bytesRead + offset] = socket.readByte();
-          bytesRead++;
-        }
-        return bytesRead;
+    /**
+     * Reads bytes from a socket into a ByteArray and returns the number of
+     * successfully read bytes.
+     * @param {Socket} socket Socket object to read from.
+     * @param {ByteArray} bytes ByteArray where to store the read bytes.
+     * @param {uint} offset Position of the ByteArray from where to start
+                            storing the read values.
+     * @param {uint} byteToRead Number of bytes to read.
+     * @return {int} Number of successfully read bytes.
+     */
+    public static function readBytes(socket:Socket, bytes:ByteArray,
+                                     offset:uint, bytesToRead:uint):int {
+      var bytesRead:int = 0;
+      while (socket.bytesAvailable && bytesRead < bytesToRead) {
+        bytes[bytesRead + offset] = socket.readByte();
+        bytesRead++;
       }
+      return bytesRead;
     }
   }
 }
