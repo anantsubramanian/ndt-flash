@@ -54,7 +54,7 @@ package  {
      * @param {int}  Number of bytes to read.
      * @return {int} Number of bytes read.
      */
-     public function readBytes(protocolObj:Protocol, bytesToRead:int):int {
+     private function readBytes(protocolObj:Protocol, bytesToRead:int):int {
        var bytesRead:int = 0;
        var currentBytesRead:int;
        initBodySize(bytesToRead);
@@ -78,7 +78,16 @@ package  {
      *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
             header or if the message body is shorther than expected. 
      */
-     public function receiveMessage(protocolObj:Protocol):int {
+     public function receiveMessage(protocolObj:Protocol,
+                                    kickOldClientsMsg:Boolean=false):int {
+       if (kickOldClientsMsg) {
+         if (readBytes(protocolObj, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
+             NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) {
+           return NDTConstants.PROTOCOL_MSG_READ_ERROR;
+         } else {
+           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
+         }
+       }
        if (!readHeader(protocolObj) ||
            (readBytes(protocolObj, length) != length)) {
          return NDTConstants.PROTOCOL_MSG_READ_ERROR;
