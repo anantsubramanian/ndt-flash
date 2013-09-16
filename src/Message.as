@@ -51,23 +51,18 @@ package  {
     }
 
     /**
-     * Receive message at end-point of socket
+     * Receive message.
      * @return {int} Values:
-     *    a) Success - value=0 : successfully read expected number of bytes.
-     *    b) Error   - value=1 : error reading ctrl-message length and data type
-     *                           itself, since NDTP-control packet has to be
-     *                           atleast 3 octets long.
-     *                 value=3 : error, mismatch between 'length' field of ctrl-
-     *                           -message and actual data read.
+     *   a) NDTConstants.PROTOCOL_MSG_READ_SUCCESS, in case of success.
+     *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
+            header or if the message body is shorther than expected. 
      */
      public function receiveMessage(protocolObj:Protocol):int {
-       if (!readHeader(protocolObj)) {
-         return 1;
+       if (!readHeader(protocolObj) ||
+           (protocolObj.readn(this, length) != length)) {
+         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
        }
-       if (protocolObj.readn(this, length) != length) {
-         return 3;
-       }
-       return 0;
+       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
      }
 
     /**
