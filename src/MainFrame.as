@@ -190,7 +190,7 @@ package  {
      */
      private function getRemResults():void {
       while (ctlSocket.bytesAvailable > 0) {
-        if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "protocolError", null,Main.locale) 

@@ -97,7 +97,7 @@ package  {
     public function srvQueue():void {
       // If SRV_QUEUE message sent by the server does not indicate
       // that the test session starts now, return
-      if (protocolObj.recv_msg(msg) != NDTConstants.SRV_QUEUE_TEST_STARTS_NOW) {
+      if (msg.receiveMessage(protocolObj) != NDTConstants.SRV_QUEUE_TEST_STARTS_NOW) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
@@ -186,7 +186,7 @@ package  {
     public function verifyVersion():void {
       // The server must send a message to verify version,
       // and this is a MSG_LOGIN type message.
-      if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // there is a protocol error so return
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -234,7 +234,7 @@ package  {
       // Read server message again. Server must send a MSG_LOGIN message to
       // negotiate the test suite and this should be the same set of tests
       // requested by the client earlier.
-      if (protocolObj.recv_msg(msg) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
