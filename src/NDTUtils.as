@@ -76,7 +76,7 @@ package  {
      * @param {String} The parameter which the caller is seeking.
      * @return {String} The value of the desired parameter.
      */
-    public static function getNDTvarJSCallback(varName:String):String {
+    public static function getNDTVariable(varName:String):String {
       switch(varName) {
         case "TestList": 
           var testSuite:String = "";
@@ -140,19 +140,15 @@ package  {
      * initializes the variables in the SWF accordingly.
      */
     public static function initializeFromHTML(paramObject:Object):void {
-      var localeSet:Boolean = false;
-      var key:String;
-      for (key in paramObject) {
-        if (key == "Locale") {
-          Main.locale = paramObject[key];
-          localeSet = true;
-        }
-        else if (key == "UserAgentString")
-          TestResults.set_UserAgent(paramObject[key]);
-      }
-      if(!localeSet)
+      if (NDTConstants.HTML_LOCALE in paramObject) {
+        Main.locale = paramObject[NDTConstants.HTML_LOCALE];
+      } else {
         initializeLocale();
-    } 
+      }
+      if (NDTConstants.HTML_USERAGENT in paramObject) {
+        TestResults.set_UserAgent(paramObject[NDTConstants.HTML_USERAGENT]);
+      }
+    }
     
     /**
      * Initializes the locale used by the tool to match the environment of the
@@ -191,7 +187,7 @@ package  {
         ExternalInterface.addCallback("getAdvanced", 
                                       TestResults.getDiagnosisText);
         ExternalInterface.addCallback("getErrors", TestResults.getErrMsg);
-        ExternalInterface.addCallback("getNDTvar", getNDTvarJSCallback);
+        ExternalInterface.addCallback("getNDTvar", getNDTVariable);
       } catch (e:Error) {
         TestResults.appendErrMsg("Container doesn't support callbacks.\n");
       } catch (se:SecurityError) {

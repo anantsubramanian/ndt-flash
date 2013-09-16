@@ -108,6 +108,10 @@ package  {
     
     // constant to indicate protocol read success
     public static const PROTOCOL_MSG_READ_SUCCESS:int = 0;
+    
+    // HTML tag constants
+    public static const HTML_LOCALE:String = "Locale";
+    public static const HTML_USERAGENT:String = "UserAgentString";
   }
 }
 
