@@ -281,7 +281,8 @@ package  {
       TestResults.set_pub_status("runningInboundTest");
       // server sends TEST_PREPARE message with the port to bind
       // to as the message body
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale)
@@ -327,7 +328,8 @@ package  {
                                  // inSocket events
       
       // server now sends a TEST_START message
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "unknownServer", null, Main.locale)
@@ -419,7 +421,8 @@ package  {
       // unsent data queue size and total sent byte count, separated
       // by spaces.
       //receive s2cspd from the server
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -507,7 +510,8 @@ package  {
     private function getWeb100():void {
       // get web100 variables from the server
       while (ctlSocket.bytesAvailable > 0) {
-        if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        if (msg.receiveMessage(protocolObj.ctlSocket) !=
+	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           // message not read / received correctly
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,

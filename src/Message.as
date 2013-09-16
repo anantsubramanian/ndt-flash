@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package  {
+  import flash.net.Socket;
   import flash.utils.ByteArray;
   
   /**
@@ -39,9 +40,9 @@ package  {
       return body_;
     }
 
-    private function readHeader(protocolObj:Protocol):Boolean {
+    private function readHeader(socket:Socket):Boolean {
       var header:ByteArray = new ByteArray();
-      if (NDTUtils.readBytes(protocolObj.ctlSocket, header, 0,
+      if (NDTUtils.readBytes(socket, header, 0,
                              NDTConstants.MSG_HEADER_LENGTH) !=
           NDTConstants.MSG_HEADER_LENGTH) {
         return false;
@@ -57,13 +58,13 @@ package  {
      * @param {int}  Number of bytes to read.
      * @return {int} Number of bytes read.
      */
-     private function readBody(protocolObj:Protocol, bytesToRead:int):int {
+     private function readBody(socket:Socket, bytesToRead:int):int {
        body_ = new ByteArray();
        var bytesRead:int = 0;
        var currentBytesRead:int;
        while (bytesRead != bytesToRead) {
-         currentBytesRead = NDTUtils.readBytes(
-             protocolObj.ctlSocket, body_, bytesRead, bytesToRead - bytesRead);
+         currentBytesRead = NDTUtils.readBytes( 
+             socket, body_, bytesRead, bytesToRead - bytesRead);
          if (currentBytesRead <= 0) {
            // end of file 
            break;
@@ -81,18 +82,17 @@ package  {
      *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
             header or if the message body is shorther than expected. 
      */
-    public function receiveMessage(protocolObj:Protocol,
+    public function receiveMessage(socket:Socket,
                                    kickOldClientsMsg:Boolean=false):int {
       if (kickOldClientsMsg) {
-        if (readBody(protocolObj, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
+        if (readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
             NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) {
           return NDTConstants.PROTOCOL_MSG_READ_ERROR;
         } else {
           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
         }
       }
-      if (!readHeader(protocolObj) ||
-          (readBody(protocolObj, length) != length)) {
+      if (!readHeader(socket) || (readBody(socket, length) != length)) {
         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
       }
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;

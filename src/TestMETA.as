@@ -95,7 +95,8 @@ package  {
       TestResults.set_pub_status("sendingMetaInformation");
       
       // Server starts with a TEST_PREPARE messsage.
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
@@ -130,7 +131,8 @@ package  {
      */
     private function testStart():void {
       // Server now sends a TEST_START message
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // message not received / read correctly
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -205,7 +207,8 @@ package  {
     private function finalizeTest():void {
       // Server now closes the META test session by sending a 
       // TEST_FINALIZE message
-      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error receiving / reading message
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
