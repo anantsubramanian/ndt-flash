@@ -27,7 +27,7 @@ package  {
     // TODO: Find out why type_ cannot be initialized to MessageType.UNDEF_TYPE.
     private var type_:int;
     private var length_:int = 0;
-    private var body_:ByteArray = new ByteArray();
+    private var body_:ByteArray;
 
     public function get type():int {
       return type_;
@@ -58,9 +58,9 @@ package  {
      * @return {int} Number of bytes read.
      */
      private function readBody(protocolObj:Protocol, bytesToRead:int):int {
+       body_ = new ByteArray();
        var bytesRead:int = 0;
        var currentBytesRead:int;
-       initBodySize(bytesToRead);
        while (bytesRead != bytesToRead) {
          currentBytesRead = NDTUtils.readBytes(
              protocolObj.ctlSocket, body_, bytesRead, bytesToRead - bytesRead);
@@ -81,35 +81,21 @@ package  {
      *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
             header or if the message body is shorther than expected. 
      */
-     public function receiveMessage(protocolObj:Protocol,
-                                    kickOldClientsMsg:Boolean=false):int {
-       if (kickOldClientsMsg) {
-         if (readBody(protocolObj, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
-             NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) {
-           return NDTConstants.PROTOCOL_MSG_READ_ERROR;
-         } else {
-           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
-         }
-       }
-       if (!readHeader(protocolObj) ||
-           (readBody(protocolObj, length) != length)) {
-         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
-       }
-       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
-     }
-
-    /**
-     * Utility method to initialize Message body
-     * @param {int} iParamSize ByteArray size
-     */
-    public function initBodySize(iParamSize:int):void {
-      this.body_ = new ByteArray();
-      var pos:int = 0;
-      while (body_.length < iParamSize) {
-        body_[pos] = 0;
-        pos++;
+    public function receiveMessage(protocolObj:Protocol,
+                                   kickOldClientsMsg:Boolean=false):int {
+      if (kickOldClientsMsg) {
+        if (readBody(protocolObj, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
+            NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) {
+          return NDTConstants.PROTOCOL_MSG_READ_ERROR;
+        } else {
+          return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
+        }
       }
-      body_.position = 0;
+      if (!readHeader(protocolObj) ||
+          (readBody(protocolObj, length) != length)) {
+        return NDTConstants.PROTOCOL_MSG_READ_ERROR;
+      }
+      return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
     }
   }
 }
