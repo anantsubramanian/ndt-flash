@@ -25,9 +25,11 @@ package  {
         "ndt.iupui.mlab1.nuq0t.measurement-lab.org";
     // For localization.
     public static const BUNDLE_NAME:String = "DisplayMessages";
+
     public static const PROTOCOL_MSG_READ_SUCCESS:int = 0;
     public static const PROTOCOL_MSG_READ_ERROR:int = 1;
     public static const MSG_HEADER_LENGTH:int = 3;
+    public static const KICK_OLD_CLIENTS_MSG_LENGTH:int = 13;
     // Control protocol.
     public static const CONTROL_PORT_DEFAULT:uint = 3001;
 
