@@ -25,22 +25,51 @@ package  {
    */
   public class Message {
     private var type_:int;
+    private var length_:int;
     // TODO: Change to private.
     public var body_:ByteArray;
 
     public function get type():int {
       return type_;
     }
-    public function setType(rawMessage:ByteArray):void {
-      if (rawMessage.length == 0)
-         throw new Error("Message without type");
-      type_ = rawMessage[0];
+    public function get length():int {
+      return length_;
     }
-
     public function get body():ByteArray {
       return body_;
     }
-    
+
+    private function readHeader(protocolObj:Protocol):Boolean {
+      if (protocolObj.readn(this, NDTConstants.MSG_HEADER_LENGTH) !=
+          NDTConstants.MSG_HEADER_LENGTH) {
+        return false;
+      }
+      type_ = body_[0]
+      length_ = (int(body_[1]) & 0xFF) << 8;
+      length_ += int(body_[2]) & 0xFF;
+      return true;
+    }
+
+    /**
+     * Receive message at end-point of socket
+     * @return {int} Values:
+     *    a) Success - value=0 : successfully read expected number of bytes.
+     *    b) Error   - value=1 : error reading ctrl-message length and data type
+     *                           itself, since NDTP-control packet has to be
+     *                           atleast 3 octets long.
+     *                 value=3 : error, mismatch between 'length' field of ctrl-
+     *                           -message and actual data read.
+     */
+     public function receiveMessage(protocolObj:Protocol):int {
+       if (!readHeader(protocolObj)) {
+         return 1;
+       }
+       if (protocolObj.readn(this, length) != length) {
+         return 3;
+       }
+       return 0;
+     }
+
     /**
      * Utility method to initialize Message body
      * @param {int} iParamSize ByteArray size

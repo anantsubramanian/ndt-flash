@@ -26,7 +26,7 @@ package  {
     // For localization.
     public static const BUNDLE_NAME:String = "DisplayMessages";
     public static const PROTOCOL_MSG_READ_SUCCESS:int = 0;
-
+    public static const MSG_HEADER_LENGTH:int = 3;
     // Control protocol.
     public static const CONTROL_PORT_DEFAULT:uint = 3001;
 
