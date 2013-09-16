@@ -24,9 +24,10 @@ package  {
    * - the 2nd and 3rd bytes contain the length of the message.
    */
   public class Message {
+    // TODO: Find out why type_ cannot be initialized to MessageType.UNDEF_TYPE.
     private var type_:int;
-    private var length_:int;
-    private var body_:ByteArray;
+    private var length_:int = 0;
+    private var body_:ByteArray = new ByteArray();
 
     public function get type():int {
       return type_;
@@ -39,13 +40,15 @@ package  {
     }
 
     private function readHeader(protocolObj:Protocol):Boolean {
-      if (readBody(protocolObj, NDTConstants.MSG_HEADER_LENGTH) !=
+      var header:ByteArray = new ByteArray();
+      if (NDTUtils.readBytes(protocolObj.ctlSocket, header, 0,
+                             NDTConstants.MSG_HEADER_LENGTH) !=
           NDTConstants.MSG_HEADER_LENGTH) {
         return false;
       }
-      type_ = body_[0]
-      length_ = (int(body_[1]) & 0xFF) << 8;
-      length_ += int(body_[2]) & 0xFF;
+      type_ = header[0]
+      length_ = (int(header[1]) & 0xFF) << 8;
+      length_ += int(header[2]) & 0xFF;
       return true;
     }
 
