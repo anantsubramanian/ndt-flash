@@ -114,34 +114,6 @@ package  {
       }
       return bytesread;
     }
-    
-    /**
-     * Receive message at end-point of socket
-     * @param {Message} msgParam Message object to read data into
-     * @return {int} Values:
-     *    a) Success - value=0 : successfully read expected number of bytes.
-     *    b) Error   - value=1 : error reading ctrl-message length and data type
-     *                           itself, since NDTP-control packet has to be
-     *                           atleast 3 octets long.
-     *                 value=3 : error, mismatch between 'length' field of ctrl-
-     *                           -message and actual data read.
-     */
-    public function recv_msg(msgParam:Message):int {
-      var Length:int;
-      if (readn(msgParam, 3) != 3) {
-        return 1;
-      }
-      
-      var yaMsgBody:ByteArray = msgParam.body;
-      msgParam.setType(yaMsgBody);
-      // Get data length
-      Length = (int(yaMsgBody[1]) & 0xFF) << 8;
-      Length += int(yaMsgBody[2]) & 0xFF;
-      if (readn(msgParam, Length) != Length) {
-        return 3;
-      }
-      return 0;
-    }
   }
 }
 
