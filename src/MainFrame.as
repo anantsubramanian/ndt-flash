@@ -218,6 +218,7 @@ package  {
             + parseInt(new String(msg.body), 16)
             + " instead\n");
           TestResults.set_bFailed(true);
+          readTimer.stop();
           return;
         }
         // all results obtained. "Log Out" message received now
@@ -233,6 +234,7 @@ package  {
               NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
             + "\n");
           TestResults.set_bFailed(true);
+          readTimer.stop();
           return;
         }
         _sTestResults += new String(msg.body);

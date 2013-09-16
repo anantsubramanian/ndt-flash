@@ -38,20 +38,6 @@ package  {
     }
     public function get body():ByteArray {
       return body_;
-    
-    }
-    public static function getBody(intToSend:int): ByteArray {
-      var body:ByteArray = new ByteArray();
-      // TODO: Verify if writeInteger should be used instead.
-      body.writeByte(intToSend);
-      return body;
-    }
-    public static function createHeader(type:int, length:int):ByteArray {
-      var header:ByteArray = new ByteArray();
-      header[0] = type;
-      header[1] = (length >> 8);
-      header[2] = length;
-      return header;
     }
     public static function getBody(intToSend:int): ByteArray {
       var body:ByteArray = new ByteArray();
