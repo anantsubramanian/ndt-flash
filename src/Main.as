@@ -55,7 +55,6 @@ package {
 
       stage.showDefaultContextMenu = false;
       if (guiEnabled) {
-        stage.showDefaultContextMenu = false;
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);
       } else {
