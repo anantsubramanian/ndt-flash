@@ -64,7 +64,6 @@ package  {
       type_ = header[0]
       length_ = (int(header[1]) & 0xFF) << 8;
       length_ += int(header[2]) & 0xFF;
-    }
       return true;
     }
 
