@@ -62,34 +62,6 @@ package  {
       ctlSocket.writeBytes(bParamToSend);
       ctlSocket.flush();
     }
-    
-    /**
-     * Reads bytes into a byte array and returns the number of successfully read
-     * bytes. Equivalent of the Java function read(bytes [], offset, length)
-     * @param {Socket} socket Socket object to read from
-     * @param {ByteArray} bytes Byte array to read bytes into
-     * @param {uint} offset Offset value to start
-     * @param {uint} len Length to be read
-     * @return {int} The number of successfully read bytes
-     */
-    public function readBytesAndReturn(socket:Socket, bytes:ByteArray,
-                                       offset:uint, len:uint):int {
-      var b:ByteArray = new ByteArray();
-      var bytesread:int = -1;
-      
-      if (len == 0)
-        return 0;
-      if(socket.bytesAvailable > 0)
-        bytesread = 0;
-      while (socket.bytesAvailable && bytesread < len) {
-        b[bytesread] = socket.readByte();
-        bytesread++;
-      }
-      for (var count:int = 0; count < bytesread; count++) {
-        bytes[count + offset] = b[count];
-      }
-      return bytesread;
-    }
   }
 }
 
