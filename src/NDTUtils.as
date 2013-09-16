@@ -160,13 +160,13 @@ package  {
       var region:String = localeId.getRegion();
       if (lang != null && region != null
           && (ResourceManager.getInstance().getResourceBundle(
-                lang+"_"+region, NDTConstants.BUNDLE_NAME) != null)) {
+                lang + "_" + region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
         Main.locale = new String(lang + "_" + region);
-        trace("Using locale " + locale);
+        trace("Using locale " + Main.locale);
       } else {
         trace("Error: ResourceBundle for provided locale not found.");
-        trace("Using default " + CONFIG::defaultLocale);
+        trace("Using default locale " + CONFIG::defaultLocale);
       }
     }
     
