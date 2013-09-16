@@ -210,6 +210,7 @@ package  {
       // TEST_FINALIZE message
       if (msg.receiveMessage(protocolObj.ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(protocolObj) != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error receiving / reading message
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
