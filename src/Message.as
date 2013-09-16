@@ -25,8 +25,7 @@ package  {
    * - the 2nd and 3rd bytes contain the length of the message.
    */
   public class Message {
-    // TODO: Find out why type_ cannot be initialized to MessageType.UNDEF_TYPE.
-    private var type_:int;
+    private var type_:int = MessageType.UNDEF_TYPE;
     private var length_:int = 0;
     private var body_:ByteArray;
 

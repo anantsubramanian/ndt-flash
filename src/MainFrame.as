@@ -191,13 +191,14 @@ package  {
      private function getRemResults():void {
       while (ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(protocolObj.ctlSocket) !=
-	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+	            NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "protocolError", null,Main.locale) 
             + parseInt(new String(msg.body), 16)
             + " instead\n");
           TestResults.set_bFailed(true);
+          readTimer.stop();
           return;
         }
         // all results obtained. "Log Out" message received now
@@ -213,6 +214,7 @@ package  {
               NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
             + "\n");
           TestResults.set_bFailed(true);
+          readTimer.stop();
           return;
         }
         _sTestResults += new String(msg.body);
