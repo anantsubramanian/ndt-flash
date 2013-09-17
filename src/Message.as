@@ -55,10 +55,10 @@ package  {
 
     private function readHeader(socket:Socket):Boolean {
       var header:ByteArray = new ByteArray();
-      if (NDTUtils.readBytes(socket, header, 0,
-                             NDTConstants.MSG_HEADER_LENGTH) !=
-          NDTConstants.MSG_HEADER_LENGTH) {
-        trace("Error reading header from socket.");
+      if(NDTUtils.readBytes(socket, header, 0,
+                            NDTConstants.MSG_HEADER_LENGTH) !=
+         NDTConstants.MSG_HEADER_LENGTH) {
+        trace("Error reading header from socket");
         return false;
       }
       type_ = header[0]
@@ -67,26 +67,14 @@ package  {
       return true;
     }
 
-    /**
-     * Read bytes from the protocol socket.
-     * @param {int}  Number of bytes to read.
-     * @return {int} Number of bytes read.
-     */
-     private function readBody(socket:Socket, bytesToRead:int):int {
-       body_ = new ByteArray();
-       var bytesRead:int = 0;
-       var currentBytesRead:int;
-       while (bytesRead != bytesToRead) {
-         currentBytesRead = NDTUtils.readBytes( 
-             socket, body_, bytesRead, bytesToRead - bytesRead);
-         if (currentBytesRead <= 0) {
-           // end of file 
-           break;
-         }
-         bytesRead += currentBytesRead;
-       }
-       return bytesRead;
-     }
+    private function readBody(socket:Socket, bytesToRead:int):Boolean {
+      body_ = new ByteArray();
+      if(NDTUtils.readBytes(socket, body_, 0, bytesToRead) != bytesToRead) {
+        trace("Error reading body from socket");
+        return false;
+      }
+      return true;
+    }
 
     /**
      * Receive message.
@@ -99,15 +87,15 @@ package  {
     public function receiveMessage(socket:Socket,
                                    kickOldClientsMsg:Boolean=false):int {
       if (kickOldClientsMsg) {
-        if (readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) !=
-            NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH) {
+        if (!readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)) {
+	  trace("Error reading KICK_OLD_CLIENTS message");
           return NDTConstants.PROTOCOL_MSG_READ_ERROR;
         } else {
           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
         }
       }
-      if (!readHeader(socket) || (readBody(socket, length) != length)) {
-        trace("Error reading message from socket.");
+      if (!readHeader(socket) || !readBody(socket, length)) {
+	trace("Error reading message from socket");
         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
       }
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
@@ -124,13 +112,13 @@ package  {
         var header:ByteArray = createHeader(type, body.length);
         socket.writeBytes(header);
       } catch(error:IOError) {
-        trace("Error sending header. Error: ", error);
+        trace("Error writing header to socket. Error: ", error);
         return;
       }
       try {
         socket.writeBytes(body);
       } catch(error:IOError) {
-        trace("Error sending body. Error: ", error);
+        trace("Error writing body to socket. Error: ", error);
         return;
       }
       try {
