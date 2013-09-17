@@ -183,7 +183,7 @@ package  {
         addOnReceivedDataListener();
         readTimer.start();
         if (ctlSocket.bytesAvailable > 0)
-          getRemResults();
+          getRemoteResults();
       }
     }
     
@@ -192,7 +192,7 @@ package  {
      * results and appends them to the test results String
      * for interpretation.
      */
-     private function getRemResults():void {
+     private function getRemoteResults():void {
       while (ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(ctlSocket) !=
 	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
