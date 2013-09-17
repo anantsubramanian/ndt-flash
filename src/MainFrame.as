@@ -36,7 +36,6 @@ package  {
    */
   public class MainFrame {
     private static var sHostName:String = null;
-    private static var clientId:String = null;
     private var ctlSocket:Socket = null;
     private var msg:Message;
     private var tests:Array;
@@ -173,7 +172,7 @@ package  {
           case TestType.META: NDTUtils.callExternalFunction(
                                          "testStarted", "Meta");
                                        var META:TestMETA = new TestMETA(
-				           ctlSocket, clientId, this);
+				           ctlSocket, this);
                                        NDTUtils.callExternalFunction(
                                          "testCompleted", 
                                          "Meta",
@@ -263,7 +262,6 @@ package  {
     public function MainFrame(hostname:String) {
       // variables initialization
       sHostName = hostname;
-      clientId = NDTConstants.CLIENT_ID;
     }
   }
 }

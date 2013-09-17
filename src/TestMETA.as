@@ -38,7 +38,6 @@ package  {
     private var ctlSocket:Socket;
     private var msg:Message;
     private var callerObj:MainFrame;
-    private var clientId:String;
     private static var comStage:int;
     private static var metaTest:Boolean;
     
@@ -189,7 +188,7 @@ package  {
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_APPLICATION
-                           + ":" + clientId));
+                           + ":" + NDTConstants.CLIENT_ID));
                       
       // Client can send any number of such meta data in a TEST_MSG
       // format and signal the send of the transmission using an empty
@@ -267,13 +266,10 @@ package  {
      * and triggers the testPrepare method if data is waiting to be read at the
      * socket.
      * @param {Socket} socket The Control Socket of communication
-     * @param {String} cID The client ID to be sent to the server
      * @param {MainFrame} callerObject Reference to instance of the caller object
      */
-    public function TestMETA(socket:Socket, cID:String,
-                             callerObject:MainFrame) {
+    public function TestMETA(socket:Socket, callerObject:MainFrame) {
       ctlSocket = socket;
-      clientId = cID;
       callerObj = callerObject;
       comStage = TEST_PREPARE;
       metaTest = true;    // initially the test hasn't failed
