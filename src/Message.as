@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package  {
+  import flash.errors.IOError;
   import flash.net.Socket;
   import flash.utils.ByteArray;
   
@@ -57,6 +58,7 @@ package  {
       if (NDTUtils.readBytes(socket, header, 0,
                              NDTConstants.MSG_HEADER_LENGTH) !=
           NDTConstants.MSG_HEADER_LENGTH) {
+        trace("Error reading header from socket.");
         return false;
       }
       type_ = header[0]
@@ -105,22 +107,39 @@ package  {
         }
       }
       if (!readHeader(socket) || (readBody(socket, length) != length)) {
+        trace("Error reading message from socket.");
         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
       }
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
     }
 
-     /**
-      * Send protocol messages given their type and data byte array
-      * @param {int} bParamType Control Message Type
-      * @param {ByteArray} bParamToSend Data value array to send
-      */
-     public static function sendMessage(
-         socket:Socket, type:int, body:ByteArray):void {
-       socket.writeBytes(createHeader(type, body.length));
-       socket.writeBytes(body);
-       socket.flush();
+    /**
+     * Send protocol messages given their type and data byte array
+     * @param {int} bParamType Control Message Type
+     * @param {ByteArray} bParamToSend Data value array to send
+     */
+    public static function sendMessage(
+        socket:Socket, type:int, body:ByteArray):void {
+      try {
+        var header:ByteArray = createHeader(type, body.length);
+        socket.writeBytes(header);
+      } catch(error:IOError) {
+        trace("Error sending header. Error: ", error);
+        return;
       }
+      try {
+        socket.writeBytes(body);
+      } catch(error:IOError) {
+        trace("Error sending body. Error: ", error);
+        return;
+      }
+      try {
+        socket.flush();
+      } catch(error:IOError) {
+        trace("Error flushing socket. Error: ", error);
+        return;
+      }
+    }
   }
 }
 

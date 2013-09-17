@@ -15,6 +15,8 @@
 package  {
   import flash.display.DisplayObject;
   import flash.display.LoaderInfo;
+  import flash.errors.EOFError;
+  import flash.errors.IOError;
   import flash.external.ExternalInterface;
   import flash.globalization.LocaleID;
   import flash.system.Capabilities;
@@ -208,7 +210,14 @@ package  {
                                      offset:uint, bytesToRead:uint):int {
       var bytesRead:int = 0;
       while (socket.bytesAvailable && bytesRead < bytesToRead) {
-        bytes[bytesRead + offset] = socket.readByte();
+        try {
+          bytes[bytesRead + offset] = socket.readByte();
+	} catch (error:IOError) {
+	  trace("Error reading byte from socket. Error: ", error);
+	  break;
+	} catch(error:EOFError) {
+	  break;
+	}
         bytesRead++;
       }
       return bytesRead;
