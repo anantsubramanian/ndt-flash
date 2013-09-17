@@ -281,6 +281,19 @@ package  {
     public static function get_metaFailed():Boolean {
       return metaFailed;
     }
+    public static function get_duration():String {
+      return (get_EndTime() - get_StartTime()).toString();
+    }
+    public static function get_testList():String {
+       var testSuite:String = "";
+       if(TestResults.get_testSuite() & TestType.C2S)
+          testSuite += "CLIENT_TO_SERVER_THROUGHPUT\n";
+       if(TestResults.get_testSuite() & TestType.S2C)
+          testSuite += "SERVER_TO_CLIENT_THROUGHPUT\n";
+       if(TestResults.get_testSuite() & TestType.META)
+          testSuite += "META_TEST\n";
+      return testSuite;
+    }
     
     // Setter methods
     public static function set_bFailed(b:Boolean):void {

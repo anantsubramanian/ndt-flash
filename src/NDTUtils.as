@@ -80,16 +80,9 @@ package  {
     public static function getNDTVariable(varName:String):String {
       switch(varName) {
         case "TestList": 
-          var testSuite:String = "";
-          if(TestResults.get_testSuite() & TestType.C2S)
-            testSuite += "CLIENT_TO_SERVER_THROUGHPUT\n";
-          if(TestResults.get_testSuite() & TestType.S2C)
-            testSuite += "SERVER_TO_CLIENT_THROUGHPUT\n";
-          if(TestResults.get_testSuite() & TestType.META)
-            testSuite += "META_TEST\n";
-          return testSuite;
+          return TestResults.get_testList();
         case "TestDuration":
-          return (TestResults.get_EndTime() - TestResults.get_StartTime()).toString();
+          return TestResults.get_duration();
         case "ClientToServerSpeed":
           return TestResults.get_c2sspd();
         case "ServerToClientSpeed":
