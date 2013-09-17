@@ -350,6 +350,7 @@ package  {
       statsText += sParam;
     }    
     public static function appendTraceOutput(sParam:String):void {
+      trace(sParam);
       traceOutput += sParam;
       if (Main.guiEnabled)
         GUI.addConsoleOutput(sParam);

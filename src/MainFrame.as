@@ -35,7 +35,7 @@ package  {
    * Calls functions to perform the required tests and to interpret the results.
    */
   public class MainFrame {
-    private static var sHostName:String = null;
+    private var hostname_:String;
     private var ctlSocket:Socket = null;
     private var msg:Message;
     private var tests:Array;
@@ -46,54 +46,55 @@ package  {
     private var _yTests:int =  TestType.C2S | TestType.S2C
                                | TestType.META;
     
-    // socket event listener functions
+    // Socket event listeners.
     public function onConnect(e:Event):void {
-      trace("Socket connected.");
-      TestResults.appendTraceOutput("Socket connected\n");
-      protocolStart();
+      TestResults.appendTraceOutput("Socket connected.");
+      ndtpStart();
     }
     public function onClose(e:Event):void {
-      // have to check what to do
+      TestResults.appendTraceOutput("Server closed socket.");
+      // TODO: Check what to do.
     }
-    public function onError(e:IOErrorEvent):void {
-      trace("IOError : " + e);
+    public function onIOError(e:IOErrorEvent):void {
       TestResults.appendErrMsg("IOError : " + e);
       TestResults.set_bFailed(true);
       finishedAll();
     }
-    public function onSecError(e:SecurityErrorEvent):void {
-      trace("Security Error" + e);
+    public function onSecurityError(e:SecurityErrorEvent):void {
       TestResults.appendErrMsg("Security error : " + e);
       TestResults.set_bFailed(true);
       finishedAll();
     }
-    public function onResponse(e:ProgressEvent):void {
+
+    public function onReceivedData(e:ProgressEvent):void {
       readTimer.reset();
-      getRemResults();
+      getRemoteResults();
+      // TODO: Check why the timer is started after getRemoteResults.
       readTimer.start();
     }
     
-    public function addEventListeners():void {
+    public function addSocketEventListeners():void {
       ctlSocket.addEventListener(Event.CONNECT, onConnect);
       ctlSocket.addEventListener(Event.CLOSE, onClose);
-      ctlSocket.addEventListener(IOErrorEvent.IO_ERROR, onError);
-      ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onResponse);
-      ctlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecError);
+      ctlSocket.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+      ctlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
+                                 onSecurityError);
+      addOnReceivedDataListener();
+      // TODO: Check if also OutputProgressEvents should be handled.
     }
     
-    public function removeResponseListener():void {
-      ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    public function removeOnReceivedDataListener():void {
+      ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
     
-    public function addResponseListener():void {
-      ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    public function addOnReceivedDataListener():void {
+      ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
     
     public function onReadTimeout(e:TimerEvent):void {
       readTimer.stop();
-      TestResults.appendErrMsg("Read timeout while reading results\n");
+      TestResults.appendErrMsg("Read timeout while reading results.");
       TestResults.set_bFailed(true);
-      return;
     }
     
     /**    
@@ -110,21 +111,17 @@ package  {
       TestResults.appendConsoleOutput(
         ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "connectingTo", null, Main.locale)
-        + " " + sHostName + " " + 
+        + " " + hostname_ + " " + 
         ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "toRunTest", null, Main.locale)
         + "\n");
       ctlSocket = new Socket();
-      addEventListeners();
-      removeResponseListener(); // So it does not interfere with other tests
-      ctlSocket.connect(sHostName, ctlport);      
+      addSocketEventListeners();
+      removeOnReceivedDataListener(); // So it does not interfere with other tests
+      ctlSocket.connect(hostname_, ctlport);
     }
     
-    /**
-     * Function that creates a Handshake object to perform
-     * the initial pre-test handshake with the server. 
-     */
-    public function protocolStart():void {
+    public function ndtpStart():void {
       msg = new Message();
       var handshake:Handshake = new Handshake(ctlSocket, msg, _yTests, this);
     }
@@ -154,7 +151,7 @@ package  {
           case TestType.C2S: NDTUtils.callExternalFunction(
                                           "testStarted", "ClientToServerThroughput");
                                       var C2S:TestC2S = new TestC2S(
-				          ctlSocket, sHostName, this);
+				          ctlSocket, hostname_, this);
                                       NDTUtils.callExternalFunction(
                                         "testCompleted", 
                                         "ClientToServerThroughput",
@@ -163,7 +160,7 @@ package  {
           case TestType.S2C: NDTUtils.callExternalFunction(
                                         "testStarted", "ServerToClientThroughput");
                                       var S2C:TestS2C = new TestS2C(
-				          ctlSocket, sHostName, this);
+				          ctlSocket, hostname_, this);
                                       NDTUtils.callExternalFunction(
                                         "testCompleted", 
                                         "ServerToClientThroughput",
@@ -183,7 +180,7 @@ package  {
         _sTestResults = TestS2C.getResultString();
         readTimer = new Timer(10000);
         readTimer.addEventListener(TimerEvent.TIMER, onReadTimeout);
-        addResponseListener();
+        addOnReceivedDataListener();
         readTimer.start();
         if (ctlSocket.bytesAvailable > 0)
           getRemResults();
@@ -211,7 +208,7 @@ package  {
         // all results obtained. "Log Out" message received now
         if (msg.type == MessageType.MSG_LOGOUT) {
           readTimer.stop();
-          removeResponseListener();
+          removeOnReceivedDataListener();
           finishedAll();
         }
         // get results in the form of a human-readable string
@@ -254,14 +251,8 @@ package  {
       trace("Errors:\n" + TestResults.getErrMsg() + "\n");
     }
     
-    /**
-     * The constructor of the MainFrame class which is used to pass initial data
-     * from JavaScript.
-     * @param {String} hostname The hostname of the server recvd from JavaScript.
-     */
     public function MainFrame(hostname:String) {
-      // variables initialization
-      sHostName = hostname;
+      hostname_ = hostname;
     }
   }
 }
