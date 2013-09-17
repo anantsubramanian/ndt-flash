@@ -37,7 +37,6 @@ package  {
   public class MainFrame {
     private static var sHostName:String = null;
     private static var clientId:String = null;
-    private var pub_host:String;
     private var ctlSocket:Socket = null;
     private var msg:Message;
     private var tests:Array;
@@ -104,7 +103,6 @@ package  {
      */
     public function dottcp():void {
       TestResults.set_StartTime();
-      pub_host = sHostName;
       // default control port used for the NDT tests session. NDT server
       // listens to this port
       var ctlport:uint = NDTConstants.CONTROL_PORT_DEFAULT;
@@ -266,7 +264,6 @@ package  {
       // variables initialization
       sHostName = hostname;
       clientId = NDTConstants.CLIENT_ID;
-      pub_host = "unknown";
     }
   }
 }
