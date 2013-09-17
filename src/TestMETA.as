@@ -36,7 +36,6 @@ package  {
         
     // variables declaration section
     private var ctlSocket:Socket;
-    private var protocolObj:Protocol;
     private var msg:Message;
     private var callerObj:MainFrame;
     private var clientId:String;
@@ -74,7 +73,7 @@ package  {
       removeResponseListener();
       TestResults.set_metaFailed(!metaTest);
       callerObj.testNo++;
-      callerObj.runTests(protocolObj);
+      callerObj.runTests();
     }
     
     /** 
@@ -96,7 +95,7 @@ package  {
       TestResults.set_pub_status("sendingMetaInformation");
       
       // Server starts with a TEST_PREPARE messsage.
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -132,7 +131,7 @@ package  {
      */
     private function testStart():void {
       // Server now sends a TEST_START message
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // message not received / read correctly
         TestResults.appendErrMsg(
@@ -176,17 +175,17 @@ package  {
       var toSend:ByteArray = new ByteArray();
       
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_OS + ":" + Capabilities.os));
-      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, toSend);
+      Message.sendMessage(ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_BROWSER + ":"
                            + UserAgentTools.getBrowser(TestResults.get_UserAgent())[2]));
-      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, toSend);
+      Message.sendMessage(ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_VERSION + ":"
                            + NDTConstants.CLIENT_VERSION));
-      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, toSend);
+      Message.sendMessage(ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_APPLICATION
@@ -195,7 +194,7 @@ package  {
       // Client can send any number of such meta data in a TEST_MSG
       // format and signal the send of the transmission using an empty
       // TEST_MSG
-      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, new ByteArray());
+      Message.sendMessage(ctlSocket, MessageType.TEST_MSG, new ByteArray());
       comStage = FINALIZE_TEST;
       if (ctlSocket.bytesAvailable > MIN_MSG_SIZE)
         finalizeTest();
@@ -208,7 +207,7 @@ package  {
     private function finalizeTest():void {
       // Server now closes the META test session by sending a 
       // TEST_FINALIZE message
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error receiving / reading message
         TestResults.appendErrMsg(
@@ -268,14 +267,12 @@ package  {
      * and triggers the testPrepare method if data is waiting to be read at the
      * socket.
      * @param {Socket} socket The Control Socket of communication
-     * @param {Protocol} protObj The Protocol Object used in communications
      * @param {String} cID The client ID to be sent to the server
      * @param {MainFrame} callerObject Reference to instance of the caller object
      */
-    public function TestMETA(socket:Socket, protObj:Protocol, 
-                             cID:String, callerObject:MainFrame) {
+    public function TestMETA(socket:Socket, cID:String,
+                             callerObject:MainFrame) {
       ctlSocket = socket;
-      protocolObj = protObj;
       clientId = cID;
       callerObj = callerObject;
       comStage = TEST_PREPARE;

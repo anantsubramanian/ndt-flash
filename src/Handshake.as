@@ -30,7 +30,6 @@ package  {
     
     // variables declaration section
     private var ctlSocket:Socket;
-    private var protocolObj:Protocol;
     private var msg:Message;
     private var _yTests:int;
     private var callerObj:MainFrame;
@@ -72,7 +71,7 @@ package  {
      */
     public function kickOldClients():void {
       // read the message that kicks old clients
-      if (msg.receiveMessage(protocolObj.ctlSocket, true) !=
+      if (msg.receiveMessage(ctlSocket, true) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         trace(ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                               "unsupportedClient", null,
@@ -98,7 +97,7 @@ package  {
     public function srvQueue():void {
       // If SRV_QUEUE message sent by the server does not indicate
       // that the test session starts now, return
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.SRV_QUEUE_TEST_STARTS_NOW) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -164,7 +163,7 @@ package  {
       // server sends signal to see if client is still alive
       // client should respond with a MSG_WAITING message
       if (wait == NDTConstants.SRV_QUEUE_HEARTBEAT) {
-        Message.sendMessage(protocolObj.ctlSocket, MessageType.MSG_WAITING,
+        Message.sendMessage(ctlSocket, MessageType.MSG_WAITING,
 	                    Message.getBody(_yTests));
         return;
       }
@@ -189,7 +188,7 @@ package  {
     public function verifyVersion():void {
       // The server must send a message to verify version,
       // and this is a MSG_LOGIN type message.
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // there is a protocol error so return
         TestResults.appendErrMsg(
@@ -238,7 +237,7 @@ package  {
       // Read server message again. Server must send a MSG_LOGIN message to
       // negotiate the test suite and this should be the same set of tests
       // requested by the client earlier.
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -266,7 +265,7 @@ package  {
      */
     public function allComplete():void {
       removeResponseListener();
-      callerObj.initiateTests(protocolObj, msg);
+      callerObj.initiateTests(msg);
     }
     
     /**
@@ -274,15 +273,13 @@ package  {
      * obtained from MainFrame. Starts the handshake process by sending a
      * MSG_LOGIN type message to the server.
      * @param {Socket} socket The object used for communication
-     * @param {Protocol} proOb The Protocol object of ctlSocket
      * @param {Message} messg A Message object used to receive messages
      * @param {int} testPack The requested test-suite
      * @param {MainFrame} callerObject Reference to the caller object instance.
      */
-    public function Handshake(socket:Socket, proOb:Protocol, messg:Message,
+    public function Handshake(socket:Socket, messg:Message,
                               testPack:int, callerObject:MainFrame) {
       ctlSocket = socket;
-      protocolObj = proOb;
       msg = messg;
       _yTests =  testPack;
       callerObj = callerObject;
@@ -298,7 +295,7 @@ package  {
       // The beginning of the protocol
       // write out test suite request by sending a login message
       // _yTests indicates the requested test-suite
-      Message.sendMessage(protocolObj.ctlSocket, MessageType.MSG_LOGIN,
+      Message.sendMessage(ctlSocket, MessageType.MSG_LOGIN,
                           Message.getBody(_yTests));
     }
   }

@@ -109,13 +109,14 @@ package  {
       return null;
     }
     /**
-     * Function that calls a JS function through the ExternalInterface class if it
-     * exists by the name specified in the parameter.
+     * Function that calls a JS function through the ExternalInterface class if
+     * it exists by the name specified in the parameter.
      * @param {String} functionName The name of the JS function to call.
      * @param {...} args A variable length array that contains the parameters to
      *     pass to the JS function
      */
-    public static function callExternalFunction(functionName:String, ... args):void {
+    public static function callExternalFunction(
+        functionName:String, ... args):void {
       try {
         switch (args.length) {
           case 0: ExternalInterface.call(functionName);

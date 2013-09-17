@@ -47,7 +47,6 @@ package  {
     private var callerObj:MainFrame;
     private var inSocket:Socket;
     private var ctlSocket:Socket;
-    private var protocolObj:Protocol;
     private var sHostName:String; 
     private var comStage:int; // variable indicating stage of communication
                               // with the server.
@@ -63,7 +62,6 @@ package  {
     private static var _sTestResults:String = null;
     private var _dTime:Number;
     private var soTimer:Timer;
-    private var tempProtObj:Protocol;
     private var testStartRead:Boolean;
     private var waitTimerCount:int;
     private var waitTimer:Timer;  // A timer to wait to proceed to the next step
@@ -125,7 +123,7 @@ package  {
       removeResponseListener();
       // Increase testNo to mark the test as complete
       callerObj.testNo++;
-      callerObj.runTests(protocolObj);
+      callerObj.runTests();
     }
     
     /**    
@@ -136,7 +134,8 @@ package  {
       trace("S2C Socket Connected");
       TestResults.appendTraceOutput("S2C Socket Connected\n");
       comStage = RECEIVE_DATA;
-      tempProtObj = new Protocol(inSocket);
+      // TODO: Removed unused Protocol object connected to inSocket. Verify that
+      // it was not a misteke that it was not used.
       _dTime = getTimer();  // get start time for receiving data
     }
     
@@ -282,7 +281,7 @@ package  {
       TestResults.set_pub_status("runningInboundTest");
       // server sends TEST_PREPARE message with the port to bind
       // to as the message body
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -329,7 +328,7 @@ package  {
                                  // inSocket events
       
       // server now sends a TEST_START message
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -422,7 +421,7 @@ package  {
       // unsent data queue size and total sent byte count, separated
       // by spaces.
       //receive s2cspd from the server
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
         TestResults.appendErrMsg(
@@ -496,7 +495,7 @@ package  {
       
       // Client has to send its throughput to the server inside
       // a TEST_MSG message
-      Message.sendMessage(protocolObj.ctlSocket, MessageType.TEST_MSG, buff);
+      Message.sendMessage(ctlSocket, MessageType.TEST_MSG, buff);
       _sTestResults = "";
       if (ctlSocket.bytesAvailable > WEB100_VARS_MIN_SIZE) {
         getWeb100();
@@ -511,7 +510,7 @@ package  {
     private function getWeb100():void {
       // get web100 variables from the server
       while (ctlSocket.bytesAvailable > 0) {
-        if (msg.receiveMessage(protocolObj.ctlSocket) !=
+        if (msg.receiveMessage(ctlSocket) !=
 	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           // message not read / received correctly
           TestResults.appendErrMsg(
@@ -557,15 +556,13 @@ package  {
      * from the MainFrame object. Calls the test prepare function
      * if the Control Socket is ready.
      * @param {Socket} socket The Control Socket of communication
-     * @param {Protocol} protObj The Protocol Object used in communications
      * @param {String} host The Hostname of the server
      * @param {MainFrame} callerObject Used to return control to the MainFrame object
      */
-    public function TestS2C(socket:Socket, protObj:Protocol, 
-                            host:String, callerObject:MainFrame) {
+    public function TestS2C(socket:Socket, host:String,
+                            callerObject:MainFrame) {
       callerObj = callerObject;
       ctlSocket = socket;
-      protocolObj = protObj;
       sHostName = host;
       addResponseListener();
       

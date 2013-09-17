@@ -46,7 +46,6 @@ package  {
     
     // variables declaration section
     private var callerObj:MainFrame;
-    private var protocolObj:Protocol;
     private var ctlSocket:Socket;
     private var sHostname:String;
     private var msg:Message;
@@ -108,7 +107,7 @@ package  {
       
       // mark this test as complete and continue
       callerObj.testNo++;
-      callerObj.runTests(protocolObj);
+      callerObj.runTests();
     }
     
     private function addResponseListener():void {
@@ -233,7 +232,7 @@ package  {
                                         null, Main.locale) + " " + "\n");
       TestResults.set_pub_status("runningOutboundTest");
       
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         // error reading / receiving message
         TestResults.appendErrMsg(
@@ -298,7 +297,7 @@ package  {
       
       // read signal from server application
       // This signal tells the client to start pumping out data
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -385,7 +384,7 @@ package  {
       // The client has stopped streaming data, and the server is now
       // expected to send a TEST_MSG message with the throughput it
       // calculated at its end.
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -443,7 +442,7 @@ package  {
       }
       
       // Server should close session with a TEST_FINALIZE message
-      if (msg.receiveMessage(protocolObj.ctlSocket) !=
+      if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -478,16 +477,14 @@ package  {
      * and calls the testPrepare method if data is available at the
      * Control Socket.
      * @param {Socket} socket The Control Socket of communication
-     * @param {Protocol} paramProtoObj The object used in communications
      * @param {String} host The Hostname of the server
      * @param {MainFrame} callerObject Reference to instance of the caller object
     */
-    public function TestC2S(socket:Socket, paramProtoObj:Protocol, 
-                            host:String, callerObject:MainFrame) {
+    public function TestC2S(socket:Socket, host:String,
+                            callerObject:MainFrame) {
       callerObj = callerObject
       ctlSocket = socket;
       sHostname = host;
-      protocolObj = paramProtoObj;
       c2sTest = true;    // initially the test has not failed
       
       // initializing local variables

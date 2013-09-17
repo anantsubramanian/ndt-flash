@@ -39,7 +39,6 @@ package  {
     private static var clientId:String = null;
     private var pub_host:String;
     private var ctlSocket:Socket = null;
-    private var protocolObj:Protocol;
     private var msg:Message;
     private var tests:Array;
     private var _sTestResults:String = null;
@@ -129,43 +128,36 @@ package  {
      * the initial pre-test handshake with the server. 
      */
     public function protocolStart():void {
-      protocolObj =  new Protocol(ctlSocket);
       msg = new Message();
-      var handshake:Handshake = new Handshake(ctlSocket, protocolObj, 
-                                              msg, _yTests, this);
+      var handshake:Handshake = new Handshake(ctlSocket, msg, _yTests, this);
     }
     
     /**
      * This function initializes the array 'tests' with
      * the different tests received in the message from
      * the server.
-     * @param {Protocol} protocolObj The object used to communicate with
-     *    the server.
      * @param {Message} msg An object that contains the test suite message.
      */
-    public function initiateTests(protocolObj:Protocol, msg:Message):void {
+    public function initiateTests(msg:Message):void {
       var tStr:String = new String(msg.body);
       tStr = new String(StringUtil.trim(tStr));
       tests = tStr.split(" ");
       testNo = 0;
-      runTests(protocolObj);
+      runTests();
     }
     
     /**
      * Function that creates objects of the respective classes to run
      * the tests.
-     * @param {Protocol} protocolObj The object used to communicate with
-     *    the server.      
      */
-    public function runTests(protocolObj:Protocol):void {
+    public function runTests():void {
       if (testNo < tests.length) {
         var test:int = parseInt(tests[testNo]);
         switch (test) {
           case TestType.C2S: NDTUtils.callExternalFunction(
                                           "testStarted", "ClientToServerThroughput");
-                                      var C2S:TestC2S = 
-                                      new TestC2S(ctlSocket, protocolObj,
-                                                  sHostName, this);
+                                      var C2S:TestC2S = new TestC2S(
+				          ctlSocket, sHostName, this);
                                       NDTUtils.callExternalFunction(
                                         "testCompleted", 
                                         "ClientToServerThroughput",
@@ -173,9 +165,8 @@ package  {
                                       break;
           case TestType.S2C: NDTUtils.callExternalFunction(
                                         "testStarted", "ServerToClientThroughput");
-                                      var S2C:TestS2C =
-                                      new TestS2C(ctlSocket, protocolObj, 
-                                                  sHostName, this);
+                                      var S2C:TestS2C = new TestS2C(
+				          ctlSocket, sHostName, this);
                                       NDTUtils.callExternalFunction(
                                         "testCompleted", 
                                         "ServerToClientThroughput",
@@ -183,9 +174,8 @@ package  {
                                       break;
           case TestType.META: NDTUtils.callExternalFunction(
                                          "testStarted", "Meta");
-                                       var META:TestMETA =
-                                       new TestMETA(ctlSocket, protocolObj, 
-                                                    clientId, this);
+                                       var META:TestMETA = new TestMETA(
+				           ctlSocket, clientId, this);
                                        NDTUtils.callExternalFunction(
                                          "testCompleted", 
                                          "Meta",
@@ -210,7 +200,7 @@ package  {
      */
      private function getRemResults():void {
       while (ctlSocket.bytesAvailable > 0) {
-        if (msg.receiveMessage(protocolObj.ctlSocket) !=
+        if (msg.receiveMessage(ctlSocket) !=
 	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
