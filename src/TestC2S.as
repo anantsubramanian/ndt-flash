@@ -106,7 +106,6 @@ package  {
       TestResults.set_c2sFailed(!c2sTest);
       
       // mark this test as complete and continue
-      callerObj.testNo++;
       callerObj.runTests();
     }
     

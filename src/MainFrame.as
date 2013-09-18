@@ -37,11 +37,9 @@ package  {
     private var hostname_:String;
     private var readResultsTimer_:Timer = new Timer(10000);
     private var ctlSocket_:Socket = null;
-    private var negotiatedTestSuite_:Array;
+    private var testsToRun_:Array;
     private var processedTestResults_:String = null;
-
     
-    public var testNo:int;
     private var msg:Message;
     private var readCount:int;
     
@@ -70,7 +68,7 @@ package  {
       ctlSocket_.addEventListener(Event.CLOSE, onClose);
       ctlSocket_.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
       ctlSocket_.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
-                                 onSecurityError);
+                                  onSecurityError);
       // Add onReceivedData separately.
       // TODO: Check if also OutputProgressEvents should be handled.
     }
@@ -116,8 +114,7 @@ package  {
      * the server.
      */
     public function initiateTests(testsConfirmedByServer:String):void {
-      negotiatedTestSuite_ = testsConfirmedByServer.split(" ");
-      testNo = 0;
+      testsToRun_ = testsConfirmedByServer.split(" ");
       runTests();
     }
     
@@ -126,9 +123,9 @@ package  {
      * the tests.
      */
     public function runTests():void {
-      if (testNo < negotiatedTestSuite_.length) {
-        var test:int = parseInt(negotiatedTestSuite_[testNo]);
-        switch (test) {
+      if (testsToRun_.length > 0) {
+        var currentTest:int = parseInt(testsToRun_.shift());
+        switch (currentTest) {
           case TestType.C2S: NDTUtils.callExternalFunction(
                                           "testStarted", "ClientToServerThroughput");
                                       var C2S:TestC2S = new TestC2S(

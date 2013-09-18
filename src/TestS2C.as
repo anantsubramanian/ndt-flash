@@ -121,8 +121,6 @@ package  {
       TestResults.set_s2cFailed(!s2cTest);
       
       removeResponseListener();
-      // Increase testNo to mark the test as complete
-      callerObj.testNo++;
       callerObj.runTests();
     }
     
