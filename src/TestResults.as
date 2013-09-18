@@ -13,9 +13,13 @@
 // limitations under the License.
 
 package  {
+  import flash.events.ProgressEvent;
+  import flash.events.TimerEvent;
+  import flash.net.Socket;
   import flash.text.TextField;
   import flash.system.Capabilities;
   import flash.utils.getTimer;
+  import flash.utils.Timer;
   import mx.resources.ResourceManager;
   
   /**
@@ -25,7 +29,11 @@ package  {
   public class TestResults {
     // variables declaration section
     private static var _yTests:int;  // Requested test-suite
-    
+    private var readResultsTimer_:Timer = new Timer(10000);
+    private var ctlSocket_:Socket = null;
+    private var processedTestResults_:String;
+    private var callerObj_:MainFrame;
+ 
     // Section : "pub_xxx" variables. Declared
     // as private but they have getter/setter methods.
     private static var pub_status:String = null;
@@ -392,16 +400,17 @@ package  {
      * measurement items.
      * @param sTestResParam String containing the results as key-value pairs
      */
-    public function interpretResults(sTestResParam:String):void {
+    public function interpretResults(testSuite:int):void {
       var tokens:Array;
       var i:int = 0;
       var sSysvar:String, sStrval:String;
       var iSysval:int;
       var dSysval2:Number, j:Number;
       var sOsName:String, sOsArch:String, sFlashVer:String, sClient:String;
+      _yTests = testSuite;
       
       // extract the key-value pairs
-      tokens = sTestResParam.split(/\s/);
+      tokens = processedTestResults_.split(/\s/);
       sSysvar = null;
       sStrval = null;
       for each(var token:String in tokens) {
@@ -1508,14 +1517,84 @@ package  {
       else if (sSysvarParam == "aspd:")
         _dAspd = dSysvalParam;
     }
-    
+
+    private function onReceivedData(e:ProgressEvent):void {
+      getRemoteResults();
+    }
+    private function addOnReceivedDataListener():void {
+      ctlSocket_.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
+    }
+    private function removeOnReceivedDataListener():void {
+      ctlSocket_.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
+    }
+    private function addOnReadTimeout():void {
+      readResultsTimer_.reset();
+      readResultsTimer_.addEventListener(TimerEvent.TIMER, onReadTimeout);
+      readResultsTimer_.start();
+    }
+    private function onReadTimeout(e:TimerEvent):void {
+      readResultsTimer_.stop();
+      TestResults.appendErrMsg("Read timeout while reading results.");
+      callerObj_.failNDTTest();
+    }
+
+
+    public function receiveRemoteResults():void {
+      addOnReadTimeout();
+      addOnReceivedDataListener();
+      // In case data arrived before starting the onReceiveData listener.
+       if (ctlSocket_.bytesAvailable > 0) {
+          getRemoteResults();
+       }
+      }
+
+   /**
+     * Function that reads the rest of the server calculated
+     * results and appends them to the test results String
+     * for interpretation.
+     */
+     private function getRemoteResults():void {
+      processedTestResults_ = TestS2C.getResultString();
+      var msg:Message = new Message();
+      while (ctlSocket_.bytesAvailable > 0) {
+        if (msg.receiveMessage(ctlSocket_) !=
+            NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+          TestResults.appendErrMsg(
+              ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+            + parseInt(new String(msg.body), 16)
+            + " instead");
+          TestResults.set_bFailed(true);
+          readResultsTimer_.stop();
+          return;
+        }
+        // all results obtained. "Log Out" message received now
+        if (msg.type == MessageType.MSG_LOGOUT) {
+          readResultsTimer_.stop();
+          removeOnReceivedDataListener();
+          callerObj_.finishedAll();
+        }   
+        // get results in the form of a human-readable string
+        if (msg.type != MessageType.MSG_RESULTS) {
+          TestResults.appendErrMsg(
+            ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
+            + "\n");
+          TestResults.set_bFailed(true);
+          readResultsTimer_.stop();
+          return;
+        }   
+        processedTestResults_ += new String(msg.body);
+      }   
+    }
+
     /**
      * Constructor that initializes the values and calls the function to start
      * interpreting the results.
      */
-    public function TestResults(_sTestResults:String, testSuite:int) {
-      _yTests = testSuite;
-      interpretResults(_sTestResults);
+    public function TestResults(socket:Socket, callerObject:MainFrame) {
+      ctlSocket_ = socket;
+      callerObj_ = callerObject;
     }
   }
 }

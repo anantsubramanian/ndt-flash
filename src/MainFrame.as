@@ -20,12 +20,9 @@ package  {
   import flash.events.IOErrorEvent;
   import flash.events.ProgressEvent;
   import flash.events.SecurityErrorEvent;
-  import flash.events.TimerEvent;
   import flash.net.Socket;
   import flash.system.Security;
   import flash.text.TextField;
-  import flash.utils.Timer;
-  import flash.errors.IOError;
   import mx.resources.ResourceManager;
     
   /**
@@ -35,13 +32,9 @@ package  {
    */
   public class MainFrame {
     private var hostname_:String;
-    private var readResultsTimer_:Timer = new Timer(10000);
     private var ctlSocket_:Socket = null;
     private var testsToRun_:Array;
-    private var processedTestResults_:String = null;
-    
-    private var msg:Message;
-    private var readCount:int;
+    private var testResults_:TestResults;
     
     // Control socket event listeners.
     private function onConnect(e:Event):void {
@@ -60,23 +53,13 @@ package  {
       TestResults.appendErrMsg("Security error on control socket: " + e);
       failNDTTest();
     }
-    private function onReceivedData(e:ProgressEvent):void {
-      getRemoteResults();
-    }
     private function addSocketEventListeners():void {
       ctlSocket_.addEventListener(Event.CONNECT, onConnect);
       ctlSocket_.addEventListener(Event.CLOSE, onClose);
       ctlSocket_.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
       ctlSocket_.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
                                   onSecurityError);
-      // Add onReceivedData separately.
       // TODO: Check if also OutputProgressEvents should be handled.
-    }
-    private function addOnReceivedDataListener():void {
-      ctlSocket_.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
-    }
-    private function removeOnReceivedDataListener():void {
-      ctlSocket_.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
     
     public function startNDTTest():void {
@@ -126,96 +109,39 @@ package  {
       if (testsToRun_.length > 0) {
         var currentTest:int = parseInt(testsToRun_.shift());
         switch (currentTest) {
-          case TestType.C2S: NDTUtils.callExternalFunction(
-                                          "testStarted", "ClientToServerThroughput");
-                                      var C2S:TestC2S = new TestC2S(
-				          ctlSocket_, hostname_, this);
-                                      NDTUtils.callExternalFunction(
-                                        "testCompleted", 
-                                        "ClientToServerThroughput",
-                                        (!TestResults.get_c2sFailed()).toString());  
-                                      break;
-          case TestType.S2C: NDTUtils.callExternalFunction(
-                                        "testStarted", "ServerToClientThroughput");
-                                      var S2C:TestS2C = new TestS2C(
-				          ctlSocket_, hostname_, this);
-                                      NDTUtils.callExternalFunction(
-                                        "testCompleted", 
-                                        "ServerToClientThroughput",
-                                        (!TestResults.get_s2cFailed()).toString());
-                                      break;
-          case TestType.META: NDTUtils.callExternalFunction(
-                                         "testStarted", "Meta");
-                                       var META:TestMETA = new TestMETA(
-				           ctlSocket_, this);
-                                       NDTUtils.callExternalFunction(
-                                         "testCompleted", 
-                                         "Meta",
-                                         (!TestResults.get_metaFailed()).toString());
-                                       break;
+          case TestType.C2S:
+              NDTUtils.callExternalFunction(
+	          "testStarted", "ClientToServerThroughput");
+              new TestC2S(ctlSocket_, hostname_, this);
+              NDTUtils.callExternalFunction(
+                 "testCompleted", "ClientToServerThroughput",
+                  (!TestResults.get_c2sFailed()).toString());
+              break;
+          case TestType.S2C:
+	      NDTUtils.callExternalFunction(
+                  "testStarted", "ServerToClientThroughput");
+              new TestS2C(ctlSocket_, hostname_, this);
+              NDTUtils.callExternalFunction(
+                  "testCompleted", "ServerToClientThroughput",
+                  (!TestResults.get_s2cFailed()).toString());
+              break;
+          case TestType.META:
+	      NDTUtils.callExternalFunction("testStarted", "Meta");
+              new TestMETA(ctlSocket_, this);
+              NDTUtils.callExternalFunction(
+	          "testCompleted", "Meta",
+                   (!TestResults.get_metaFailed()).toString());
+              break;
         }
       } else {
-	addOnReadTimeout();
-        addOnReceivedDataListener();
-	// In case data arrived before starting the onReceiveData listener.
-	if (ctlSocket_.bytesAvailable > 0) {
-	  getRemoteResults();
-	}
+        testResults_ = new TestResults(ctlSocket_, this);
+        testResults_.receiveRemoteResults();
       }
-    }
-    private function addOnReadTimeout():void {
-      readResultsTimer_.reset();
-      readResultsTimer_.addEventListener(TimerEvent.TIMER, onReadTimeout);
-      readResultsTimer_.start();
-    }
-    private function onReadTimeout(e:TimerEvent):void {
-      readResultsTimer_.stop();
-      TestResults.appendErrMsg("Read timeout while reading results.");
-      failNDTTest();
     }
     
-    /**
-     * Function that reads the rest of the server calculated
-     * results and appends them to the test results String
-     * for interpretation.
-     */
-     private function getRemoteResults():void {
-      processedTestResults_ = TestS2C.getResultString();
-      msg = new Message();
-      while (ctlSocket_.bytesAvailable > 0) {
-        if (msg.receiveMessage(ctlSocket_) !=
-	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-          TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "protocolError", null,Main.locale) 
-            + parseInt(new String(msg.body), 16)
-            + " instead\n");
-          TestResults.set_bFailed(true);
-          readResultsTimer_.stop();
-          return;
-        }
-        // all results obtained. "Log Out" message received now
-        if (msg.type == MessageType.MSG_LOGOUT) {
-          readResultsTimer_.stop();
-          removeOnReceivedDataListener();
-          finishedAll();
-        }
-        // get results in the form of a human-readable string
-        if (msg.type != MessageType.MSG_RESULTS) {
-          TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
-            + "\n");
-          TestResults.set_bFailed(true);
-          readResultsTimer_.stop();
-          return;
-        }
-        processedTestResults_ += new String(msg.body);
-      }
-    }
-
-    private function failNDTTest():void {
+    public function failNDTTest():void {
       TestResults.set_bFailed(true);
+      NDTUtils.callExternalFunction("fatalErrorOccured");
       finishedAll();
     }
     /**
@@ -223,18 +149,14 @@ package  {
      * retrieval of the last set of results.
      */
     public function finishedAll():void {
-      if(TestResults.get_bFailed())
-        NDTUtils.callExternalFunction("fatalErrorOccured");
       NDTUtils.callExternalFunction("allTestsCompleted");
       try {
         ctlSocket_.close();
       } catch (e:IOError) {
-        TestResults.appendErrMsg("Client failed to close Control Socket Connection\n");
+        TestResults.appendErrMsg("Client failed to close control socket.");
       }
-      if (processedTestResults_ != null)
-        // TODO: Check why it's using the tests requested by the client.
-        var interpRes:TestResults = new TestResults(
-	    processedTestResults_, NDTConstants.TESTS_REQUESTED_BY_CLIENT);
+      // TODO: Use tests confirmed by the server.
+      testResults_.interpretResults(NDTConstants.TESTS_REQUESTED_BY_CLIENT);
       NDTUtils.callExternalFunction("resultsProcessed");
       TestResults.set_EndTime();
       if (Main.guiEnabled) {
