@@ -35,7 +35,7 @@ package  {
    */
   public class MainFrame {
     private var hostname_:String;
-    private var readResultsTimer_:Timer;
+    private var readResultsTimer_:Timer = new Timer(10000);
     private var ctlSocket_:Socket = null;
     
     private var msg:Message;
@@ -64,10 +64,7 @@ package  {
       failNDTTest();
     }
     private function onReceivedData(e:ProgressEvent):void {
-      readResultsTimer_.reset();
       getRemoteResults();
-      // TODO: Check why the timer is started after getRemoteResults.
-      readResultsTimer_.start();
     }
     private function addSocketEventListeners():void {
       ctlSocket_.addEventListener(Event.CONNECT, onConnect);
@@ -78,11 +75,11 @@ package  {
       // Add onReceivedData separately.
       // TODO: Check if also OutputProgressEvents should be handled.
     }
-    private function removeOnReceivedDataListener():void {
-      ctlSocket_.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
-    }
     private function addOnReceivedDataListener():void {
       ctlSocket_.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
+    }
+    private function removeOnReceivedDataListener():void {
+      ctlSocket_.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
     
     public function startNDTTest():void {
@@ -161,19 +158,23 @@ package  {
         }
       } else {
         _sTestResults = TestS2C.getResultString();
-        readResultsTimer_ = new Timer(10000);
-        readResultsTimer_.addEventListener(TimerEvent.TIMER, onReadTimeout);
+	addOnReadTimeout();
         addOnReceivedDataListener();
-	readResultsTimer_.start();
-        if (ctlSocket_.bytesAvailable > 0)
-          getRemoteResults();
+	// In case data arrived before starting the onReceiveData listener.
+	if (ctlSocket_.bytesAvailable > 0) {
+	  getRemoteResults();
+	}
       }
+    }
+    private function addOnReadTimeout():void {
+      readResultsTimer_.reset();
+      readResultsTimer_.addEventListener(TimerEvent.TIMER, onReadTimeout);
+      readResultsTimer_.start();
     }
     private function onReadTimeout(e:TimerEvent):void {
       readResultsTimer_.stop();
       TestResults.appendErrMsg("Read timeout while reading results.");
-      // TODO: Check why calling failNDTTest here fails.
-      TestResults.set_bFailed(true);
+      failNDTTest();
     }
     
     /**
