@@ -37,7 +37,7 @@ package  {
     // variables declaration section
     private var ctlSocket:Socket;
     private var msg:Message;
-    private var callerObj:MainFrame;
+    private var callerObj:NDTPController;
     private static var comStage:int;
     private static var metaTest:Boolean;
     
@@ -265,9 +265,9 @@ package  {
      * and triggers the testPrepare method if data is waiting to be read at the
      * socket.
      * @param {Socket} socket The Control Socket of communication
-     * @param {MainFrame} callerObject Reference to instance of the caller object
+     * @param {NDTPController} callerObject Reference to instance of the caller object
      */
-    public function TestMETA(socket:Socket, callerObject:MainFrame) {
+    public function TestMETA(socket:Socket, callerObject:NDTPController) {
       ctlSocket = socket;
       callerObj = callerObject;
       comStage = TEST_PREPARE;

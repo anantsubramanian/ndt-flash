@@ -44,7 +44,7 @@ package  {
     private static const buffLen:int = NDTConstants.PREDEFINED_BUFFER_SIZE;
     
     // variables declaration section
-    private var callerObj:MainFrame;
+    private var callerObj:NDTPController;
     private var inSocket:Socket;
     private var ctlSocket:Socket;
     private var sHostName:String; 
@@ -551,14 +551,14 @@ package  {
     
     /**
      * Constructor that initializes local variables to the ones
-     * from the MainFrame object. Calls the test prepare function
+     * from the NDTPController object. Calls the test prepare function
      * if the Control Socket is ready.
      * @param {Socket} socket The Control Socket of communication
      * @param {String} host The Hostname of the server
-     * @param {MainFrame} callerObject Used to return control to the MainFrame object
+     * @param {NDTPController} callerObject Used to return control to the NDTPController object
      */
     public function TestS2C(socket:Socket, host:String,
-                            callerObject:MainFrame) {
+                            callerObject:NDTPController) {
       callerObj = callerObject;
       ctlSocket = socket;
       sHostName = host;

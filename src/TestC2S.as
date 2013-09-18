@@ -45,7 +45,7 @@ package  {
     private static const ALL_COMPLETE:int   = 6;
     
     // variables declaration section
-    private var callerObj:MainFrame;
+    private var callerObj:NDTPController;
     private var ctlSocket:Socket;
     private var sHostname:String;
     private var msg:Message;
@@ -477,10 +477,10 @@ package  {
      * Control Socket.
      * @param {Socket} socket The Control Socket of communication
      * @param {String} host The Hostname of the server
-     * @param {MainFrame} callerObject Reference to instance of the caller object
+     * @param {NDTPController} callerObject Reference to instance of the caller object
     */
     public function TestC2S(socket:Socket, host:String,
-                            callerObject:MainFrame) {
+                            callerObject:NDTPController) {
       callerObj = callerObject
       ctlSocket = socket;
       sHostname = host;

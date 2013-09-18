@@ -34,7 +34,7 @@ package  {
     private var ctlSocket:Socket;
     private var msg:Message;
     private var _yTests:int;
-    private var callerObj:MainFrame;
+    private var callerObj:NDTPController;
     private var comStage:int; // variable representing the stage of communication
                               // with the server.
     private var i:int, wait:int;
@@ -275,14 +275,14 @@ package  {
     
     /**
      * Constructor for the class. Initializes local variables to the ones
-     * obtained from MainFrame. Starts the handshake process by sending a
+     * obtained from NDTPController. Starts the handshake process by sending a
      * MSG_LOGIN type message to the server.
      * @param {Socket} socket The object used for communication
      * @param {int} testPack The requested test-suite
-     * @param {MainFrame} callerObject Reference to the caller object instance.
+     * @param {NDTPController} callerObject Reference to the caller object instance.
      */
     public function Handshake(socket:Socket,
-                              testPack:int, callerObject:MainFrame) {
+                              testPack:int, callerObject:NDTPController) {
       ctlSocket = socket;
       msg = new Message();
       _yTests =  testPack;

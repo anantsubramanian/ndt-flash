@@ -30,7 +30,7 @@ package  {
    * communications with the server (NDTP-Control).
    * Calls functions to perform the required tests and to interpret the results.
    */
-  public class MainFrame {
+  public class NDTPController {
     private var hostname_:String;
     private var ctlSocket_:Socket = null;
     private var testsToRun_:Array;
@@ -168,7 +168,7 @@ package  {
       trace("Errors:\n" + TestResults.getErrMsg() + "\n");
     }
     
-    public function MainFrame(hostname:String) {
+    public function NDTPController(hostname:String) {
       hostname_ = hostname;
     }
   }

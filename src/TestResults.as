@@ -32,7 +32,7 @@ package  {
     private var readResultsTimer_:Timer = new Timer(10000);
     private var ctlSocket_:Socket = null;
     private var processedTestResults_:String;
-    private var callerObj_:MainFrame;
+    private var callerObj_:NDTPController;
  
     // Section : "pub_xxx" variables. Declared
     // as private but they have getter/setter methods.
@@ -1592,7 +1592,7 @@ package  {
      * Constructor that initializes the values and calls the function to start
      * interpreting the results.
      */
-    public function TestResults(socket:Socket, callerObject:MainFrame) {
+    public function TestResults(socket:Socket, callerObject:NDTPController) {
       ctlSocket_ = socket;
       callerObj_ = callerObject;
     }

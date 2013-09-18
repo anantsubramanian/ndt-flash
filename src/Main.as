@@ -41,7 +41,7 @@ package {
     /**
      * Function that is called once the stage is initialized and an instance
      * of this class has been added to it. Sets the locale value according to
-     * the SWF environment and creates an object of MainFrame class to start
+     * the SWF environment and creates an NDTPController object to start
      * the testing process.
      * @param {Event} The event that caused the function to be called.
      */
@@ -51,7 +51,8 @@ package {
       // set the properties of the SWF from its HTML tags
       NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);      
       
-      var frame:MainFrame = new MainFrame(NDTConstants.SERVER_HOSTNAME);
+      var frame:NDTPController = new NDTPController(
+          NDTConstants.SERVER_HOSTNAME);
 
       stage.showDefaultContextMenu = false;
       if (guiEnabled) {

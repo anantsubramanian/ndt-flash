@@ -35,7 +35,7 @@ package  {
     // variables declaration section
     private var stagewidth:int;
     private var stageheight:int;
-    private var parentObject:MainFrame;
+    private var parentObject:NDTPController;
     
     [Embed(source="../assets/mlab-logo.png")]
     private var mLabLogo:Class;
@@ -463,10 +463,10 @@ package  {
        them on the screen using a relative layout.
        @param {int} stageW Width of the stage to which the GUI is added
        @param {int} stageH Height of the stage
-       @param {MainFrame} Parent The class in which the object of GUI
+       @param {NDTPController} Parent The class in which the object of GUI
           was created.
      */
-    public function GUI(stageW:int, stageH:int, Parent:MainFrame) {
+    public function GUI(stageW:int, stageH:int, Parent:NDTPController) {
       stagewidth  = stageW;
       stageheight = stageH;
       parentObject = Parent;
