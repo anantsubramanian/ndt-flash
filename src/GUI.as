@@ -109,7 +109,7 @@ package  {
       consoleText.height = stageheight;
       this.addChild(consoleText);
       // Start tests
-      parentObject.dottcp();
+      parentObject.startNDTTest();
     }
     
     private function rollOverResult(e:MouseEvent):void {

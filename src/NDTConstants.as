@@ -31,7 +31,7 @@ package  {
     public static const MSG_HEADER_LENGTH:int = 3;
     public static const KICK_OLD_CLIENTS_MSG_LENGTH:int = 13;
     // Control protocol.
-    public static const CONTROL_PORT_DEFAULT:uint = 3001;
+    public static const DEFAULT_CONTROL_PORT:uint = 3001;
 
     // SRV-QUEUE status.
     public static const SRV_QUEUE_HEARTBEAT:int = 9990;

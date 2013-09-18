@@ -16,6 +16,8 @@ package  {
   import flash.net.Socket;
   import flash.events.ProgressEvent;
   import mx.resources.ResourceManager;
+  import mx.utils.StringUtil;
+
   /**
    * This class handles the initial communication with the server before the
    * tests. It has an event handler function that call functions to handle the
@@ -256,16 +258,19 @@ package  {
         TestResults.set_bFailed(true);
         return;
       }
-      allComplete();
+      // Extract the list of tests confirmed by the server.
+      var tStr:String = new String(msg.body);
+      tStr = new String(StringUtil.trim(tStr));
+      allComplete(tStr);
     }
     
     /**
      * Function that removes the local event handler for the Control Socket
      * responses and passes control back to the caller object. 
      */
-    public function allComplete():void {
+    public function allComplete(confirmedTests:String):void {
       removeResponseListener();
-      callerObj.initiateTests(msg);
+      callerObj.initiateTests(confirmedTests);
     }
     
     /**
@@ -273,14 +278,13 @@ package  {
      * obtained from MainFrame. Starts the handshake process by sending a
      * MSG_LOGIN type message to the server.
      * @param {Socket} socket The object used for communication
-     * @param {Message} messg A Message object used to receive messages
      * @param {int} testPack The requested test-suite
      * @param {MainFrame} callerObject Reference to the caller object instance.
      */
-    public function Handshake(socket:Socket, messg:Message,
+    public function Handshake(socket:Socket,
                               testPack:int, callerObject:MainFrame) {
       ctlSocket = socket;
-      msg = messg;
+      msg = new Message();
       _yTests =  testPack;
       callerObj = callerObject;
       

@@ -59,7 +59,7 @@ package {
         this.addChild(gui);
       } else {
         // If guiEnabled compiler flag set to false start tests immediately
-        frame.dottcp();
+        frame.startNDTTest();
       }
       NDTUtils.addJSCallbacks();
     }
