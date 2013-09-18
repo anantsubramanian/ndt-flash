@@ -97,7 +97,15 @@ package  {
 
       ctlSocket_ = new Socket();
       addSocketEventListeners();
-      ctlSocket_.connect(hostname_, NDTConstants.DEFAULT_CONTROL_PORT);
+      try {
+        ctlSocket_.connect(hostname_, NDTConstants.DEFAULT_CONTROL_PORT);
+      } catch(e:IOError) {
+        TestResults.appendErrMsg("Control socket connect error: " + e);
+        failNDTTest();
+      } catch(e:SecurityError) {
+        TestResults.appendErrMsg("Control socket connect error: " + e);
+        failNDTTest();
+      }
     }
     
     private function startHandshake():void {
