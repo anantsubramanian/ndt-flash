@@ -295,7 +295,9 @@ package  {
       comStage = KICK_CLIENTS;
       TestResults.set_bFailed(false);
       addResponseListener();
-      
+    }
+
+    public function sendLoginMessage():void {
       // The beginning of the protocol
       // write out test suite request by sending a login message
       // _yTests indicates the requested test-suite

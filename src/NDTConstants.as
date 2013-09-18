@@ -20,6 +20,9 @@ package  {
     // Constants common to all the tests.
     public static const CLIENT_VERSION:String = CONFIG::ndtClientVersion;
     public static const CLIENT_ID:String = "swf";
+    // Client MUST request the TEST_STATUS.
+    public static const TESTS_REQUESTED_BY_CLIENT:int =
+        TestType.C2S | TestType.S2C | TestType.META | TestType.STATUS;
     // TODO: Get hostname from mlab-ns.
     public static const SERVER_HOSTNAME:String =
         "ndt.iupui.mlab1.nuq0t.measurement-lab.org";

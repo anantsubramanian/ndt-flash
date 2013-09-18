@@ -37,14 +37,13 @@ package  {
     private var hostname_:String;
     private var readResultsTimer_:Timer = new Timer(10000);
     private var ctlSocket_:Socket = null;
+    private var negotiatedTestSuite_:Array;
+    private var processedTestResults_:String = null;
+
     
-    private var msg:Message;
-    private var tests:Array;
-    private var _sTestResults:String = null;
     public var testNo:int;
+    private var msg:Message;
     private var readCount:int;
-    private var _yTests:int =  TestType.C2S | TestType.S2C
-                               | TestType.META;
     
     // Control socket event listeners.
     private function onConnect(e:Event):void {
@@ -106,7 +105,9 @@ package  {
     }
     
     private function startHandshake():void {
-      var handshake:Handshake = new Handshake(ctlSocket_, _yTests, this);
+      var handshake:Handshake = new Handshake(
+          ctlSocket_, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
+      handshake.sendLoginMessage();
     }
     
     /**
@@ -114,8 +115,8 @@ package  {
      * the different tests received in the message from
      * the server.
      */
-    public function initiateTests(confirmedTests:String):void {
-      tests = confirmedTests.split(" ");
+    public function initiateTests(testsConfirmedByServer:String):void {
+      negotiatedTestSuite_ = testsConfirmedByServer.split(" ");
       testNo = 0;
       runTests();
     }
@@ -125,8 +126,8 @@ package  {
      * the tests.
      */
     public function runTests():void {
-      if (testNo < tests.length) {
-        var test:int = parseInt(tests[testNo]);
+      if (testNo < negotiatedTestSuite_.length) {
+        var test:int = parseInt(negotiatedTestSuite_[testNo]);
         switch (test) {
           case TestType.C2S: NDTUtils.callExternalFunction(
                                           "testStarted", "ClientToServerThroughput");
@@ -157,7 +158,6 @@ package  {
                                        break;
         }
       } else {
-        _sTestResults = TestS2C.getResultString();
 	addOnReadTimeout();
         addOnReceivedDataListener();
 	// In case data arrived before starting the onReceiveData listener.
@@ -183,6 +183,7 @@ package  {
      * for interpretation.
      */
      private function getRemoteResults():void {
+      processedTestResults_ = TestS2C.getResultString();
       msg = new Message();
       while (ctlSocket_.bytesAvailable > 0) {
         if (msg.receiveMessage(ctlSocket_) !=
@@ -212,7 +213,7 @@ package  {
           readResultsTimer_.stop();
           return;
         }
-        _sTestResults += new String(msg.body);
+        processedTestResults_ += new String(msg.body);
       }
     }
 
@@ -233,8 +234,10 @@ package  {
       } catch (e:IOError) {
         TestResults.appendErrMsg("Client failed to close Control Socket Connection\n");
       }
-      if (_sTestResults != null)
-        var interpRes:TestResults = new TestResults(_sTestResults, _yTests);
+      if (processedTestResults_ != null)
+        // TODO: Check why it's using the tests requested by the client.
+        var interpRes:TestResults = new TestResults(
+	    processedTestResults_, NDTConstants.TESTS_REQUESTED_BY_CLIENT);
       NDTUtils.callExternalFunction("resultsProcessed");
       TestResults.set_EndTime();
       if (Main.guiEnabled) {
