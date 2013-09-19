@@ -44,7 +44,6 @@ package  {
     }
     private function onClose(e:Event):void {
       TestResults.appendTraceOutput("Control socket closed by server.");
-      // TODO: Check what to do.
     }
     private function onIOError(e:IOErrorEvent):void {
       TestResults.appendErrMsg("IOError on control socket: " + e);
