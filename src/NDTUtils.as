@@ -13,8 +13,6 @@
 // limitations under the License.
 
 package  {
-  import flash.display.DisplayObject;
-  import flash.display.LoaderInfo;
   import flash.errors.EOFError;
   import flash.errors.IOError;
   import flash.external.ExternalInterface;

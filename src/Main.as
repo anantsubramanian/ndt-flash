@@ -13,14 +13,9 @@
 // limitations under the License.
 
 package {
-  import flash.display.DisplayObject;
   import flash.display.Sprite;
   import flash.events.Event;
-  import flash.external.ExternalInterface;
-  import flash.globalization.LocaleID;
-  import flash.system.Capabilities;
   import mx.resources.ResourceBundle;
-  import mx.resources.ResourceManager;
   /**
    * @author Anant Subramanian
    */

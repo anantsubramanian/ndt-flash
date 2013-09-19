@@ -16,12 +16,10 @@ package  {
   import flash.events.ProgressEvent;
   import flash.events.TimerEvent;
   import flash.net.Socket;
-  import flash.text.TextField;
   import flash.system.Capabilities;
   import flash.utils.getTimer;
   import flash.utils.Timer;
   import mx.resources.ResourceManager;
-  
   /**
    * Class that interprets the results of the tests. These results are stored in
    * variables that can be accessed through JavaScript.

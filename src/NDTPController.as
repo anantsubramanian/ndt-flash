@@ -13,8 +13,6 @@
 // limitations under the License.
 
 package  {  
-  import flash.display.DisplayObjectContainer;
-  import flash.display.Sprite;
   import flash.errors.IOError;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
@@ -22,7 +20,6 @@ package  {
   import flash.events.SecurityErrorEvent;
   import flash.net.Socket;
   import flash.system.Security;
-  import flash.text.TextField;
   import mx.resources.ResourceManager;
     
   /**
