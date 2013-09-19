@@ -1323,26 +1323,26 @@ package  {
         + " " + (_dCwin / _dRttsec).toFixed(2) + " Mbps\n%0A";
       
       // Client, Server data reports on link capacity
-      if (NDTUtils.getDataRateString(_iC2sData) == null
-         || NDTUtils.getDataRateString(_iC2sAck) == null
-         || NDTUtils.getDataRateString(_iS2cData) == null
-         || NDTUtils.getDataRateString(_iS2cAck) == null)
+      if (TestResultsUtils.getDataRateString(_iC2sData) == null
+         || TestResultsUtils.getDataRateString(_iC2sAck) == null
+         || TestResultsUtils.getDataRateString(_iS2cData) == null
+         || TestResultsUtils.getDataRateString(_iS2cAck) == null)
       {
         errMsg += "Error ! No matching data rate value found.\n";
       }
       diagnosisText += 
       "\n" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                              "clientDataReports", null, Main.locale)
-      + " '" + NDTUtils.getDataRateString(_iC2sData) + "', "
+      + " '" + TestResultsUtils.getDataRateString(_iC2sData) + "', "
       + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "clientAcksReport", null, Main.locale) 
-      + " '" + NDTUtils.getDataRateString(_iC2sAck) + "'\n"
+      + " '" + TestResultsUtils.getDataRateString(_iC2sAck) + "'\n"
       + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "serverDataReports", null, Main.locale) 
-      + " '" + NDTUtils.getDataRateString(_iS2cData) + "', "
+      + " '" + TestResultsUtils.getDataRateString(_iS2cData) + "', "
       + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "serverAcksReport", null, Main.locale) 
-      + " '" + NDTUtils.getDataRateString(_iS2cAck) + "'\n";
+      + " '" + TestResultsUtils.getDataRateString(_iS2cAck) + "'\n";
     }
     
     // Routine to store integer and double values received from the server
