@@ -36,6 +36,10 @@ package  {
     private var testsToRun_:Array;
     private var testResults_:TestResults;
     
+    public function NDTPController(hostname:String) {
+      hostname_ = hostname;
+    }
+    
     // Control socket event listeners.
     private function onConnect(e:Event):void {
       TestResults.appendTraceOutput("Control socket connected.");
@@ -166,10 +170,6 @@ package  {
       trace("Statistics Output:\n" + TestResults.getStatsText() + "\n");
       trace("Diagnosis Output:\n" + TestResults.getDiagnosisText() + "\n");
       trace("Errors:\n" + TestResults.getErrMsg() + "\n");
-    }
-    
-    public function NDTPController(hostname:String) {
-      hostname_ = hostname;
     }
   }
 }
