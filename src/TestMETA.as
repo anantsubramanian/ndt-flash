@@ -86,10 +86,6 @@ package  {
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "sendingMetaInformation",
                                         null, Main.locale) + " ");
-      TestResults.appendEmailText(
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                        "sendingMetaInformation",
-                                        null, Main.locale) + " ");
       TestResults.set_pub_status("sendingMetaInformation");
       
       // Server starts with a TEST_PREPARE messsage.
@@ -242,9 +238,6 @@ package  {
         TestResults.appendStatsText(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "done", null, Main.locale) + "\n");
-        TestResults.appendEmailText(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "done", null, Main.locale) + "\n%0A");
       } else {
         TestResults.appendConsoleOutput(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -252,9 +245,6 @@ package  {
         TestResults.appendStatsText(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaFailed", null, Main.locale) + "\n");
-        TestResults.appendEmailText(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "metaFailed", null, Main.locale) + "\n%0A");
       }
       TestResults.set_pub_status("done");
       onComplete();

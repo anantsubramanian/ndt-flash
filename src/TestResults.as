@@ -147,7 +147,6 @@ package  {
     private static var statsText:String = "";
     private static var traceOutput:String = "";
     private static var diagnosisText:String = "";
-    private static var emailText:String = "";
     
     private static var _bFailed:Boolean = false;
     private static var s2cFailed:Boolean = false;
@@ -364,9 +363,6 @@ package  {
     public static function appendDiagnosisText(sParam:String):void {
       diagnosisText += sParam;
     }    
-    public static function appendEmailText(sParam:String):void {
-      emailText += sParam;
-    }    
     public static function appendErrMsg(sParam:String):void {
       errMsg += sParam;
       NDTUtils.callExternalFunction("appendErrors", sParam);
@@ -384,9 +380,6 @@ package  {
     public static function getDiagnosisText():String {
       return diagnosisText;
     }    
-    public static function getEmailText():String {
-      return emailText;
-    }
     public static function getErrMsg():String {
       return errMsg;
     }
@@ -418,7 +411,6 @@ package  {
         else {
           sStrval = tokens[i];
           diagnosisText += sSysvar + " " + sStrval + "\n";
-          emailText += sSysvar + " " + sStrval + "\n%0A";
           if (sStrval.indexOf(".") == -1) {
             // no decimal point hence an integer
             iSysval = parseInt(sStrval);
@@ -467,7 +459,6 @@ package  {
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                               "unableToDetectBottleneck",
                                                null, Main.locale) + "\n";
-            emailText += "Server unable to determine bottleneck link type.\n%0A";
             pub_AccessTech = "Connection type unknown";
           }
           else {
@@ -479,21 +470,11 @@ package  {
               + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                 "connectedTo", null, Main.locale)
               + " ";
-            emailText +=  
-              ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                              "your", null, Main.locale)
-              + " " + sClient + " "
-              + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                "connectedTo", null, Main.locale)
-              + " ";
                    
             if (_iC2sData == NDTConstants.DATA_RATE_DIAL_UP) {
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "dialup", null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "dialup", null, Main.locale) + "\n%0A";
               mylink = 0.064;  // 64 kbps speed
               pub_AccessTech = "Dial-up Modem";
             }
@@ -501,9 +482,6 @@ package  {
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                 "cabledsl", null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                "cabledsl", null, Main.locale) + "\n%0A";
               mylink = 3;
               pub_AccessTech = "Cable/DSL modem";
             }
@@ -514,18 +492,11 @@ package  {
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "theSlowestLink",
                                              null, Main.locale) + " ";
-          emailText += 
-            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "theSlowestLink",
-                                            null, Main.locale)  + " ";
           switch(_iC2sData) {
             case NDTConstants.DATA_RATE_ETHERNET : 
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                   "10mbps", null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "10mbps", null, Main.locale) + "\n%0A";
                 mylink = 10;
                 pub_AccessTech = "10 Mbps Ethernet";
                 break;                
@@ -533,15 +504,11 @@ package  {
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "45mbps", null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "45mbps", null, Main.locale) + "\n%0A";
                 mylink = 45;
                 pub_AccessTech = "45 Mbps T3/DS3 subnet";
                 break;                
             case NDTConstants.DATA_RATE_FAST_ETHERNET :
                 consoleOutput += "100 Mbps ";
-                emailText += "100 Mbps";
                 mylink = 100;
                 pub_AccessTech = "100 Mbps Ethernet";
                 // Fast ethernet. Determine if half/full duplex link was found
@@ -550,29 +517,18 @@ package  {
                     ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                     "fullDuplex",
                                                     null, Main.locale) + "\n";
-                  emailText += 
-                    ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                    "fullDuplex",
-                                                    null, Main.locale) + "\n%0A";
                 }
                 else {
                   consoleOutput += 
                     ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                     "halfDuplex",
                                                     null, Main.locale) + "\n";
-                  emailText += 
-                    ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                    "halfDuplex",
-                                                    null, Main.locale) + "\n%0A";
                 }
                 break;            
             case NDTConstants.DATA_RATE_OC_12 :
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "622mbps", null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "622mbps", null, Main.locale) + "\n%0A";
                 mylink = 622;
                 pub_AccessTech = "622 Mbps OC-12";
                 break;                
@@ -580,9 +536,6 @@ package  {
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "1gbps", null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "1gbps", null, Main.locale) + "\n%0A";
                 mylink = 1000;
                 pub_AccessTech = "1.0 Gbps Gigabit Ethernet";
                 break;                
@@ -590,9 +543,6 @@ package  {
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "2.4gbps", null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "2.4gbps", null, Main.locale) + "\n%0A";
                 mylink = 2400;
                 pub_AccessTech = "2.4 Gbps OC-48";
                 break;                
@@ -600,9 +550,6 @@ package  {
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "10gbps", null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "10gbps", null, Main.locale) + "\n%0A";
                 mylink = 10000;
                 pub_AccessTech = "10 Gigabit Ethernet/OC-192";
                 break;            
@@ -619,60 +566,36 @@ package  {
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "oldDuplexMismatch",
                                                 null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "oldDuplexMismatch",
-                                                null, Main.locale) + "\n%0A";
               break;            
           case NDTConstants.DUPLEX_SWITCH_FULL_HOST_HALF:
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "duplexFullHalf",
                                                 null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "duplexFullHalf",
-                                                null, Main.locale) + "\n%0A";
               break;            
           case NDTConstants.DUPLEX_SWITCH_HALF_HOST_FULL:
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "duplexHalfFull",
                                                 null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "duplexHalfFull",
-                                                null, Main.locale) + "\n%0A";
               break;            
           case NDTConstants.DUPLEX_SWITCH_FULL_HOST_HALF_POSS:
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "possibleDuplexFullHalf",
                                                 null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "possibleDuplexFullHalf",
-                                                null, Main.locale) + "\n%0A";
               break;            
           case NDTConstants.DUPLEX_SWITCH_HALF_HOST_FULL_POSS:
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "possibleDuplexHalfFull",
                                                 null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "possibleDuplexHalfFull",
-                                                null, Main.locale) + "\n%0A";
               break;            
           case NDTConstants.DUPLEX_SWITCH_HALF_HOST_FULL_WARN:
               consoleOutput += 
                 ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                 "possibleDuplexHalfFullWarning",
                                                 null, Main.locale) + "\n";
-              emailText += 
-                ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                "possibleDuplexHalfFullWarning",
-                                                null, Main.locale) + "\n%0A";
               break;            
           case NDTConstants.DUPLEX_OK_INDICATOR:
               if (bad_cable == 1) {
@@ -680,20 +603,12 @@ package  {
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "excessiveErrors",
                                                   null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "excessiveErrors",
-                                                  null, Main.locale) + "\n%0A";
               }
               if (congestion == 1) {
                 consoleOutput += 
                   ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                   "otherTraffic",
                                                   null, Main.locale) + "\n";
-                emailText += 
-                  ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "otherTraffic",
-                                                  null, Main.locale) + "\n%0A";
               }
               // We seem to be transmitting less than link speed possibly due to
               // a receiver window setting (i.e calculated bandwidth is greater
@@ -716,14 +631,6 @@ package  {
                     + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                       "toMaximizeThroughput",
                                                       null, Main.locale) + "\n";
-                  emailText += 
-                    ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                    "receiveBufferShouldBe",
-                                                    null, Main.locale)
-                    + " " + j.toFixed(2)
-                    + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                      "toMaximizeThroughput",
-                                                      null, Main.locale) + "\n%0A";
                 }
               }
               break;
@@ -902,38 +809,22 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "duplexNok",
                                           null, Main.locale) + " ";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "duplexNok",
-                                          null, Main.locale) + " ";
       }
       else if (mismatch == NDTConstants.DUPLEX_SWITCH_FULL_HOST_HALF) {
         statsText += 
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "duplexFullHalf",
                                           null, Main.locale) + "\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "duplexFullHalf",
-                                          null, Main.locale) + "\n%0A";
       }
       else if (mismatch == NDTConstants.DUPLEX_SWITCH_HALF_HOST_FULL) {
         statsText += 
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "duplexHalfFull",
                                           null, Main.locale) + "\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "duplexHalfFull",
-                                          null, Main.locale) + "\n%0A";
       }
           
       statsText += 
         "\n" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                               "web100rtt", null, Main.locale)
-        + " = " + (_dAvgrtt).toFixed(2) + " ms; ";
-      emailText += 
-        "\n%0A" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                "web100rtt", null, Main.locale)
         + " = " + (_dAvgrtt).toFixed(2) + " ms; ";
              
@@ -945,14 +836,6 @@ package  {
                                           "bytes", null, Main.locale)
         + "; " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                                  "and", null, Main.locale) + " \n";
-      emailText += 
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "packetsize", null, Main.locale)
-        + " = " + _iCurrentMSS + " "
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "bytes", null, Main.locale)
-        + "; " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                 "and", null, Main.locale) + " \n%0A";
              
       // check packet retransmissions count and update stats panel
       if (_iPktsRetrans > 0) {
@@ -971,20 +854,6 @@ package  {
           + " " + _iSACKsRcvd + " " 
           + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "sackReceived", null, Main.locale) + "\n";
-        emailText += 
-          _iPktsRetrans + " "
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "pktsRetrans", null, Main.locale);
-        emailText += 
-          ", " + _iDupAcksIn + " " 
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "dupAcksIn", null, Main.locale);
-        emailText += 
-          ", " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                 "and", null, Main.locale) 
-          + " " + _iSACKsRcvd + " " 
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "sackReceived", null, Main.locale) + "\n%0A";
       if (_iTimeouts > 0) {
         statsText += 
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -992,12 +861,6 @@ package  {
           + " " + _iTimeouts + " " 
           + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "timesPktLoss", null, Main.locale) + "\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "connStalled", null, Main.locale) 
-          + " " + _iTimeouts + " " 
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "timesPktLoss", null, Main.locale) + "\n%0A";
       }
       
       statsText += 
@@ -1009,15 +872,6 @@ package  {
         + " (" + ((_dWaitsec / _dTimesec) * NDTConstants.PERCENTAGE).toFixed(2)
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "pctOfTime", null, Main.locale) + ") \n";
-      emailText += 
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "connIdle", null, Main.locale) 
-        + " " + (_dWaitsec).toFixed(2) + " " 
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "seconds", null, Main.locale) 
-        + " (" + ((_dWaitsec / _dTimesec) * NDTConstants.PERCENTAGE).toFixed(2)
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "pctOfTime", null, Main.locale) + ") \n%0A";
       }
       else if (_iDupAcksIn > 0) {
         // No packet loss, but packets arrived out-of-order
@@ -1045,9 +899,6 @@ package  {
         statsText += 
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "noPktLoss2", null, Main.locale) + ".\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "noPktLoss2", null, Main.locale) + ".\n%0A";
       }
       
       // Add Packet queueing details found during C2S throughput test to the
@@ -1111,14 +962,6 @@ package  {
           + " " + (_dRwintime * NDTConstants.PERCENTAGE).toFixed(2)
           + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "pctOfTime", null, Main.locale) + ".\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "thisConnIs", null, Main.locale)
-          + " " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "limitRx", null, Main.locale) 
-          + " " + (_dRwintime * NDTConstants.PERCENTAGE).toFixed(2)
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "pctOfTime", null, Main.locale) + ".\n%0A";
         pub_pctRcvrLimited = _dRwintime * NDTConstants.PERCENTAGE;
         if (((2 * _dRwin) / _dRttsec) < mylink) {
           // multiplying by 2 to counter round-trip
@@ -1141,14 +984,6 @@ package  {
           + " " + (_dSendtime * NDTConstants.PERCENTAGE).toFixed(2)
           + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "pctOfTime", null, Main.locale) + ".\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "thisConnIs", null, Main.locale) 
-          + " " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "limitTx", null, Main.locale)
-          + " " + (_dSendtime * NDTConstants.PERCENTAGE).toFixed(2)
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "pctOfTime", null, Main.locale) + ".\n%0A";
                
         if ((2 * (_dSwin / _dRttsec)) < mylink) {
           // dividing by 2 to counter round-trip
@@ -1175,14 +1010,6 @@ package  {
           + " " + (_dCwndtime * NDTConstants.PERCENTAGE).toFixed(2)
           + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "pctOfTime", null, Main.locale) + "\n";
-        emailText += 
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "thisConnIs", null, Main.locale) 
-          + " " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                                  "limitNet", null, Main.locale)
-          + " " + (_dCwndtime * NDTConstants.PERCENTAGE).toFixed(2)
-          + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                            "pctOfTime", null, Main.locale) + "\n%0A";
       }
       
       // Is the loss excessive ?
@@ -1277,10 +1104,6 @@ package  {
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "theoreticalLimit", null, Main.locale)
         + " " + (_dEstimate).toFixed(2) + " " + "Mbps\n";
-      emailText += 
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "theoreticalLimit", null, Main.locale)
-        + " " + (_dEstimate).toFixed(2) + " " + "Mbps\n%0A";
     // NDT server buffer imposed limit 
       // divide by 2 to counter "round-trip" time
       diagnosisText += 
@@ -1290,13 +1113,6 @@ package  {
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "kbyteBufferLimits", null, Main.locale) 
         + " " + (_dSwin / _dRttsec).toFixed(2) + " Mbps\n";
-      emailText += 
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "ndtServerHas", null, Main.locale)
-        + " " + (_iSndbuf / (2 * NDTConstants.KBITS2BITS)).toFixed(2) + " "
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "kbyteBufferLimits", null, Main.locale) 
-        + " " + (_dSwin / _dRttsec).toFixed(2) + " Mbps\n%0A";
       // PC buffer imposed throughput limit
       diagnosisText += 
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
@@ -1305,22 +1121,11 @@ package  {
         + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "kbyteBufferLimits", null, Main.locale) 
         + " " + (_dRwin / _dRttsec).toFixed(2) + " Mbps\n";
-      emailText += 
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "yourPcHas", null, Main.locale) 
-        + " " + (_iMaxRwinRcvd / NDTConstants.KBITS2BITS).toFixed(2) + " "
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "kbyteBufferLimits", null, Main.locale) 
-        + " " + (_dRwin / _dRttsec).toFixed(2) + " Mbps\n%0A";
       // Network based flow control limit imposed throughput limit
       diagnosisText += 
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "flowControlLimits", null, Main.locale)
         + " " + (_dCwin / _dRttsec).toFixed(2) + " Mbps\n";
-      emailText += 
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "flowControlLimits", null, Main.locale)
-        + " " + (_dCwin / _dRttsec).toFixed(2) + " Mbps\n%0A";
       
       // Client, Server data reports on link capacity
       if (TestResultsUtils.getDataRateString(_iC2sData) == null

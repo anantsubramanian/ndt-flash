@@ -225,10 +225,6 @@ package  {
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningOutboundTest",
                                         null, Main.locale) + " " + "\n");
-      TestResults.appendEmailText(
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "runningOutboundTest",
-                                        null, Main.locale) + " " + "\n");
       TestResults.set_pub_status("runningOutboundTest");
       
       if (msg.receiveMessage(ctlSocket) !=
@@ -432,12 +428,9 @@ package  {
           (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s\n");
         TestResults.appendStatsText(
           (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s\n");
-        TestResults.appendEmailText(
-          (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s\n%0A");
       } else {
         TestResults.appendConsoleOutput((_dSc2sspd).toFixed(2) + "Mb/s\n");
         TestResults.appendStatsText((_dSc2sspd).toFixed(2) + "Mb/s\n");
-        TestResults.appendEmailText((_dSc2sspd).toFixed(2) + "Mb/s\n%0A");
       }
       
       // Server should close session with a TEST_FINALIZE message
