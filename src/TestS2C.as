@@ -24,11 +24,11 @@ package  {
   import flash.events.TimerEvent;
   import flash.utils.getTimer;
   import mx.resources.ResourceManager;
-  
+
   /**
    * This class contains the functions used to perform the Server-to-Client
    * throughput  test to measure the network bandwidth from the server to the
-   * client. There is an event listener function that triggers different stages 
+   * client. There is an event listener function that triggers different stages
    * of the test depending on the status variable.
    */
   public class TestS2C {
@@ -42,12 +42,12 @@ package  {
     private static const GET_WEB100:int = 4;
     private static const ALL_COMPLETE:int = 5;
     private static const buffLen:int = NDTConstants.PREDEFINED_BUFFER_SIZE;
-    
+
     // variables declaration section
     private var callerObj:NDTPController;
     private var inSocket:Socket;
     private var ctlSocket:Socket;
-    private var sHostName:String; 
+    private var sHostName:String;
     private var comStage:int; // variable indicating stage of communication
                               // with the server.
     private var buff:ByteArray;
@@ -69,12 +69,12 @@ package  {
                                   // received yet
     public var s2cTest:Boolean; // variable that represents success (true) or
                                 // failure (false) of the test.
-                  
+
     // getter function to get Test Results String
     public static function getResultString():String {
       return _sTestResults;
     }
-       
+
     /**
      * Function that handles responses from the server through the Control Socket.
      * Depending on the stage of comm. the correct function is called. When all
@@ -94,53 +94,48 @@ package  {
                              getWeb100();
                              break;
         default:             break;
-      }      
+      }
       if (comStage == ALL_COMPLETE) {
         onComplete();
       }
     }
-    
+
     /**
      * Function to be called to return control to the caller object.
      */
     public function onComplete():void {
       if (!s2cTest) {
-        TestResults.appendConsoleOutput(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+        TestResults.appendDebugMsg(
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "s2cThroughputFailed",
-                                          null, Main.locale) + "\n");
-        TestResults.appendStatsText(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "s2cThroughputFailed",
-                                          null, Main.locale) + "\n");
-      }      
+                                          null, Main.locale));
+      }
       if (!isNaN(_dS2cspd))
         TestResults.ndt_test_results::s2cSpeed = _dS2cspd;
       if (!isNaN(_dSs2cspd))
         TestResults.ndt_test_results::ss2cSpeed = _dSs2cspd;
       TestResults.ndt_test_results::s2cTestResults = _sTestResults;
       NDTUtils.callExternalFunction(
-          "testCompleted", "ServerToClientThroughput", (!s2cTest).toString()); 
+          "testCompleted", "ServerToClientThroughput", (!s2cTest).toString());
       removeResponseListener();
       callerObj.runTests();
     }
-    
-    /**    
+
+    /**
      * Function triggered on successful connection of the test socket. It marks
-     * the time for the beginning of the data transfer. 
+     * the time for the beginning of the data transfer.
      */
     private function onInConnect(e:Event):void {
-      trace("S2C Socket Connected");
-      TestResults.appendTraceOutput("S2C Socket Connected\n");
+      TestResults.appendDebugMsg("S2C Socket Connected");
       comStage = RECEIVE_DATA;
       // TODO: Removed unused Protocol object connected to inSocket. Verify that
       // it was not a misteke that it was not used.
       _dTime = getTimer();  // get start time for receiving data
     }
-    
+
     /**
      * Function triggered every time the server sends some
-     * data through the test socket. 
+     * data through the test socket.
      */
     private function onInResponse(e:ProgressEvent):void {
       // inSocket
@@ -149,8 +144,8 @@ package  {
       soTimer.start();
       receiveData();
     }
-    
-    /** 
+
+    /**
      * Function triggered when the server has finished sending
      * 10s data. It marks the end time for the data transfer
      * and calls calculateThroughput.
@@ -158,50 +153,47 @@ package  {
     private function onInClose(e:Event):void {
       // get time duration during which bytes were received
       _dTime = getTimer() - _dTime;
-      trace("S2C Socket Closed.");
-      TestResults.appendTraceOutput("S2C Socket closed\n");
+      TestResults.appendDebugMsg("S2C Socket closed");
       removeEventListeners();
       soTimer.stop();
       inSocket.close();
       calculateThroughput();
-    }    
+    }
     private function onInSecError(e:SecurityErrorEvent):void {
-      trace("S2C Security Error" + e);
       TestResults.appendErrMsg("S2C Security error : " + e);
       s2cTest = false;
       removeResponseListener();
       removeEventListeners();
       onComplete();
-    }    
+    }
     private function onInError(e:IOErrorEvent):void {
-      trace("S2C IOError : " + e);
       TestResults.appendErrMsg("S2C IOError : " + e);
       s2cTest = false;
       removeEventListeners();
       removeResponseListener();
       onComplete();
-    }    
+    }
     private function addEventListeners():void {
       inSocket.addEventListener(Event.CONNECT, onInConnect);
       inSocket.addEventListener(Event.CLOSE, onInClose);
       inSocket.addEventListener(ProgressEvent.SOCKET_DATA, onInResponse);
       inSocket.addEventListener(IOErrorEvent.IO_ERROR, onInError);
       inSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onInSecError);
-    }    
+    }
     private function removeEventListeners():void {
       inSocket.removeEventListener(Event.CONNECT, onInConnect);
       inSocket.removeEventListener(Event.CLOSE, onInClose);
       inSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onInResponse);
       inSocket.removeEventListener(IOErrorEvent.IO_ERROR, onInError);
       inSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onInSecError);
-    }    
+    }
     private function addResponseListener():void {
       ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onCtlResponse);
-    }    
+    }
     private function removeResponseListener():void {
       ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onCtlResponse);
     }
-    
+
     /**
      * Function that is triggered if a read timeout occurs
      * during the 10s data transfer.
@@ -212,16 +204,16 @@ package  {
       removeEventListeners();
       calculateThroughput();
     }
-    
+
     /**
      * Function that is triggered if a read timeout occurs
-     * while getting the web100 variables. 
+     * while getting the web100 variables.
      */
     private function readTimeout2(e:TimerEvent):void {
-      TestResults.appendErrMsg("Error Reading web100 variables. Socket read timed out.\n");
+      TestResults.appendErrMsg("Error Reading web100 variables. Socket read timed out.");
       comStage = ALL_COMPLETE;
     }
-    
+
     /**
      * Function that responds by returning the appropriate function to the
      * wait timer as an event listener.
@@ -231,7 +223,7 @@ package  {
       if (ctlSocket.bytesAvailable <= MIN_MSG_SIZE) {
         if (waitTimerCount > 2) {
           s2cTest = false;
-          TestResults.appendErrMsg("Server didn't respond in time.\n");
+          TestResults.appendErrMsg("Server didn't respond in time.");
           onComplete();
         } else {
           waitTimerCount++;
@@ -259,22 +251,18 @@ package  {
       }
       return function doNothing(e:TimerEvent):void;
     }
-    
-    /**   
+
+    /**
      * Function that processes the TEST_PREPARE message and initializes the
      * inSocket object to the port mentioned by the server.
      */
     private function testPrepare():void {
       buff = new ByteArray();
       msg = new Message();
-      
+
       // start s2c tests
-      TestResults.appendConsoleOutput(
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                        "runningInboundTest",
-                                        null, Main.locale));
-      TestResults.appendStatsText(
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+      TestResults.appendDebugMsg(
+        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "runningInboundTest",
                                         null, Main.locale));
       TestResults.ndt_test_results::ndtTestStatus = "runningInboundTest";
@@ -283,9 +271,9 @@ package  {
       if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead");
         s2cTest = false;
         onComplete();
         return;
@@ -293,13 +281,12 @@ package  {
       if (msg.type != MessageType.TEST_PREPARE) {
         // no other message type expected at this point
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "inboundWrongMessage",
-                                          null, Main.locale) + "\n");
+                                          null, Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MESSAGE : "
-                                   + parseInt(new String(msg.body), 16)
-                                   + "\n");
+                                   + parseInt(new String(msg.body), 16));
         }
         s2cTest = false;
         onComplete();
@@ -315,7 +302,7 @@ package  {
       inSocket = new Socket(sHostName, iS2cport);
       addEventListeners();
     }
-    
+
     /**
      * Function that processes the TEST_START message once
      * the inSocket object has established connection to the
@@ -325,39 +312,38 @@ package  {
       testStartRead = true;
       removeResponseListener();  // so that ctlSocket doesn't interfere with
                                  // inSocket events
-      
+
       // server now sends a TEST_START message
       if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "unknownServer", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead");
         s2cTest = false;
         onComplete();
         return;
-      }      
+      }
       if (msg.type != MessageType.TEST_START) {
         // no other message type expected at this point
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
-                                          "serverFail", null, Main.locale) + "\n");
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
+                                          "serverFail", null, Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
-                                   + parseInt(new String(msg.body), 16)
-                                   + "\n");
+                                   + parseInt(new String(msg.body), 16));
         }
         s2cTest = false;
         onComplete();
         return;
       }
     }
-    
+
     /**
      * Function that is called repeatedly by the inSocket response
      * listener for the duration of the test. It processes and keeps
      * track of the total bits received from the server.
-     * The test only progresses past this stage if comStage is changed 
+     * The test only progresses past this stage if comStage is changed
      * because :
      * 1. All data was successfully received.
      * 2. A read timeout ( > 15s) occured on inSocket
@@ -377,19 +363,17 @@ package  {
         }
       }
     }
-    
+
     /**
      * Function that calculates the throughput value from iBitCount
      * and _dTime.
      */
     private function calculateThroughput():void {
-      trace(iBitCount + " bytes " + (NDTConstants.BYTES2BITS * iBitCount) / _dTime
-            + " kb/s " + _dTime / NDTConstants.SEC2MSEC + " secs");
-      TestResults.appendTraceOutput(new String(iBitCount + " bytes " 
+      TestResults.appendDebugMsg(new String(iBitCount + " bytes "
                                     + (NDTConstants.BYTES2BITS * iBitCount) / _dTime
                                     + " kb/s " + _dTime / NDTConstants.SEC2MSEC
-                                    + " secs\n"));
-      
+                                    + " secs"));
+
       // calculate throughput
       _dS2cspd = ((NDTConstants.BYTES2BITS * iBitCount) / NDTConstants.SEC2MSEC) / _dTime;
       comStage = COMPARE_SERVER;
@@ -398,11 +382,11 @@ package  {
         compareWithServer();
       } else waitTimer.start();
     }
-    
+
     /**
      * Function that receives and compares the server throughput value
      * with the client obtained one. It then sends the client calculated
-     * throughput value to the server. 
+     * throughput value to the server.
      */
     private function compareWithServer():void {
       if (!testStartRead) {
@@ -412,9 +396,9 @@ package  {
         addResponseListener();
         if (ctlSocket.bytesAvailable <= WEB100_VARS_MIN_SIZE) {
           return;
-        }  
+        }
       }
-      
+
       // once all data is received / timeout occurs, server sends
       // TEST_MSG message with throughput calculated at its end,
       // unsent data queue size and total sent byte count, separated
@@ -426,22 +410,21 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead\n");
+          + parseInt(new String(msg.body), 16) + " instead");
         s2cTest = false;
         onComplete();
         return;
       }
-      
+
       // Only message of type TEST_MSG expected from the server at this point
       if (msg.type != MessageType.TEST_MSG) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "inboundWrongMessage",
-                                           null, Main.locale) + "\n");
+                                           null, Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG : "
-                                   + parseInt(new String(msg.body), 16)
-                                   + "\n");
+                                   + parseInt(new String(msg.body), 16));
         }
         s2cTest = false;
         onComplete();
@@ -454,44 +437,39 @@ package  {
       _dSs2cspd = parseFloat(tmpstr.substr(0, k1)) / NDTConstants.SEC2MSEC;
       _iSsndqueue = parseInt((tmpstr.substr(k1+1)).substr(0, k2));
       _dSbytes = parseFloat((tmpstr.substr(k1+1)).substr(k2+1));
-      
+
       if (isNaN(_dSs2cspd) || isNaN(_iSsndqueue) || isNaN(_dSbytes)) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "inboundWrongMessage",
-                                          null, Main.locale) + "\n");
+                                          null, Main.locale));
         s2cTest = false;
         onComplete();
         return;
       }
-      
+
       // Represent throughput using optimal units (i.e. kbps / mbps)
       if (_dS2cspd < 1.0) {
-        TestResults.appendConsoleOutput((_dS2cspd * NDTConstants.SEC2MSEC).toFixed(2)
-                                        + "kb/s\n");
-        TestResults.appendStatsText((_dS2cspd * NDTConstants.SEC2MSEC).toFixed(2)
-                                    + "kb/s\n");
+        TestResults.appendDebugMsg((_dS2cspd * NDTConstants.SEC2MSEC).toFixed(2)
+                                        + "kb/s");
       } else {
-        TestResults.appendConsoleOutput((_dS2cspd).toFixed(2) + "Mb/s\n");
-        TestResults.appendStatsText((_dS2cspd).toFixed(2) + "Mb/s\n");
+        TestResults.appendDebugMsg((_dS2cspd).toFixed(2) + "Mb/s");
       }
-      
+
       // Set result for JavaScript access
       TestResults.ndt_test_results::ndtTestStatus = "done";
       buff = new ByteArray();
       buff.writeUTFBytes((_dS2cspd * NDTConstants.SEC2MSEC).toString());
       var tmpstr2:String = buff.toString();
-      trace("Sending '" + tmpstr2 + "' back to server");
-      TestResults.appendTraceOutput("Sending '" + tmpstr2 + "' back to server\n");
-      
+      TestResults.appendDebugMsg("Sending '" + tmpstr2 + "' back to server");
+
       // Display server calculated throughput value
-      trace("Server calculated throughput value = " + _dSs2cspd + " Mb/s");
-      TestResults.appendTraceOutput("Server calculated throughput value = " + _dSs2cspd + " Mb/s\n"); 
+      TestResults.appendDebugMsg("Server calculated throughput value = " + _dSs2cspd + " Mb/s");
       soTimer = new Timer(5000, 0);
       soTimer.removeEventListener(TimerEvent.TIMER, readTimeout1);
       soTimer.addEventListener(TimerEvent.TIMER, readTimeout2);
       comStage = GET_WEB100;
-      
+
       // Client has to send its throughput to the server inside
       // a TEST_MSG message
       Message.sendMessage(ctlSocket, MessageType.TEST_MSG, buff);
@@ -500,7 +478,7 @@ package  {
         getWeb100();
       }
     }
-    
+
     /**
      * Function that gets all the web100 variables as name-value string pairs.
      * It is called multiple times by the response listener of the Control Socket
@@ -515,7 +493,7 @@ package  {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                             "protocolError", null, Main.locale)
-            + parseInt(new String(msg.body), 16) + " instead\n");
+            + parseInt(new String(msg.body), 16) + " instead");
           s2cTest = false;
           onComplete();
           return;
@@ -528,18 +506,17 @@ package  {
           removeResponseListener();
           return;
         }
-        
+
         // Only a message of TEST_MSG type containing the web100 variables
         // is expected. Every other message is "incorrect"
         if (msg.type != MessageType.TEST_MSG) {
           TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
+            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                             "inboundWrongMessage",
-                                            null, Main.locale) + "\n");
+                                            null, Main.locale));
           if (msg.type == MessageType.MSG_ERROR) {
             TestResults.appendErrMsg("ERROR MSG : "
-                                     + parseInt(new String(msg.body), 16)
-                                     + "\n");
+                                     + parseInt(new String(msg.body), 16));
           }
           s2cTest = false;
           onComplete();
@@ -549,7 +526,7 @@ package  {
         _sTestResults += new String(msg.body);
       }
     }
-    
+
     /**
      * Constructor that initializes local variables to the ones
      * from the NDTPController object. Calls the test prepare function
@@ -563,13 +540,13 @@ package  {
       callerObj = callerObject;
       ctlSocket = socket;
       sHostName = host;
-      
+
       // assigning initial values to variables
       testStartRead = false;
       waitTimerCount = 0;
       _dTime = 1;
       iBitCount = 0;
-      inlth = 0;    
+      inlth = 0;
       s2cTest = true;    // initially the test has not failed.
       waitTimer = new Timer(1000, 0);
       waitTimer.addEventListener(TimerEvent.TIMER, returnWaitFunction);

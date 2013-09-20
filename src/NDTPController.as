@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package  {  
+package  {
   import flash.errors.IOError;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
@@ -21,7 +21,7 @@ package  {
   import flash.net.Socket;
   import flash.system.Security;
   import mx.resources.ResourceManager;
-    
+
   /**
    * Class responsible for establishing the socket connection and initiating
    * communications with the server (NDTP-Control).
@@ -32,18 +32,18 @@ package  {
     private var ctlSocket_:Socket = null;
     private var testsToRun_:Array;
     private var testResults_:TestResults;
-    
+
     public function NDTPController(hostname:String) {
       hostname_ = hostname;
     }
-    
+
     // Control socket event listeners.
     private function onConnect(e:Event):void {
-      TestResults.appendTraceOutput("Control socket connected.");
+      TestResults.appendDebugMsg("Control socket connected");
       startHandshake();
     }
     private function onClose(e:Event):void {
-      TestResults.appendTraceOutput("Control socket closed by server.");
+      TestResults.appendDebugMsg("Control socket closed by server");
     }
     private function onIOError(e:IOErrorEvent):void {
       TestResults.appendErrMsg("IOError on control socket: " + e);
@@ -61,36 +61,35 @@ package  {
                                   onSecurityError);
       // TODO: Check if also OutputProgressEvents should be handled.
     }
-    
+
     public function startNDTTest():void {
       TestResults.recordStartTime();
-      TestResults.appendConsoleOutput(
+      TestResults.appendDebugMsg(
         ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "connectingTo", null, Main.locale)
-        + " " + hostname_ + " " + 
+        + " " + hostname_ + " " +
         ResourceManager.getInstance().getString(
-          NDTConstants.BUNDLE_NAME, "toRunTest", null, Main.locale)
-        + "\n");
+          NDTConstants.BUNDLE_NAME, "toRunTest", null, Main.locale));
 
       ctlSocket_ = new Socket();
       addSocketEventListeners();
       try {
         ctlSocket_.connect(hostname_, NDTConstants.DEFAULT_CONTROL_PORT);
       } catch(e:IOError) {
-        TestResults.appendErrMsg("Control socket connect error: " + e);
+        TestResults.appendErrMsg("Control socket connect IO error: " + e);
         failNDTTest();
       } catch(e:SecurityError) {
-        TestResults.appendErrMsg("Control socket connect error: " + e);
+        TestResults.appendErrMsg("Control socket connect security error: " + e);
         failNDTTest();
       }
     }
-    
+
     private function startHandshake():void {
       var handshake:Handshake = new Handshake(
           ctlSocket_, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
       handshake.sendLoginMessage();
     }
-    
+
     /**
      * This function initializes the array 'tests' with
      * the different tests received in the message from
@@ -100,7 +99,7 @@ package  {
       testsToRun_ = testsConfirmedByServer.split(" ");
       runTests();
     }
-    
+
     /**
      * Function that creates objects of the respective classes to run
      * the tests.
@@ -127,10 +126,11 @@ package  {
         testResults_.receiveRemoteResults();
       }
     }
-    
+
     public function failNDTTest():void {
       TestResults.ndt_test_results::ndtTestFailed = true;
       NDTUtils.callExternalFunction("fatalErrorOccured");
+      TestResults.appendErrMsg("NDT test failed");
       finishedAll();
     }
     /**
@@ -139,22 +139,19 @@ package  {
      */
     public function finishedAll():void {
       NDTUtils.callExternalFunction("allTestsCompleted");
+      TestResults.appendDebugMsg("All the tests completed successfully");
       try {
         ctlSocket_.close();
       } catch (e:IOError) {
-        TestResults.appendErrMsg("Client failed to close control socket.");
+        TestResults.appendErrMsg("Client failed to close control socket. " +
+	                         "Error" + e);
       }
       // TODO: Use tests confirmed by the server.
       testResults_.interpretResults(NDTConstants.TESTS_REQUESTED_BY_CLIENT);
-      NDTUtils.callExternalFunction("resultsProcessed");
       TestResults.recordEndTime();
       if (Main.guiEnabled) {
         Main.gui.displayResults();
       }
-      trace("Console Output:\n" + TestResults.getConsoleOutput() + "\n");
-      trace("Statistics Output:\n" + TestResults.getStatsText() + "\n");
-      trace("Diagnosis Output:\n" + TestResults.getDiagnosisText() + "\n");
-      trace("Errors:\n" + TestResults.getErrMsg() + "\n");
     }
   }
 }

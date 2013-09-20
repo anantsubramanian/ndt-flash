@@ -16,7 +16,7 @@ package  {
   import flash.errors.IOError;
   import flash.net.Socket;
   import flash.utils.ByteArray;
-  
+
   /**
    * Class to define an NDT message. A message is characterized by a type,
    * a length and a body. All the types are defined in the class MessageType.
@@ -58,7 +58,7 @@ package  {
       if(NDTUtils.readBytes(socket, header, 0,
                             NDTConstants.MSG_HEADER_LENGTH) !=
          NDTConstants.MSG_HEADER_LENGTH) {
-        trace("Error reading header from socket");
+        TestResults.appendErrMsg("Error reading header from socket");
         return false;
       }
       type_ = header[0]
@@ -70,7 +70,7 @@ package  {
     private function readBody(socket:Socket, bytesToRead:int):Boolean {
       body_ = new ByteArray();
       if(NDTUtils.readBytes(socket, body_, 0, bytesToRead) != bytesToRead) {
-        trace("Error reading body from socket");
+        TestResults.appendErrMsg("Error reading body from socket");
         return false;
       }
       return true;
@@ -82,20 +82,20 @@ package  {
      *   a) NDTConstants.PROTOCOL_MSG_READ_SUCCESS, in case of success.
                              successfully read expected number of bytes.
      *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
-            header or if the message body is shorther than expected. 
+            header or if the message body is shorther than expected.
      */
     public function receiveMessage(socket:Socket,
                                    kickOldClientsMsg:Boolean=false):int {
       if (kickOldClientsMsg) {
         if (!readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)) {
-	  trace("Error reading KICK_OLD_CLIENTS message");
+	  TestResults.appendErrMsg("Error reading KICK_OLD_CLIENTS message");
           return NDTConstants.PROTOCOL_MSG_READ_ERROR;
         } else {
           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
         }
       }
       if (!readHeader(socket) || !readBody(socket, length)) {
-	trace("Error reading message from socket");
+	TestResults.appendErrMsg("Error reading message from socket");
         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
       }
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
@@ -111,20 +111,20 @@ package  {
       try {
         var header:ByteArray = createHeader(type, body.length);
         socket.writeBytes(header);
-      } catch(error:IOError) {
-        trace("Error writing header to socket. Error: ", error);
+      } catch(e:IOError) {
+        TestResults.appendErrMsg("Error writing header to socket: " + e);
         return;
       }
       try {
         socket.writeBytes(body);
-      } catch(error:IOError) {
-        trace("Error writing body to socket. Error: ", error);
+      } catch(e:IOError) {
+        TestResults.appendErrMsg("Error writing body to socket: " + e);
         return;
       }
       try {
         socket.flush();
-      } catch(error:IOError) {
-        trace("Error flushing socket. Error: ", error);
+      } catch(e:IOError) {
+        TestResults.appendErrMsg("Error flushing socket: " + e);
         return;
       }
     }

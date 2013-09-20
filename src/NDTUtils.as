@@ -23,7 +23,7 @@ package  {
   import flash.utils.ByteArray;
   import mx.resources.ResourceManager;
 
-  public class NDTUtils {    
+  public class NDTUtils {
     /**
      * Function that calls a JS function through the ExternalInterface class if
      * it exists by the name specified in the parameter.
@@ -43,7 +43,9 @@ package  {
                   break;
         }
       } catch (e:Error) {
-        trace("No ExternalInterface detected.");
+        // Cannot call TestResults.appendErrMsg, because it calls
+	// callExternalFunction.
+	// TODO: Decide what to do.
       }
     }
     /**
@@ -53,19 +55,23 @@ package  {
     public static function initializeFromHTML(paramObject:Object):void {
       if (NDTConstants.HTML_LOCALE in paramObject) {
         Main.locale = paramObject[NDTConstants.HTML_LOCALE];
+	TestResults.appendDebugMsg("Initialized locale from HTML. Locale: "
+	                           + Main.locale);
       } else {
         initializeLocale();
       }
       if (NDTConstants.HTML_USERAGENT in paramObject) {
         TestResults.ndt_test_results::userAgent =
 	    paramObject[NDTConstants.HTML_USERAGENT];
+	TestResults.appendDebugMsg("Initialized useragent from HTML. Useragent:"
+	                           + TestResults.ndt_test_results::userAgent);
       }
     }
-    
+
     /**
      * Initializes the locale used by the tool to match the environment of the
      * SWF.
-     */ 
+     */
     public static function initializeLocale():void {
       var localeId:LocaleID = new LocaleID(Capabilities.language);
       var lang:String = localeId.getLanguage();
@@ -75,13 +81,15 @@ package  {
                 lang + "_" + region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
         Main.locale = new String(lang + "_" + region);
-        trace("Using locale " + Main.locale);
+	TestResults.appendDebugMsg("Initialized locale from Flash config. " +
+	                           "Locale: " + Main.locale);
       } else {
-        trace("Error: ResourceBundle for provided locale not found.");
-        trace("Using default " + CONFIG::defaultLocale);
+        TestResults.appendErrMsg("Not found ResourceBundle for locale " +
+	                         "requested in Flash config. Using " +
+			         "default locale" + CONFIG::defaultLocale);
       }
     }
-    
+
     /**
      * Function that adds the callbacks to allow data access from, and to allow
      * data to be sent to JavaScript.
@@ -90,21 +98,19 @@ package  {
       // TODO: restrict domain to the M-Lab website / server
       Security.allowDomain("*");
       try {
-        ExternalInterface.addCallback("getStandardOutput", 
-                                      TestResults.getConsoleOutput);
-        ExternalInterface.addCallback("getDebugOutput", 
-                                      TestResults.getTraceOutput);
-        ExternalInterface.addCallback("getDetails", 
-                                      TestResults.getStatsText);
-        ExternalInterface.addCallback("getAdvanced", 
-                                      TestResults.getDiagnosisText);
-        ExternalInterface.addCallback("getErrors", TestResults.getErrMsg);
-        ExternalInterface.addCallback("getNDTvar",
-                                      TestResultsUtils.getNDTVariable);
+        ExternalInterface.addCallback(
+	    "getDebugOutput", TestResults.getDebugMsg);
+        ExternalInterface.addCallback(
+	    "getAdvanced", TestResults.getDiagnosisText);
+        ExternalInterface.addCallback(
+	    "getErrors", TestResults.getErrMsg);
+        ExternalInterface.addCallback(
+	    "getNDTvar", TestResultsUtils.getNDTVariable);
       } catch (e:Error) {
-        TestResults.appendErrMsg("Container doesn't support callbacks.");
-      } catch (se:SecurityError) {
-        TestResults.appendErrMsg("Security error " + se.toString());
+        TestResults.appendErrMsg("Container doesn't support callbacks. " +
+	                         "Error: " + e);
+      } catch (e:SecurityError) {
+        TestResults.appendErrMsg("Security error when adding callbacks: " + e);
       }
     }
 
@@ -124,10 +130,11 @@ package  {
       while (socket.bytesAvailable && bytesRead < bytesToRead) {
         try {
           bytes[bytesRead + offset] = socket.readByte();
-	} catch (error:IOError) {
-	  trace("Error reading byte from socket. Error: ", error);
+	} catch (e:IOError) {
+	  TestResults.appendErrMsg("Error reading byte from socket: " + e);
 	  break;
 	} catch(error:EOFError) {
+	  // No more data to read from the socket.
 	  break;
 	}
         bytesRead++;

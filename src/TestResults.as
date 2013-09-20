@@ -37,19 +37,18 @@ package  {
     private static var _mylink:Number = 0.0;
 
     // Aggregate test results.
-    private static var _consoleOutput:String = "";
-    private static var _errMsg:String = "";
-    private static var _statsText:String = "";
-    private static var _traceOutput:String = "";
     private static var _diagnosisText:String = "";
+    private static var _errMsg:String = "";
+    private static var _debugMsg:String = "";
+
+    // TODO: To remove.
+    private static var _consoleOutput:String = "";
+    private static var _statsText:String = "";
 
     // Variables accesses by other classes to get and/or set values.
     ndt_test_results static var ndtVariables:Object = new Object();
     ndt_test_results static var ndtTestStatus:String = null;
     ndt_test_results static var ndtTestFailed:Boolean = false;
-    ndt_test_results static var s2cFailed:Boolean = false;
-    ndt_test_results static var c2sFailed:Boolean = false;
-    ndt_test_results static var metaFailed:Boolean = false;
     ndt_test_results static var flashVersion:String = null;
     ndt_test_results static var osName:String = null;
     ndt_test_results static var osArchitecture:String = null;
@@ -88,37 +87,26 @@ package  {
     }
 
     // Output handler functions
-    public static function appendConsoleOutput(sParam:String):void {
-      _consoleOutput += sParam;
-      if (Main.guiEnabled)
-        GUI.addConsoleOutput(sParam);
-      NDTUtils.callExternalFunction("appendStandardOutput", sParam);
-    }
-    public static function appendStatsText(sParam:String):void {
-      _statsText += sParam;
-    }
-    public static function appendTraceOutput(sParam:String):void {
-      trace(sParam);
-      _traceOutput += sParam;
-      if (Main.guiEnabled)
-        GUI.addConsoleOutput(sParam);
-    }
     public static function appendDiagnosisText(sParam:String):void {
       _diagnosisText += sParam;
     }
-    public static function appendErrMsg(sParam:String):void {
-      _errMsg += sParam;
-      NDTUtils.callExternalFunction("appendErrors", sParam);
-      trace(sParam);
+    public static function appendErrMsg(msg:String):void {
+      _errMsg += msg + "\n";
+      NDTUtils.callExternalFunction("appendErrors", msg);
+      appendDebugMsg(msg);
     }
-    public static function getConsoleOutput():String {
-      return _consoleOutput;
+    public static function appendDebugMsg(msg:String):void {
+      // TODO: Verify if in debug mode.
+      _debugMsg += msg + "\n";
+      NDTUtils.callExternalFunction("appendDebugOutput", msg);
+      // _ndtTestStartTime > 0 ensures the console window has been created.
+      // TODO: Verify if there is cleaner alternative.
+      if (Main.guiEnabled && _ndtTestStartTime > 0)
+        GUI.addConsoleOutput(msg + "\n");
     }
-    public static function getStatsText():String {
-      return _statsText;
-    }
-    public static function getTraceOutput():String {
-      return _traceOutput;
+
+    public static function getDebugMsg():String {
+      return _debugMsg;
     }
     public static function getDiagnosisText():String {
       return _diagnosisText;
@@ -161,7 +149,7 @@ package  {
             if (isNaN(iSysval)) {
               // The value was probably too big for int
               // it may have been unsigned
-              trace("Error reading web100 var.");
+              appendErrMsg("Error reading web100 var.");
               iSysval = -1;
             }
             // save value into a key value expected by us
@@ -889,6 +877,7 @@ package  {
       + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "serverAcksReport", null, Main.locale)
       + " '" + TestResultsUtils.getDataRateString(ndtVariables[NDTConstants.S2CACK]) + "'\n";
+      NDTUtils.callExternalFunction("resultsProcessed");
     }
 
     private function onReceivedData(e:ProgressEvent):void {
