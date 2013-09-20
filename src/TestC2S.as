@@ -103,7 +103,8 @@ package  {
         TestResults.ndt_test_results::c2sSpeed = _dC2sspd;
       if (!isNaN(_dSc2sspd))
         TestResults.ndt_test_results::sc2sSpeed = _dSc2sspd;
-      TestResults.ndt_test_results::c2sFailed = !c2sTest;
+      NDTUtils.callExternalFunction("testCompleted", "ClientToServerThroughput",
+                                    (!c2sTest).toString()); 
       
       // mark this test as complete and continue
       callerObj.runTests();
@@ -486,8 +487,10 @@ package  {
       _dTime = 0.0;
       yabuff2Write = new ByteArray();
       msg = new Message();
+    }
+    public function run():void {
       comStage = TEST_PREPARE;
-      
+      NDTUtils.callExternalFunction("testStarted", "ClientToServerThroughput");
       addResponseListener();
       if (ctlSocket.bytesAvailable > MIN_MSG_SIZE)
         testPrepare();      

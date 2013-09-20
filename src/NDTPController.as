@@ -110,27 +110,16 @@ package  {
         var currentTest:int = parseInt(testsToRun_.shift());
         switch (currentTest) {
           case TestType.C2S:
-              NDTUtils.callExternalFunction(
-	          "testStarted", "ClientToServerThroughput");
-              new TestC2S(ctlSocket_, hostname_, this);
-              NDTUtils.callExternalFunction(
-                 "testCompleted", "ClientToServerThroughput",
-                  (!TestResults.ndt_test_results::c2sFailed).toString());
+              var c2s:TestC2S = new TestC2S(ctlSocket_, hostname_, this);
+	      c2s.run();
               break;
           case TestType.S2C:
-	      NDTUtils.callExternalFunction(
-                  "testStarted", "ServerToClientThroughput");
-              new TestS2C(ctlSocket_, hostname_, this);
-              NDTUtils.callExternalFunction(
-                  "testCompleted", "ServerToClientThroughput",
-                  (!TestResults.ndt_test_results::s2cFailed).toString());
+              var s2c:TestS2C = new TestS2C(ctlSocket_, hostname_, this);
+	      s2c.run();
               break;
           case TestType.META:
-	      NDTUtils.callExternalFunction("testStarted", "Meta");
-              new TestMETA(ctlSocket_, this);
-              NDTUtils.callExternalFunction(
-	          "testCompleted", "Meta",
-                   (!TestResults.ndt_test_results::metaFailed).toString());
+              var meta:TestMETA = new TestMETA(ctlSocket_, this);
+	      meta.run();
               break;
         }
       } else {

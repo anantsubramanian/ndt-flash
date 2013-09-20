@@ -70,7 +70,8 @@ package  {
      */
     private function onComplete():void {
       removeResponseListener();
-      TestResults.ndt_test_results::metaFailed = !metaTest;
+      NDTUtils.callExternalFunction("testCompleted", "Meta",
+                                    (!metaTest).toString());
       callerObj.runTests();
     }
     
@@ -260,10 +261,13 @@ package  {
     public function TestMETA(socket:Socket, callerObject:NDTPController) {
       ctlSocket = socket;
       callerObj = callerObject;
-      comStage = TEST_PREPARE;
       metaTest = true;    // initially the test hasn't failed
-      msg = new Message();
-      
+      msg = new Message();  
+    }
+
+    public function run():void {
+      NDTUtils.callExternalFunction("testStarted", "Meta");
+      comStage = TEST_PREPARE;
       addResponseListener();
       if(ctlSocket.bytesAvailable > MIN_MSG_SIZE)
         testPrepare();

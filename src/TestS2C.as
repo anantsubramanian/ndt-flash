@@ -118,8 +118,9 @@ package  {
         TestResults.ndt_test_results::s2cSpeed = _dS2cspd;
       if (!isNaN(_dSs2cspd))
         TestResults.ndt_test_results::ss2cSpeed = _dSs2cspd;
-      TestResults.ndt_test_results::s2cFailed = !s2cTest;
       TestResults.ndt_test_results::s2cTestResults = _sTestResults;
+      NDTUtils.callExternalFunction(
+          "testCompleted", "ServerToClientThroughput", (!s2cTest).toString()); 
       removeResponseListener();
       callerObj.runTests();
     }
@@ -562,10 +563,8 @@ package  {
       callerObj = callerObject;
       ctlSocket = socket;
       sHostName = host;
-      addResponseListener();
       
       // assigning initial values to variables
-      comStage = TEST_PREPARE;
       testStartRead = false;
       waitTimerCount = 0;
       _dTime = 1;
@@ -574,7 +573,12 @@ package  {
       s2cTest = true;    // initially the test has not failed.
       waitTimer = new Timer(1000, 0);
       waitTimer.addEventListener(TimerEvent.TIMER, returnWaitFunction);
-      
+    }
+
+    public function run():void {
+      comStage = TEST_PREPARE;
+      NDTUtils.callExternalFunction("testStarted", "ServerToClientThroughput");
+      addResponseListener();
       // if enough bytes have already been received to proceed
       if (ctlSocket.bytesAvailable > MIN_MSG_SIZE) {
         testPrepare();
