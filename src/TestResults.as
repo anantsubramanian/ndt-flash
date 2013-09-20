@@ -96,7 +96,9 @@ package  {
       appendDebugMsg(msg);
     }
     public static function appendDebugMsg(msg:String):void {
-      // TODO: Verify if in debug mode.
+      if (!CONFIG::debug) {
+          return;
+      }
       _debugMsg += msg + "\n";
       NDTUtils.callExternalFunction("appendDebugOutput", msg);
       // _ndtTestStartTime > 0 ensures the console window has been created.
