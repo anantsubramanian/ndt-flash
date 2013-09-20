@@ -53,7 +53,7 @@ package  {
         case VERIFY_SUITE:    verifySuite();
                               break;
       }
-      if (TestResults.get_bFailed()) {
+      if (TestResults.ndt_test_results::ndtTestFailed) {
         removeResponseListener();
         callerObj.finishedAll();
       }
@@ -82,7 +82,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "unsupportedClient",
                                           null, Main.locale) + "\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }      
       comStage = SRV_QUEUE;
@@ -105,7 +105,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                           "protocolError", null, Main.locale) 
           + parseInt(new String(msg.body), 16) + " instead\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       // If message is not of SRV_QUEUE type, it is incorrect at this stage.
@@ -114,7 +114,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "loggingWrongMessage",
                                           null, Main.locale) + "\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       
@@ -143,14 +143,14 @@ package  {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                             "serverBusy",null, Main.locale) + "\n");
-          TestResults.set_bFailed(true);
+          TestResults.ndt_test_results::ndtTestFailed = true;
           return;
         } else {
           // Server fault, return
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                             "serverFault", null, Main.locale) + "\n");
-          TestResults.set_bFailed(true);
+          TestResults.ndt_test_results::ndtTestFailed = true;
           return;
         }
       }
@@ -159,7 +159,7 @@ package  {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "serverBusy60s", null, Main.locale) + "\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       // server sends signal to see if client is still alive
@@ -197,7 +197,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       if (msg.type != MessageType.MSG_LOGIN) {
@@ -207,7 +207,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "versionWrongMessage", 
                                           null, Main.locale) + "\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       // version compatibility between server and client must be verified.
@@ -217,7 +217,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "incompatibleVersion",
                                           null, Main.locale) + "\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       trace("Server version : " + vVersion.substring(1));
@@ -245,7 +245,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       if (msg.type != MessageType.MSG_LOGIN) {
@@ -255,7 +255,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "testsuiteWrongMessage",
                                           null, Main.locale) + "\n");
-        TestResults.set_bFailed(true);
+        TestResults.ndt_test_results::ndtTestFailed = true;
         return;
       }
       // Extract the list of tests confirmed by the server.
@@ -293,7 +293,7 @@ package  {
       wait = 0;
       i = 0;
       comStage = KICK_CLIENTS;
-      TestResults.set_bFailed(false);
+      TestResults.ndt_test_results::ndtTestFailed = false;
       addResponseListener();
     }
 

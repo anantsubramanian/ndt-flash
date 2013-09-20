@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package  {
+  use namespace ndt_test_results;
   import mx.resources.ResourceManager;
 
   public class TestResultsUtils {    
@@ -68,31 +69,26 @@ package  {
     public static function getNDTVariable(varName:String):String {
       switch(varName) {
         case "TestList": 
-          return TestResults.get_testList();
+          return TestResults.testList;
         case "TestDuration":
-          return TestResults.get_duration();
+          return TestResults.duration.toString();
         case "ClientToServerSpeed":
-          return TestResults.get_c2sspd();
+          return TestResults.c2sSpeed.toString();
         case "ServerToClientSpeed":
-          return TestResults.get_s2cspd();
-        case "PacketLoss":
-          return TestResults.get_loss();
-        case "MaxRTT":
-          return TestResults.get_MaxRTT();
-        case "AverageRTT":
-          return TestResults.get_avgrtt();
-        case "MinRTT":
-          return TestResults.get_Ping();
+          return TestResults.s2cSpeed.toString();
         case "Jitter":
-          return TestResults.get_jitter();
+          return TestResults.jitter.toString();
         case "OperatingSystem":
-          return TestResults.get_osName();
+          return TestResults.osName;
         case "ClientVersion":
           return NDTConstants.CLIENT_VERSION;
         case "FlashVersion":
-          return TestResults.get_flashVer();
+          return TestResults.flashVersion;
         case "OsArchitecture":
-          return TestResults.get_osArch();
+          return TestResults.osArchitecture;
+      }
+      if (varName in TestResults.ndtVariables) {
+        return TestResults.ndtVariables[varName].toString();
       }
       return null;
     }

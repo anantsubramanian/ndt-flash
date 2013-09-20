@@ -71,7 +71,7 @@ package  {
                             break;
         case TEST_START:    // Mark the start time for the test
                             _dTime = getTimer();
-                            TestResults.set_pub_time(_dTime);
+                            TestResults.ndt_test_results::c2sTime = _dTime;
                             testStart();
                             break;
         case COMP_SERVER:   compareWithServer();
@@ -100,10 +100,10 @@ package  {
                                           null, Main.locale) + "\n");
       }
       if (!isNaN(_dC2sspd))
-        TestResults.set_C2sspd(_dC2sspd);
+        TestResults.ndt_test_results::c2sSpeed = _dC2sspd;
       if (!isNaN(_dSc2sspd))
-        TestResults.set_Sc2sspd(_dSc2sspd);
-      TestResults.set_c2sFailed(!c2sTest);
+        TestResults.ndt_test_results::sc2sSpeed = _dSc2sspd;
+      TestResults.ndt_test_results::c2sFailed = !c2sTest;
       
       // mark this test as complete and continue
       callerObj.runTests();
@@ -225,7 +225,7 @@ package  {
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningOutboundTest",
                                         null, Main.locale) + " " + "\n");
-      TestResults.set_pub_status("runningOutboundTest");
+      TestResults.ndt_test_results::ndtTestStatus = "runningOutboundTest";
       
       if (msg.receiveMessage(ctlSocket) !=
           NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -342,7 +342,7 @@ package  {
       // (no. of iterations) * (buffer size) + (bytes sent from last message)
       _dPktsSent = (_iPkts * _iLength) + (_iLength - _iPktsRem);
       
-      TestResults.set_pub_bytes(_dPktsSent);
+      TestResults.ndt_test_results::c2sPktsSent = _dPktsSent;
       trace(_dTime + " millisec test completed" + ", "
             + yabuff2Write.length + ", " + _iPkts + ", "
             + (_iLength - _iPktsRem));

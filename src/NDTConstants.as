@@ -100,6 +100,74 @@ package  {
     // HTML tags.
     public static const HTML_LOCALE:String = "Locale";
     public static const HTML_USERAGENT:String = "UserAgentString";
+
+    // Names of NDT variables sent by the server.
+    public static const MSSSENT:String = "MSSSent";
+    public static const MSSRCVD:String = "MSSRcvd";
+    public static const ECNENABLED:String = "ECNEnabled";
+    public static const NAGLEENABLED:String = "NagleEnabled";
+    public static const SACKENABLED:String = "SACKEnabled";
+    public static const TIMESTAMPSENABLED:String = "TimestampsEnabled";
+    public static const WINSCALERCVD:String = "WinScaleRcvd";
+    public static const WINSCALESENT:String = "WinScaleSent";
+    public static const SUMRTT:String = "SumRTT";
+    public static const COUNTRTT:String = "CountRTT";
+    public static const CURMSS:String = "CurMSS";
+    public static const TIMEOUTS:String = "Timeouts";
+    public static const PKTSRETRANS:String = "PktsRetrans";
+    public static const SACKSRCVD:String = "SACKsRcvd";
+    public static const DUPACKSIN:String = "DupAcksIn";
+    public static const MAXRWINRCVD:String = "MaxRwinRcvd";
+    public static const MAXRWINSENT:String = "MaxRwinSent";
+    public static const SNDBUF:String = "Sndbuf";
+    public static const X_RCVBUF:String = "X_Rcvbuf";
+    public static const DATAPKTSOUT:String = "DataPktsOut";
+    public static const FASTRETRAN:String = "FastRetran";
+    public static const ACKPKTSOUT:String = "AckPktsOut";
+    public static const SMOOTHEDRTT:String = "SmoothedRTT";
+    public static const CURCWND:String = "CurCwnd";
+    public static const MAXCWND:String = "MaxCwnd";
+    public static const SNDLIMTIMERWIN:String = "SndLimTimeRwin";
+    public static const SNDLIMTIMECWND:String = "SndLimTimeCwnd";
+    public static const SNDLIMTIMESENDER:String = "SndLimTimeSender";
+    public static const DATABYTESOUT:String = "DataBytesOut";
+    public static const ACKPKTSIN:String = "AckPktsIn";
+    public static const SNDLIMTRANSRWIN:String = "SndLimTransRwin";
+    public static const SNDLIMTRANSCWND:String = "SndLimTransCwnd";
+    public static const SNDLIMTRANSSENDER:String = "SndLimTransSender";
+    public static const MAXSSTHRESH:String = "MaxSsthresh";
+    public static const CURRTO:String = "CurRTO";
+    public static const MAXRTO:String = "MaxRTO";
+    public static const MINRTO:String = "MinRTO";
+    public static const MINRTT:String = "MinRTT";
+    public static const MAXRTT:String = "MaxRTT";
+    public static const CURRWINRCVD:String = "CurRwinRcvd";
+    public static const C2SDATA:String = "c2sData";
+    public static const C2SACK:String = "c2sAck";
+    public static const S2CDATA:String = "s2cData";
+    public static const S2CACK:String = "s2cAck";
+    public static const PKTSOUT:String = "PktsOut";
+    public static const MISMATCH:String = "mismatch";
+    public static const CONGESTION:String = "congestion";
+    public static const BAD_CABLE:String = "bad_cable";
+    public static const HALF_DUPLEX:String = "half_duplex";
+    public static const CONGESTIONSIGNALS:String = "CongestionSignals";
+    public static const RCVWINSCALE:String = "RcvWinScale";
+    public static const BW:String = "bw";
+    public static const LOSS:String = "loss";
+    public static const AVGRTT:String = "avgrtt";
+    public static const WAITSEC:String = "waitsec";
+    public static const TIMESEC:String = "timesec";
+    public static const ORDER:String = "order";
+    public static const RWINTIME:String = "rwintime";
+    public static const SENDTIME:String = "sendtime";
+    public static const CWNDTIME:String = "cwndtime";
+    public static const RTTSEC:String = "rttsec";
+    public static const RWIN:String = "rwin";
+    public static const SWIN:String = "swin";
+    public static const CWIN:String = "cwin";
+    public static const SPD:String = "spd";
+    public static const ASPD:String = "aspd";    
   }
 }
 

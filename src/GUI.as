@@ -302,7 +302,7 @@ package  {
       resultsField.wordWrap = true;
       this.addChild(resultsRect);
       this.addChild(resultsField);
-      if (TestResults.get_bFailed())
+      if (TestResults.ndt_test_results::ndtTestFailed)
         resultsField.appendText("Test Failed! View errors for more details.\n");
       else
         resultsField.appendText("\n" + TestResults.getConsoleOutput() + "\n");

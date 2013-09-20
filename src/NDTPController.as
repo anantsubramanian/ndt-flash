@@ -63,7 +63,7 @@ package  {
     }
     
     public function startNDTTest():void {
-      TestResults.set_StartTime();
+      TestResults.recordStartTime();
       TestResults.appendConsoleOutput(
         ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "connectingTo", null, Main.locale)
@@ -115,7 +115,7 @@ package  {
               new TestC2S(ctlSocket_, hostname_, this);
               NDTUtils.callExternalFunction(
                  "testCompleted", "ClientToServerThroughput",
-                  (!TestResults.get_c2sFailed()).toString());
+                  (!TestResults.ndt_test_results::c2sFailed).toString());
               break;
           case TestType.S2C:
 	      NDTUtils.callExternalFunction(
@@ -123,14 +123,14 @@ package  {
               new TestS2C(ctlSocket_, hostname_, this);
               NDTUtils.callExternalFunction(
                   "testCompleted", "ServerToClientThroughput",
-                  (!TestResults.get_s2cFailed()).toString());
+                  (!TestResults.ndt_test_results::s2cFailed).toString());
               break;
           case TestType.META:
 	      NDTUtils.callExternalFunction("testStarted", "Meta");
               new TestMETA(ctlSocket_, this);
               NDTUtils.callExternalFunction(
 	          "testCompleted", "Meta",
-                   (!TestResults.get_metaFailed()).toString());
+                   (!TestResults.ndt_test_results::metaFailed).toString());
               break;
         }
       } else {
@@ -140,7 +140,7 @@ package  {
     }
     
     public function failNDTTest():void {
-      TestResults.set_bFailed(true);
+      TestResults.ndt_test_results::ndtTestFailed = true;
       NDTUtils.callExternalFunction("fatalErrorOccured");
       finishedAll();
     }
@@ -158,7 +158,7 @@ package  {
       // TODO: Use tests confirmed by the server.
       testResults_.interpretResults(NDTConstants.TESTS_REQUESTED_BY_CLIENT);
       NDTUtils.callExternalFunction("resultsProcessed");
-      TestResults.set_EndTime();
+      TestResults.recordEndTime();
       if (Main.guiEnabled) {
         Main.gui.displayResults();
       }

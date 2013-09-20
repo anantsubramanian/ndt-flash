@@ -57,7 +57,8 @@ package  {
         initializeLocale();
       }
       if (NDTConstants.HTML_USERAGENT in paramObject) {
-        TestResults.set_UserAgent(paramObject[NDTConstants.HTML_USERAGENT]);
+        TestResults.ndt_test_results::userAgent =
+	    paramObject[NDTConstants.HTML_USERAGENT];
       }
     }
     
@@ -101,7 +102,7 @@ package  {
         ExternalInterface.addCallback("getNDTvar",
                                       TestResultsUtils.getNDTVariable);
       } catch (e:Error) {
-        TestResults.appendErrMsg("Container doesn't support callbacks.\n");
+        TestResults.appendErrMsg("Container doesn't support callbacks.");
       } catch (se:SecurityError) {
         TestResults.appendErrMsg("Security error " + se.toString());
       }

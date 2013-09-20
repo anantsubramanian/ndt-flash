@@ -70,7 +70,7 @@ package  {
      */
     private function onComplete():void {
       removeResponseListener();
-      TestResults.set_metaFailed(!metaTest);
+      TestResults.ndt_test_results::metaFailed = !metaTest;
       callerObj.runTests();
     }
     
@@ -86,7 +86,7 @@ package  {
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "sendingMetaInformation",
                                         null, Main.locale) + " ");
-      TestResults.set_pub_status("sendingMetaInformation");
+      TestResults.ndt_test_results::ndtTestStatus = "sendingMetaInformation";
       
       // Server starts with a TEST_PREPARE messsage.
       if (msg.receiveMessage(ctlSocket) !=
@@ -164,8 +164,8 @@ package  {
       // responds with TEST_MSG type message.
       // These message may be used to send name-value pairs as configuration data.
       // There are length constraints to key-values : 64 / 256 respectively
-      TestResults.appendTraceOutput("USERAGENT " + TestResults.get_UserAgent() + "\n");
-      trace("USERAGENT " + TestResults.get_UserAgent());
+      TestResults.appendTraceOutput("USERAGENT " + TestResults.ndt_test_results::userAgent + "\n");
+      trace("USERAGENT " + TestResults.ndt_test_results::userAgent);
       var toSend:ByteArray = new ByteArray();
       
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_OS + ":" + Capabilities.os));
@@ -173,7 +173,7 @@ package  {
       toSend.clear();
       toSend = new ByteArray();
       toSend.writeUTFBytes(new String(NDTConstants.META_CLIENT_BROWSER + ":"
-                           + UserAgentTools.getBrowser(TestResults.get_UserAgent())[2]));
+                           + UserAgentTools.getBrowser(TestResults.ndt_test_results::userAgent)[2]));
       Message.sendMessage(ctlSocket, MessageType.TEST_MSG, toSend);
       toSend.clear();
       toSend = new ByteArray();
@@ -246,7 +246,7 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "metaFailed", null, Main.locale) + "\n");
       }
-      TestResults.set_pub_status("done");
+      TestResults.ndt_test_results::ndtTestStatus = "done";
       onComplete();
     }
     

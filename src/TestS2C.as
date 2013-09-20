@@ -115,11 +115,11 @@ package  {
                                           null, Main.locale) + "\n");
       }      
       if (!isNaN(_dS2cspd))
-        TestResults.set_S2cspd(_dS2cspd);
+        TestResults.ndt_test_results::s2cSpeed = _dS2cspd;
       if (!isNaN(_dSs2cspd))
-        TestResults.set_Ss2cspd(_dSs2cspd);
-      TestResults.set_s2cFailed(!s2cTest);
-      
+        TestResults.ndt_test_results::ss2cSpeed = _dSs2cspd;
+      TestResults.ndt_test_results::s2cFailed = !s2cTest;
+      TestResults.ndt_test_results::s2cTestResults = _sTestResults;
       removeResponseListener();
       callerObj.runTests();
     }
@@ -276,7 +276,7 @@ package  {
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME, 
                                         "runningInboundTest",
                                         null, Main.locale));
-      TestResults.set_pub_status("runningInboundTest");
+      TestResults.ndt_test_results::ndtTestStatus = "runningInboundTest";
       // server sends TEST_PREPARE message with the port to bind
       // to as the message body
       if (msg.receiveMessage(ctlSocket) !=
@@ -476,7 +476,7 @@ package  {
       }
       
       // Set result for JavaScript access
-      TestResults.set_pub_status("done");
+      TestResults.ndt_test_results::ndtTestStatus = "done";
       buff = new ByteArray();
       buff.writeUTFBytes((_dS2cspd * NDTConstants.SEC2MSEC).toString());
       var tmpstr2:String = buff.toString();
@@ -521,7 +521,7 @@ package  {
         }
         if (msg.type == MessageType.TEST_FINALIZE) {
           // all web100 variables have been sent by the server
-          TestResults.set_pub_status("done");
+          TestResults.ndt_test_results::ndtTestStatus = "done";
           comStage = ALL_COMPLETE;
           soTimer.stop();
           removeResponseListener();
