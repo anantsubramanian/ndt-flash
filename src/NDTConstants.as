@@ -72,7 +72,7 @@ package  {
     public static const DATA_RATE_GIGABIT_ETHERNET:int = 7;
     public static const DATA_RATE_OC_48:int = 8;
     public static const DATA_RATE_10G_ETHERNET:int = 9;
-        
+
     // Duplex indicators as defined by the NDT server.
     public static const DUPLEX_OK_INDICATOR:int = 0;
     public static const DUPLEX_NOK_INDICATOR:int = 1;
@@ -81,22 +81,22 @@ package  {
     public static const DUPLEX_SWITCH_FULL_HOST_HALF_POSS:int = 4;
     public static const DUPLEX_SWITCH_HALF_HOST_FULL_POSS:int = 5;
     public static const DUPLEX_SWITCH_HALF_HOST_FULL_WARN:int = 7;
-    
+
     // Cable status.
     public static const CABLE_STATUS_OK:int = 0;
-    
+
     // Congestion status.
     public static const CONGESTION_NONE:int = 0;
-    
+
+    // Speed difference to detect packet queueing.
+    public static const SPD_DIFF:Number = 0.1;
+
     // Constants for unit convertions.
     public static const SEC2MSEC:uint = 1000;
     public static const KBITS2BITS:uint = 1024;
     public static const BYTES2BITS:uint = 8;
     public static const PERCENTAGE:uint = 100;
-    
-    // Miscellaneous.
-    public static const VIEW_DIFF:Number = 0.1;
-    
+
     // HTML tags.
     public static const HTML_LOCALE:String = "Locale";
     public static const HTML_USERAGENT:String = "UserAgentString";

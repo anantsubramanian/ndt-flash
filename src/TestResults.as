@@ -369,7 +369,7 @@ package  {
         }
         // C2S throughput test: Packet queueing
         if ((_requestedTests & TestType.C2S) == TestType.C2S) {
-          if (sc2sSpeed < (c2sSpeed * (1.0 - NDTConstants.VIEW_DIFF))) {
+          if (sc2sSpeed < (c2sSpeed * (1.0 - NDTConstants.SPD_DIFF))) {
             _resultDetails +=
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                               "c2sPacketQueuingDetected",
@@ -378,7 +378,7 @@ package  {
         }
         // S2C throughput test: Packet queueing
         if ((_requestedTests & TestType.S2C) == TestType.S2C) {
-          if (s2cSpeed < (ss2cSpeed * (1.0 - NDTConstants.VIEW_DIFF))) {
+          if (s2cSpeed < (ss2cSpeed * (1.0 - NDTConstants.SPD_DIFF))) {
             _resultDetails +=
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                               "s2cPacketQueuingDetected",
@@ -635,7 +635,7 @@ package  {
       // stats pane. Data is displayed as percentage
       if ((_requestedTests & TestType.C2S) == TestType.C2S) {
         if (c2sSpeed > sc2sSpeed) {
-          if (sc2sSpeed < (c2sSpeed * (1.0 - NDTConstants.VIEW_DIFF))) {
+          if (sc2sSpeed < (c2sSpeed * (1.0 - NDTConstants.SPD_DIFF))) {
             _resultDetails +=
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                               "c2s", null, Main.locale)
@@ -660,7 +660,7 @@ package  {
       // the statistics pane. Data is displayed as a percentage.
       if ((_requestedTests & TestType.S2C) == TestType.S2C) {
         if (ss2cSpeed > s2cSpeed) {
-          if (ss2cSpeed < (ss2cSpeed * (1.0 - NDTConstants.VIEW_DIFF))) {
+          if (ss2cSpeed < (ss2cSpeed * (1.0 - NDTConstants.SPD_DIFF))) {
             _resultDetails +=
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                               "s2c", null, Main.locale)
