@@ -122,7 +122,9 @@ package  {
               break;
         }
       } else {
-        testResults_ = new TestResults(ctlSocket_, this);
+        // TODO: Use tests confirmed by the server.
+        testResults_ = new TestResults(
+	    ctlSocket_, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
         testResults_.receiveRemoteResults();
       }
     }
@@ -138,6 +140,7 @@ package  {
      * retrieval of the last set of results.
      */
     public function finishedAll():void {
+      TestResults.recordEndTime();
       NDTUtils.callExternalFunction("allTestsCompleted");
       TestResults.appendDebugMsg("All the tests completed successfully");
       try {
@@ -146,9 +149,7 @@ package  {
         TestResults.appendErrMsg("Client failed to close control socket. " +
 	                         "Error" + e);
       }
-      // TODO: Use tests confirmed by the server.
-      testResults_.interpretResults(NDTConstants.TESTS_REQUESTED_BY_CLIENT);
-      TestResults.recordEndTime();
+      testResults_.interpretResults();
       if (Main.guiEnabled) {
         Main.gui.displayResults();
       }

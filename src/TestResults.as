@@ -26,7 +26,7 @@ package  {
    * variables that can be accessed through JavaScript.
    */
   public class TestResults {
-    private static var _requestedTests:int;  // Requested test-suite
+    private static var _requestedTests:int;
     private static var _readResultsTimer:Timer = new Timer(10000);
     private static var _ctlSocket:Socket;
     private static var _processedTestResults:String;
@@ -124,7 +124,7 @@ package  {
      * measurement items.
      * @param sTestResParam String containing the results as key-value pairs
      */
-    public function interpretResults(testSuite:int):void {
+    public function interpretResults():void {
       var tokens:Array;
       var i:int = 0;
       var sSysvar:String, sStrval:String;
@@ -132,7 +132,6 @@ package  {
       var dSysval2:Number, j:Number;
       var sOsName:String, sOsArch:String, sFlashVer:String, sClient:String;
       var accessTech:String = null;
-      _requestedTests = testSuite;
 
       // extract the key-value pairs
       tokens = _processedTestResults.split(/\s/);
@@ -956,8 +955,10 @@ package  {
      * Constructor that initializes the values and calls the function to start
      * interpreting the results.
      */
-    public function TestResults(socket:Socket, callerObject:NDTPController) {
+    public function TestResults(
+        socket:Socket, requestedTests:int, callerObject:NDTPController) {
       _ctlSocket = socket;
+      _requestedTests = requestedTests;
       _callerObj = callerObject;
     }
   }
