@@ -101,7 +101,7 @@ package  {
         ExternalInterface.addCallback(
 	    "getDebugOutput", TestResults.getDebugMsg);
         ExternalInterface.addCallback(
-	    "getAdvanced", TestResults.getDiagnosisText);
+	    "getAdvanced", TestResults.getResultDetails);
         ExternalInterface.addCallback(
 	    "getErrors", TestResults.getErrMsg);
         ExternalInterface.addCallback(

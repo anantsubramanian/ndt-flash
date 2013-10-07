@@ -37,7 +37,7 @@ package  {
     private static var _mylink:Number = 0.0;
 
     // Aggregate test results.
-    private static var _diagnosisText:String = "";
+    private static var _resultDetails:String = "";
     private static var _errMsg:String = "";
     private static var _debugMsg:String = "";
 
@@ -87,8 +87,8 @@ package  {
     }
 
     // Output handler functions
-    public static function appendDiagnosisText(sParam:String):void {
-      _diagnosisText += sParam;
+    public static function appendResultDetails(sParam:String):void {
+      _resultDetails += sParam;
     }
     public static function appendErrMsg(msg:String):void {
       _errMsg += msg + "\n";
@@ -110,8 +110,8 @@ package  {
     public static function getDebugMsg():String {
       return _debugMsg;
     }
-    public static function getDiagnosisText():String {
-      return _diagnosisText;
+    public static function getResultDetails():String {
+      return _resultDetails;
     }
     public static function getErrMsg():String {
       return _errMsg;
@@ -143,7 +143,7 @@ package  {
         }
         else {
           sStrval = tokens[i];
-          _diagnosisText += sSysvar + " " + sStrval + "\n";
+          _resultDetails += sSysvar + " " + sStrval + "\n";
           if (sStrval.indexOf(".") == -1) {
             // no decimal point hence an integer
             iSysval = parseInt(sStrval);
@@ -828,15 +828,15 @@ package  {
     private function addMoreDetails():void {
       // Adding more details to the diagnostic text, related
       // to factors influencing throughput
-      _diagnosisText += "\n";
+      _resultDetails += "\n";
       // Theoretical network limit
-      _diagnosisText +=
+      _resultDetails +=
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "theoreticalLimit", null, Main.locale)
         + " " + (ndtVariables[NDTConstants.BW]).toFixed(2) + " " + "Mbps\n";
     // NDT server buffer imposed limit
       // divide by 2 to counter "round-trip" time
-      _diagnosisText +=
+      _resultDetails +=
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "ndtServerHas", null, Main.locale)
         + " " + (ndtVariables[NDTConstants.SNDBUF] / (2 * NDTConstants.KBITS2BITS)).toFixed(2) + " "
@@ -844,7 +844,7 @@ package  {
                                           "kbyteBufferLimits", null, Main.locale)
         + " " + (ndtVariables[NDTConstants.SWIN] / ndtVariables[NDTConstants.RTTSEC]).toFixed(2) + " Mbps\n";
       // PC buffer imposed throughput limit
-      _diagnosisText +=
+      _resultDetails +=
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "yourPcHas", null, Main.locale)
         + " " + (ndtVariables[NDTConstants.MAXRWINRCVD] / NDTConstants.KBITS2BITS).toFixed(2) + " "
@@ -852,7 +852,7 @@ package  {
                                           "kbyteBufferLimits", null, Main.locale)
         + " " + (ndtVariables[NDTConstants.RWIN] / ndtVariables[NDTConstants.RTTSEC]).toFixed(2) + " Mbps\n";
       // Network based flow control limit imposed throughput limit
-      _diagnosisText +=
+      _resultDetails +=
         ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                         "flowControlLimits", null, Main.locale)
         + " " + (ndtVariables[NDTConstants.CWIN] / ndtVariables[NDTConstants.RTTSEC]).toFixed(2) + " Mbps\n";
@@ -865,7 +865,7 @@ package  {
       {
         _errMsg += "Error ! No matching data rate value found.\n";
       }
-      _diagnosisText +=
+      _resultDetails +=
       "\n" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                              "clientDataReports", null, Main.locale)
       + " '" + TestResultsUtils.getDataRateString(ndtVariables[NDTConstants.C2SDATA]) + "', "

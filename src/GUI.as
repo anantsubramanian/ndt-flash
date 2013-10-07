@@ -150,7 +150,7 @@ package  {
     }
     private function clickDiagnostics(e:MouseEvent):void {
       fadeEffect.play([resultsField, scrollBlock], true);
-      resultsField.text = TestResults.getDiagnosisText();
+      resultsField.text = TestResults.getResultDetails();
       resultsField.scrollV = 0;
       fadeEffect.end();
       scrollBlock.height = 2 * scrollBar.height / resultsField.maxScrollV;
