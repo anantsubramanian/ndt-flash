@@ -38,6 +38,7 @@ package  {
 
     // Aggregate test results.
     private static var _resultDetails:String = "";
+    private static var _ndtVarValues:String = "";
     private static var _errMsg:String = "";
     private static var _debugMsg:String = "";
 
@@ -142,7 +143,7 @@ package  {
         }
         else {
           sStrval = tokens[i];
-          _resultDetails += sSysvar + " " + sStrval + "\n";
+          _ndtVarValues += sSysvar + " " + sStrval + "\n";
           if (sStrval.indexOf(".") == -1) {
             // no decimal point hence an integer
             iSysval = parseInt(sStrval);
