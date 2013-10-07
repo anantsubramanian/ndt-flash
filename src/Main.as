@@ -27,12 +27,12 @@ package {
     public static var gui:GUI;
 
     public function Main():void {
-      if (stage) 
+      if (stage)
         init();
-      else 
+      else
         addEventListener(Event.ADDED_TO_STAGE, init);
     }
-    
+
     /**
      * Function that is called once the stage is initialized and an instance
      * of this class has been added to it. Sets the locale value according to
@@ -42,10 +42,10 @@ package {
      */
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
-      
+
       // set the properties of the SWF from its HTML tags
-      NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);      
-      
+      NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);
+
       var frame:NDTPController = new NDTPController(
           NDTConstants.SERVER_HOSTNAME);
 
