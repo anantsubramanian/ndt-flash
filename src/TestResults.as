@@ -29,7 +29,7 @@ package  {
     private static var _requestedTests:int;
     private static var _readResultsTimer:Timer = new Timer(10000);
     private static var _ctlSocket:Socket;
-    private static var _processedTestResults:String;
+    private static var _remoteTestResults:String;
     private static var _callerObj:NDTPController;
 
     private static var _ndtTestStartTime:Number = 0.0;
@@ -63,7 +63,8 @@ package  {
 
 
     public static function get jitter():Number {
-      return ndtVariables[NDTConstants.MAXRTT] - ndtVariables[NDTConstants.MINRTT];
+      return ndtVariables[NDTConstants.MAXRTT] -
+             ndtVariables[NDTConstants.MINRTT];
     }
     public static function get duration():Number {
       return _ndtTestEndTime - _ndtTestStartTime;
@@ -104,6 +105,8 @@ package  {
       // _ndtTestStartTime > 0 ensures the console window has been created.
       // TODO: Verify if there is cleaner alternative.
       if (Main.guiEnabled && _ndtTestStartTime > 0)
+        // TODO: Handle the communication with GUI via events, instead of
+        // blocking calls.
         GUI.addConsoleOutput(msg + "\n");
     }
 
@@ -134,7 +137,7 @@ package  {
       var accessTech:String = null;
 
       // extract the key-value pairs
-      tokens = _processedTestResults.split(/\s/);
+      tokens = _remoteTestResults.split(/\s/);
       sSysvar = null;
       sStrval = null;
       for each(var token:String in tokens) {
@@ -917,7 +920,7 @@ package  {
      * for interpretation.
      */
      private function getRemoteResults():void {
-      _processedTestResults = s2cTestResults;
+      _remoteTestResults = s2cTestResults;
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(_ctlSocket) !=
@@ -947,7 +950,7 @@ package  {
           _readResultsTimer.stop();
           return;
         }
-        _processedTestResults += new String(msg.body);
+        _remoteTestResults += new String(msg.body);
       }
     }
 
