@@ -17,7 +17,6 @@ package  {
   import flash.events.ProgressEvent;
   import flash.events.TimerEvent;
   import flash.net.Socket;
-  import flash.system.Capabilities;
   import flash.utils.getTimer;
   import flash.utils.Timer;
   import mx.resources.ResourceManager;
@@ -41,11 +40,6 @@ package  {
     private static var _debugMsg:String = "";
 
     // Variables accessed by other classes to get and/or set values.
-    ndt_test_results static var client:String = null;
-    ndt_test_results static var osName:String = null;
-    ndt_test_results static var osArchitecture:String = null;
-    ndt_test_results static var flashVersion:String = null;
-    ndt_test_results static var userAgent:String = null;
     ndt_test_results static var mylink:Number = 0.0;
     ndt_test_results static var accessTech:String = null;
     ndt_test_results static var ndtVariables:Object = new Object();
@@ -171,17 +165,8 @@ package  {
         }
         i++;
       }
-      // Read client details from the SWF environment
-      osName = Capabilities.os;
-      osArchitecture = Capabilities.cpuArchitecture;
-      flashVersion = Capabilities.version;
-      if (osArchitecture.indexOf("x86") == 0)
-        client = ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                         "pc", null, Main.locale);
-      else
-        client = ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                         "workstation",
-                                                         null, Main.locale);
+
+      TestResultsUtils.appendClientInfo();
       // Calculate some variables and determine patch conditions. Calculations
       // done by server and the results are sent to the client for printing.
       if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
@@ -202,31 +187,6 @@ package  {
     public function updateStatisticsText():void {
       var pctRcvrLimited:Number = 0.0;
       var iZero:int = 0;
-      // Add client information
-      _resultDetails +=
-        "\n\t-----  " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                        "clientInfo",
-                                                        null, Main.locale) + "------\n";
-      _resultDetails +=
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                        "osData", null, Main.locale)
-        + " " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                "name", null, Main.locale)
-        + " & " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                  "version", null, Main.locale)
-        + " = " + osName + ", "
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "architecture", null, Main.locale)
-        + " = " + osArchitecture + "\n";
-      _resultDetails +=
-        "Flash Info: " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                 "version", null, Main.locale)
-        + " = " + flashVersion + "\n";
-        _resultDetails +=
-          "\n\t------ " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                                          "web100Details",
-                                                          null, Main.locale)
-          + " ------\n";
 
       // Now add data about access speeds / technology
       // Slightly different from the earlier switch

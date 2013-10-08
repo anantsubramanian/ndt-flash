@@ -14,6 +14,7 @@
 
 package  {
   use namespace ndt_test_results;
+  import flash.system.Capabilities;
   import mx.resources.ResourceManager;
 
   public class TestResultsUtils {
@@ -79,13 +80,13 @@ package  {
         case "Jitter":
           return TestResults.jitter.toString();
         case "OperatingSystem":
-          return TestResults.osName;
+          return Capabilities.os;
         case "ClientVersion":
           return NDTConstants.CLIENT_VERSION;
         case "FlashVersion":
-          return TestResults.flashVersion;
+          return Capabilities.version;
         case "OsArchitecture":
-          return TestResults.osArchitecture;
+          return Capabilities.cpuArchitecture;
       }
       if (varName in TestResults.ndtVariables) {
         return TestResults.ndtVariables[varName].toString();
@@ -200,6 +201,32 @@ package  {
                  Main.locale));
     }
 
+    public static function appendClientInfo():void {
+      TestResults.appendResultDetails(
+          ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "clientInfo", null, Main.locale));
+      TestResults.appendResultDetails(
+        ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "osData", null, Main.locale)
+        + " " + ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "name", null, Main.locale)
+        + " & " + ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "version", null, Main.locale)
+        + " = " + Capabilities.os + ", "
+        + ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "architecture", null, Main.locale)
+        + " = " + Capabilities.cpuArchitecture);
+      TestResults.appendResultDetails(
+        "Flash Info: " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
+                                                 "version", null, Main.locale)
+        + " = " + Capabilities.version);
+        TestResults.appendResultDetails(
+          "\n\t------ " + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
+                                                          "web100Details",
+                                                          null, Main.locale)
+          + " ------");
+    }
+
     public static function getAccessLinkSpeed():void {
         if (TestResults.ndtVariables[NDTConstants.C2SDATA] < NDTConstants.DATA_RATE_ETHERNET) {
           if (TestResults.ndtVariables[NDTConstants.C2SDATA] < NDTConstants.DATA_RATE_RTT) {
@@ -215,7 +242,7 @@ package  {
             TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                               "your", null, Main.locale)
-              + " " + TestResults.client + " "
+              + " " + getClient(Capabilities.cpuArchitecture) + " "
               + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                 "connectedTo", null, Main.locale));
 
@@ -305,6 +332,15 @@ package  {
            TestResults.appendResultDetails("Undefined");
            TestResults.appendErrMsg("Non valid calue for NDTConstants.C2SDATA");
       }
+    }
+    public static function getClient(osArchitecture:String):String {
+      if (osArchitecture.indexOf("x86") == 0)
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
+                                                       "pc", null, Main.locale);
+      else
+        return ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
+                                                       "workstation", null,
+                                                       Main.locale);
     }
   }
 }
