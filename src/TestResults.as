@@ -22,51 +22,54 @@ package  {
   import flash.utils.Timer;
   import mx.resources.ResourceManager;
   /**
-   * Class that interprets the results of the tests. These results are stored in
+   * Class that interprets the results of the tests. The results are stored in
    * variables that can be accessed through JavaScript.
    */
   public class TestResults {
     private static var _requestedTests:int;
-    private static var _readResultsTimer:Timer = new Timer(10000);
-    private static var _ctlSocket:Socket;
-    private static var _remoteTestResults:String;
     private static var _callerObj:NDTPController;
+    private static var _ctlSocket:Socket;
 
+    private static var _readResultsTimer:Timer;
     private static var _ndtTestStartTime:Number = 0.0;
     private static var _ndtTestEndTime:Number = 0.0;
+    private static var _remoteTestResults:String;  // Results sent by the server
 
-    // Aggregate test results.
     private static var _resultDetails:String = "";
     private static var _ndtVarValues:String = "";
     private static var _errMsg:String = "";
     private static var _debugMsg:String = "";
 
     // Variables accessed by other classes to get and/or set values.
-    ndt_test_results static var ndtVariables:Object = new Object();
-    ndt_test_results static var ndtTestStatus:String = null;
-    ndt_test_results static var ndtTestFailed:Boolean = false;
-    ndt_test_results static var flashVersion:String = null;
+    ndt_test_results static var client:String = null;
     ndt_test_results static var osName:String = null;
     ndt_test_results static var osArchitecture:String = null;
-    ndt_test_results static var client:String = null;
-    ndt_test_results static var c2sTime:Number = 0.0;
-    ndt_test_results static var c2sPktsSent:Number = 0.0;
-    ndt_test_results static var s2cTestResults:String;
-    ndt_test_results static var sc2sSpeed:Number = 0.0;
-    ndt_test_results static var ss2cSpeed:Number = 0.0;
-    ndt_test_results static var s2cSpeed:Number = 0.0;
-    ndt_test_results static var c2sSpeed:Number = 0.0;
+    ndt_test_results static var flashVersion:String = null;
     ndt_test_results static var userAgent:String = null;
     ndt_test_results static var mylink:Number = 0.0;
     ndt_test_results static var accessTech:String = null;
+    ndt_test_results static var ndtVariables:Object = new Object();
+    // Valid only when ndtTestFailed == false.
+    ndt_test_results static var ndtTestStatus:String = null;
+    ndt_test_results static var ndtTestFailed:Boolean = false;
+    ndt_test_results static var c2sTime:Number = 0.0;
+    ndt_test_results static var c2sPktsSent:Number = 0.0;
+    ndt_test_results static var c2sSpeed:Number = 0.0;
+    ndt_test_results static var s2cSpeed:Number = 0.0;
+    ndt_test_results static var s2cTestResults:String;
+    ndt_test_results static var sc2sSpeed:Number = 0.0;
+    ndt_test_results static var ss2cSpeed:Number = 0.0;
 
     public static function get jitter():Number {
       return ndtVariables[NDTConstants.MAXRTT] -
              ndtVariables[NDTConstants.MINRTT];
     }
+
     public static function get duration():Number {
       return _ndtTestEndTime - _ndtTestStartTime;
     }
+
+    // TODO: Move to TestType.
     public static function get testList():String {
        var testSuite:String = "";
        if(_requestedTests & TestType.C2S)
@@ -81,19 +84,21 @@ package  {
     public static function recordStartTime():void {
       _ndtTestStartTime = getTimer();
     }
+
     public static function recordEndTime():void {
       _ndtTestEndTime = getTimer();
     }
 
-    // Output handler functions
-    public static function appendResultDetails(sParam:String):void {
-      _resultDetails += sParam;
+    public static function appendResultDetails(results:String):void {
+      _resultDetails += results;
     }
+
     public static function appendErrMsg(msg:String):void {
       _errMsg += msg + "\n";
       NDTUtils.callExternalFunction("appendErrors", msg);
       appendDebugMsg(msg);
     }
+
     public static function appendDebugMsg(msg:String):void {
       if (!CONFIG::debug) {
           return;
@@ -111,20 +116,23 @@ package  {
     public static function getDebugMsg():String {
       return _debugMsg;
     }
+
     public static function getResultDetails():String {
       return _resultDetails;
     }
+
     public static function getErrMsg():String {
       return _errMsg;
     }
 
-    /**
-     * Function that takes a Human readable string containing the results and
-     * assigns the key-value pairs to the correct variables.
-     * These values are then interpreted to make decisions about various
-     * measurement items.
-     * @param sTestResParam String containing the results as key-value pairs
-     */
+    public function TestResults(
+        socket:Socket, requestedTests:int, callerObject:NDTPController) {
+      _ctlSocket = socket;
+      _requestedTests = requestedTests;
+      _callerObj = callerObject;
+      _readResultsTimer = new Timer(10000);
+    }
+
     public function interpretResults():void {
       var tokens:Array;
       var i:int = 0;
@@ -748,17 +756,6 @@ package  {
         }
         _remoteTestResults += new String(msg.body);
       }
-    }
-
-    /**
-     * Constructor that initializes the values and calls the function to start
-     * interpreting the results.
-     */
-    public function TestResults(
-        socket:Socket, requestedTests:int, callerObject:NDTPController) {
-      _ctlSocket = socket;
-      _requestedTests = requestedTests;
-      _callerObj = callerObject;
     }
   }
 }
