@@ -50,7 +50,7 @@ package  {
         "client.kernel.version";
     public static const META_CLIENT_VERSION:String = "client.version";
     public static const META_CLIENT_APPLICATION:String = "client.application";
-    
+
     // TCP constants.
     // Max size that can be sent, because 2 bytes are used to hold data length.
     public static const TCP_MAX_RECV_WIN_SIZE:int = 65535; // bytes
@@ -58,7 +58,7 @@ package  {
     // See http://www.web100.org/download/kernel/tcp-kis.txt.
     public static const SND_LIM_TIME_THRESHOLD:Number = 0.15;
     public static const RFC_1323_DISABLED:int = 0;
-    
+
     // Line speed indicators as defined by the NDT server.
     public static const DATA_RATE_INSUFFICIENT_DATA:int = -2;
     public static const DATA_RATE_SYSTEM_FAULT:int = -1;
@@ -84,9 +84,11 @@ package  {
 
     // Cable status.
     public static const CABLE_STATUS_OK:int = 0;
+    public static const CABLE_STATUS_NOK:int = 1;
 
     // Congestion status.
     public static const CONGESTION_NONE:int = 0;
+    public static const CONGESTION_YES:int = 1;
 
     // Speed difference to detect packet queueing.
     public static const SPD_DIFF:Number = 0.1;
