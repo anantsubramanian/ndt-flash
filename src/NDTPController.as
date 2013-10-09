@@ -16,7 +16,6 @@ package  {
   import flash.errors.IOError;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
-  import flash.events.ProgressEvent;
   import flash.events.SecurityErrorEvent;
   import flash.net.Socket;
   import flash.system.Security;
@@ -63,7 +62,6 @@ package  {
       _ctlSocket.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
       _ctlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
                                   onSecurityError);
-      // TODO: Check if also OutputProgressEvents should be handled.
     }
 
     public function startNDTTest():void {
@@ -100,6 +98,9 @@ package  {
      */
     public function initiateTests(testsConfirmedByServer:String):void {
       _testsToRun = testsConfirmedByServer.split(" ");
+      // TODO: Use tests confirmed by the server.
+      _testResults = new TestResults(
+          _ctlSocket, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
       runTests();
     }
 
@@ -124,9 +125,6 @@ package  {
               break;
         }
       } else {
-        // TODO: Use tests confirmed by the server.
-        _testResults = new TestResults(
-	    _ctlSocket, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
         _testResults.receiveRemoteResults();
       }
     }
