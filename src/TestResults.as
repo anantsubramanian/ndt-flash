@@ -35,7 +35,6 @@ package  {
     private static var _remoteTestResults:String;  // Results sent by the server
 
     private static var _resultDetails:String = "";
-    private static var _ndtVarValues:String = "";
     private static var _errMsg:String = "";
     private static var _debugMsg:String = "";
 
@@ -47,7 +46,9 @@ package  {
     // Valid only when ndtTestFailed == false.
     ndt_test_results static var ndtTestStatus:String = null;
     ndt_test_results static var ndtTestFailed:Boolean = false;
+    // Never used. TODO: Remove.
     ndt_test_results static var c2sTime:Number = 0.0;
+    // Never used. TODO: Remove.
     ndt_test_results static var c2sPktsSent:Number = 0.0;
     ndt_test_results static var c2sSpeed:Number = 0.0;
     ndt_test_results static var s2cSpeed:Number = 0.0;
@@ -85,7 +86,7 @@ package  {
     }
 
     public static function appendResultDetails(results:String):void {
-      _resultDetails += results;
+      _resultDetails += results  + "\n";
     }
 
     public static function appendErrMsg(msg:String):void {
@@ -128,67 +129,6 @@ package  {
       _readResultsTimer = new Timer(10000);
     }
 
-    public function interpretResults():void {
-      var tokens:Array;
-      var i:int = 0;
-      var sSysvar:String, sStrval:String;
-      var iSysval:int;
-      var dSysval2:Number;
-      var sOsName:String, sOsArch:String, sFlashVer:String;
-
-      // extract the key-value pairs
-      tokens = _remoteTestResults.split(/\s/);
-      sSysvar = null;
-      sStrval = null;
-      for each(var token:String in tokens) {
-        if (!(i & 1)) {
-          sSysvar = tokens[i].split(":")[0];
-        }
-        else {
-          sStrval = tokens[i];
-          _ndtVarValues += sSysvar + " " + sStrval + "\n";
-          if (sStrval.indexOf(".") == -1) {
-            // no decimal point hence an integer
-            iSysval = parseInt(sStrval);
-            if (isNaN(iSysval)) {
-              // The value was probably too big for int
-              // it may have been unsigned
-              appendErrMsg("Error reading web100 var.");
-              iSysval = -1;
-            }
-            // save value into a key value expected by us
-            ndtVariables[sSysvar] = iSysval;
-          } else {
-            // if not aninteger, save as a double
-            dSysval2 = parseFloat(sStrval);
-            ndtVariables[sSysvar] = dSysval2;
-          }
-        }
-        i++;
-      }
-
-      TestResultsUtils.appendClientInfo();
-      // Calculate some variables and determine patch conditions. Calculations
-      // done by server and the results are sent to the client for printing.
-      if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
-	TestResultsUtils.getAccessLinkSpeed();
-        TestResultsUtils.appendDuplexMismatchResult(
-	  ndtVariables[NDTConstants.MISMATCH]);
-	if ((_requestedTests & TestType.C2S) == TestType.C2S)
-	  TestResultsUtils.appendC2SPacketQueueingResult();
-	if ((_requestedTests & TestType.S2C) == TestType.S2C)
-	  TestResultsUtils.appendC2SPacketQueueingResult();
-	TestResultsUtils.appendDataRateResults();
-	TestResultsUtils.appendDuplexCongestionMismatchResults();
-	TestResultsUtils.appendPacketRetrasmissionResults();
-	TestResultsUtils.appendPacketQueueingResults(_requestedTests);
-        TestResultsUtils.appendOtherConnectionResults();
-        TestResultsUtils.appendTCPNegotiatedOptions();
-        TestResultsUtils.appendFurtherThroughputInfo();
-        NDTUtils.callExternalFunction("resultsProcessed");
-      }
-    }
-
     private function onReceivedData(e:ProgressEvent):void {
       getRemoteResults();
     }
@@ -220,12 +160,12 @@ package  {
       }
 
    /**
-     * Function that reads the rest of the server calculated
-     * results and appends them to the test results String
-     * for interpretation.
+     * Function that reads the rest of the server calculated results and appends
+     * them to the test results String for interpretation.
      */
      private function getRemoteResults():void {
       _remoteTestResults = s2cTestResults;
+
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(_ctlSocket) !=
@@ -234,28 +174,56 @@ package  {
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
             + parseInt(new String(msg.body), 16)
-            + " instead");
-          ndtTestFailed = true;
+            + " instead.");
           _readResultsTimer.stop();
+	  _callerObj.failNDTTest();
           return;
         }
-        // all results obtained. "Log Out" message received now
+        // All results obtained. "Log Out" message received now.
         if (msg.type == MessageType.MSG_LOGOUT) {
           _readResultsTimer.stop();
           removeOnReceivedDataListener();
-          _callerObj.finishNDTTest();
+          _callerObj.succeedNDTTest();
+          return;
         }
-        // get results in the form of a human-readable string
+        // Get results in the form of a human-readable string.
         if (msg.type != MessageType.MSG_RESULTS) {
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,Main.locale)
-            + "\n");
-          ndtTestFailed = true;
+              NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,
+	      Main.locale));
           _readResultsTimer.stop();
+	  _callerObj.failNDTTest();
           return;
         }
         _remoteTestResults += new String(msg.body);
+      }
+    }
+
+    public function interpretResults():void {
+      TestResultsUtils.parseNDTVariables(_remoteTestResults);
+
+      TestResultsUtils.appendClientInfo();
+      if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
+	TestResultsUtils.getAccessLinkSpeed();
+        TestResultsUtils.appendDuplexMismatchResult(
+	  ndtVariables[NDTConstants.MISMATCH]);
+	if ((_requestedTests & TestType.C2S) == TestType.C2S)
+	  TestResultsUtils.appendC2SPacketQueueingResult();
+	if ((_requestedTests & TestType.S2C) == TestType.S2C)
+	  TestResultsUtils.appendC2SPacketQueueingResult();
+	TestResultsUtils.appendDataRateResults();
+	TestResultsUtils.appendDuplexCongestionMismatchResults();
+	TestResultsUtils.appendPacketRetrasmissionResults();
+	TestResultsUtils.appendPacketQueueingResults(_requestedTests);
+        TestResultsUtils.appendOtherConnectionResults();
+        TestResultsUtils.appendTCPNegotiatedOptions();
+        TestResultsUtils.appendFurtherThroughputInfo();
+        NDTUtils.callExternalFunction("resultsProcessed");
+      }
+      appendResultDetails("=== NDT variables ===");
+      for (var key:Object in ndtVariables) {
+        appendResultDetails(key + "=" + ndtVariables[key]);
       }
     }
   }

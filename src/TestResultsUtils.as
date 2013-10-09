@@ -809,6 +809,43 @@ package  {
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "excLoss", null, Main.locale));
    }
+
+   public static function parseNDTVariables(variables:String):void {
+      // Extract the key-value pairs.
+      var pairs:Array = variables.split(/\s/);
+
+      var i:int = 0;
+      var varName:String;
+      var varValue:String;
+      var intValue:int;
+      var floatValue:Number;
+      for each(var pair:String in pairs) {
+        if (!(i & 1)) {
+          varName = pairs[i].split(":")[0];
+        }
+        else {
+          varValue = pairs[i];
+          intValue = parseInt(varValue);
+          if (isNaN(intValue)) {
+            // The value is probably too big for int.
+            TestResults.appendErrMsg("Error parsing web100 var: " + varValue);
+            continue;
+          }
+          if (varValue == String(intValue)) {
+            // Int value.
+            TestResults.ndtVariables[varName] = intValue;
+            continue;
+          }
+          floatValue = parseFloat(varValue);
+          if (isNaN(floatValue)) {
+            TestResults.appendErrMsg("Error parsing web100 var: " + varValue);
+            continue;
+          }
+          TestResults.ndtVariables[varName] = floatValue;
+        }
+        i++;
+      }
+   }
  }
 }
 
