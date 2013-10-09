@@ -34,16 +34,16 @@ package {
     }
 
     /**
-     * Function that is called once the stage is initialized and an instance
-     * of this class has been added to it. Sets the locale value according to
-     * the SWF environment and creates an NDTPController object to start
-     * the testing process.
+     * Function that is called once the stage is initialized and an instance of
+     * this class has been added to it. Sets the locale value according to the
+     * SWF environment and creates an NDTPController object to start the testing
+     * process.
      * @param {Event} The event that caused the function to be called.
      */
     private function init(e:Event = null):void {
       removeEventListener(Event.ADDED_TO_STAGE, init);
 
-      // set the properties of the SWF from its HTML tags
+      // Set the properties of the SWF from its HTML tags.
       NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);
 
       var frame:NDTPController = new NDTPController(
@@ -54,7 +54,7 @@ package {
         gui = new GUI(stage.stageWidth, stage.stageHeight, frame);
         this.addChild(gui);
       } else {
-        // If guiEnabled compiler flag set to false start tests immediately
+        // If guiEnabled compiler flag set to false start tests immediately.
         frame.startNDTTest();
       }
       NDTUtils.addJSCallbacks();

@@ -13,9 +13,6 @@
 // limitations under the License.
 
 package  {
-  /**
-   * Class that holds constants used by NDT.
-   */
   public class NDTConstants {
     // Constants common to all the tests.
     public static const CLIENT_VERSION:String = CONFIG::ndtClientVersion;
@@ -169,7 +166,7 @@ package  {
     public static const SWIN:String = "swin";
     public static const CWIN:String = "cwin";
     public static const SPD:String = "spd";
-    public static const ASPD:String = "aspd";    
+    public static const ASPD:String = "aspd";
   }
 }
 

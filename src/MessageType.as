@@ -13,7 +13,7 @@
 // limitations under the License.
 
 package {
-  /** 
+  /**
    * Class that defines the NDTP control message types, as expected by the NDT
    * server.
    */

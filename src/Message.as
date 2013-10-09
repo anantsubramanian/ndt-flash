@@ -26,18 +26,18 @@ package  {
    * - the 2nd and 3rd bytes contain the length of the message.
    */
   public class Message {
-    private var type_:int = MessageType.UNDEF_TYPE;
-    private var length_:int = 0;
-    private var body_:ByteArray;
+    private var _type:int = MessageType.UNDEF_TYPE;
+    private var _length:int = 0;
+    private var _body:ByteArray;
 
     public function get type():int {
-      return type_;
+      return _type;
     }
     public function get length():int {
-      return length_;
+      return _length;
     }
     public function get body():ByteArray {
-      return body_;
+      return _body;
     }
     public static function getBody(intToSend:int): ByteArray {
       var body:ByteArray = new ByteArray();
@@ -61,15 +61,15 @@ package  {
         TestResults.appendErrMsg("Error reading header from socket");
         return false;
       }
-      type_ = header[0]
-      length_ = (int(header[1]) & 0xFF) << 8;
-      length_ += int(header[2]) & 0xFF;
+      _type = header[0]
+      _length = (int(header[1]) & 0xFF) << 8;
+      _length += int(header[2]) & 0xFF;
       return true;
     }
 
     private function readBody(socket:Socket, bytesToRead:int):Boolean {
-      body_ = new ByteArray();
-      if(NDTUtils.readBytes(socket, body_, 0, bytesToRead) != bytesToRead) {
+      _body = new ByteArray();
+      if(NDTUtils.readBytes(socket, _body, 0, bytesToRead) != bytesToRead) {
         TestResults.appendErrMsg("Error reading body from socket");
         return false;
       }
@@ -102,9 +102,7 @@ package  {
     }
 
     /**
-     * Send protocol messages given their type and data byte array
-     * @param {int} bParamType Control Message Type
-     * @param {ByteArray} bParamToSend Data value array to send
+     * Send protocol messages given their type and data byte array.
      */
     public static function sendMessage(
         socket:Socket, type:int, body:ByteArray):void {

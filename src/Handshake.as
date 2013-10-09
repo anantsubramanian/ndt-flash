@@ -55,7 +55,7 @@ package  {
       }
       if (TestResults.ndt_test_results::ndtTestFailed) {
         removeResponseListener();
-        callerObj.finishedAll();
+        callerObj.finishNDTTest();
       }
     }
 

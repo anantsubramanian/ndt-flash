@@ -43,6 +43,7 @@ package  {
     ndt_test_results static var mylink:Number = 0.0;
     ndt_test_results static var accessTech:String = null;
     ndt_test_results static var ndtVariables:Object = new Object();
+    ndt_test_results static var userAgent:String;
     // Valid only when ndtTestFailed == false.
     ndt_test_results static var ndtTestStatus:String = null;
     ndt_test_results static var ndtTestFailed:Boolean = false;
@@ -702,7 +703,7 @@ package  {
         if (msg.type == MessageType.MSG_LOGOUT) {
           _readResultsTimer.stop();
           removeOnReceivedDataListener();
-          _callerObj.finishedAll();
+          _callerObj.finishNDTTest();
         }
         // get results in the form of a human-readable string
         if (msg.type != MessageType.MSG_RESULTS) {
