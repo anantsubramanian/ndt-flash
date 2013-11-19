@@ -142,6 +142,7 @@ package  {
           TestResults.appendErrMsg("Non valid duplex indicator");
       }
     }
+
     private static function appendCableStatusResult():void {
       if (TestResults.ndtVariables[NDTConstants.BAD_CABLE] ==
           NDTConstants.CABLE_STATUS_NOK)
@@ -619,8 +620,8 @@ package  {
             + " KB)" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                        "willImprove",
                                                        null, Main.locale));
-        }   
-      }   
+        }
+      }
       // Is the connection sender limited ?
       if (TestResults.ndtVariables[NDTConstants.SENDTIME] > NDTConstants.SND_LIM_TIME_THRESHOLD) {
         TestResults.appendResultDetails(
@@ -641,8 +642,8 @@ package  {
             + " KB)" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                                        "willImprove",
                                                        null, Main.locale));
-        }   
-      }   
+        }
+      }
 
       // Is the connection network limited ?
         // If the congestion windows is limited more than 0.5%
@@ -769,9 +770,9 @@ package  {
          || TestResultsUtils.getDataRateString(TestResults.ndtVariables[NDTConstants.C2SACK]) == null
          || TestResultsUtils.getDataRateString(TestResults.ndtVariables[NDTConstants.S2CDATA]) == null
          || TestResultsUtils.getDataRateString(TestResults.ndtVariables[NDTConstants.S2CACK]) == null)
-      {   
+      {
         TestResults.appendErrMsg("Error ! No matching data rate value found.");
-      }   
+      }
       TestResults.appendResultDetails(
       "\n" + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                              "clientDataReports", null, Main.locale)
