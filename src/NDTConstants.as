@@ -51,10 +51,21 @@ package  {
     // TCP constants.
     // Max size that can be sent, because 2 bytes are used to hold data length.
     public static const TCP_MAX_RECV_WIN_SIZE:int = 65535; // bytes
+    // According to RFC1323, Section 2.3 the max valid value of iWinScaleRcvd is
+    // 14. NDT uses 20 for this, leaving for now in case it is an error value.
+    // TODO(tiziana): Check if the value is correct.
+    public static const TCP_MAX_WINSCALERCVD:int = 20;
     public static const PREDEFINED_BUFFER_SIZE:int = 8192; // bytes
+
+    // NDT specific limits.
     // See http://www.web100.org/download/kernel/tcp-kis.txt.
     public static const SND_LIM_TIME_THRESHOLD:Number = 0.15;
-    public static const RFC_1323_DISABLED:int = 0;
+    // If the congestion windows is limited more than 0.5% of the time, NDT
+    // claims that the connection is network limited.
+    public static const CWND_LIM_TIME_THRESHOLD:Number = 0.005;
+    // If the link speed is less than a T3, and loss is greater than 1 percent,
+    // loss is determined to be excessive.
+    public static const LOSS_THRESHOLD:Number = 0.01;
 
     // Line speed indicators as defined by the NDT server.
     public static const DATA_RATE_INSUFFICIENT_DATA:int = -2;
@@ -69,6 +80,30 @@ package  {
     public static const DATA_RATE_GIGABIT_ETHERNET:int = 7;
     public static const DATA_RATE_OC_48:int = 8;
     public static const DATA_RATE_10G_ETHERNET:int = 9;
+
+    public static const ACCESS_TECH_UNKNOWN:String = "Connection type unknown";
+    public static const ACCESS_TECH_DIALUP:String = "Dial-up Modem";
+    public static const ACCESS_TECH_CABLEDSL:String = "Cable/DSL modem";
+    public static const ACCESS_TECH_10MBPS:String = "10 Mbps Ethernet";
+    public static const ACCESS_TECH_45MBPS:String = "45 Mbps T3/DS3 subnet";
+    public static const ACCESS_TECH_100MBPS:String = "100 Mbps Ethernet";
+    public static const ACCESS_TECH_622MBPS:String = "622 Mbps OC-12";
+    public static const ACCESS_TECH_1GBPS:String = "1.0 Gbps Gigabit Ethernet";
+    public static const ACCESS_TECH_2GBPS:String = "2.4 Gbps OC-48";
+    public static const ACCESS_TECH_10GBPS:String = "10 Gigabit Ethernet/OC-192";
+
+    public static const ACCESS_TECH2LINK_SPEED:Object = {
+        ACCESS_TECH_UNKNOWN:NaN,
+        ACCESS_TECH_DIALUP:0.064,  // 64 kbps
+        ACCESS_TECH_CABLEDSL:3,    // 3 Mbps
+        ACCESS_TECH_10MBPS:10,
+        ACCESS_TECH_45MBPS:45,
+        ACCESS_TECH_100MBPS:100,
+        ACCESS_TECH_622MBPS:622,
+        ACCESS_TECH_1GBPS:1000,
+        ACCESS_TECH_2GBPS:2400,
+        ACCESS_TECH_10GBPS:10000
+    }
 
     // Duplex indicators as defined by the NDT server.
     public static const DUPLEX_OK_INDICATOR:int = 0;
@@ -86,6 +121,12 @@ package  {
     // Congestion status.
     public static const CONGESTION_NONE:int = 0;
     public static const CONGESTION_YES:int = 1;
+
+    // Values of TCP options.
+    public static const SACKENABLED_OFF:int = 0;
+    public static const NAGLEENABLED_OFF:int = 0;
+    public static const ECNENABLED_OFF:int = 0;
+    public static const TIMESTAMPSENABLED_OFF:int = 0;
 
     // Speed difference to detect packet queueing.
     public static const SPD_DIFF:Number = 0.1;

@@ -28,8 +28,8 @@ package  {
     private static var _debugMsg:String = "";
 
     // Variables accessed by other classes to get and/or set values.
-    ndt_test_results static var mylink:Number = 0.0;
     ndt_test_results static var accessTech:String = null;
+    ndt_test_results static var linkSpeed:Number = 0.0;
     ndt_test_results static var ndtVariables:Object = new Object();
     ndt_test_results static var userAgent:String;
     // Valid only when ndtTestFailed == false.
@@ -113,32 +113,33 @@ package  {
 
     public static function interpretResults():void {
       TestResultsUtils.parseNDTVariables(remoteTestResults);
-
       TestResultsUtils.appendClientInfo();
       if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
 	TestResultsUtils.getAccessLinkSpeed();
-        TestResultsUtils.appendDuplexMismatchResult(
-	  ndtVariables[NDTConstants.MISMATCH]);
+        TestResultsUtils.appendDuplexMismatchResults();
 	if ((NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.C2S) ==
 	    TestType.C2S)
-	  TestResultsUtils.appendC2SPacketQueueingResult();
+	  TestResultsUtils.appendC2SPacketQueueingResults();
 	if ((NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.S2C) ==
 	    TestType.S2C)
-	  TestResultsUtils.appendC2SPacketQueueingResult();
+	  TestResultsUtils.appendC2SPacketQueueingResults();
+	TestResultsUtils.appendBottleneckResults();
+	// TODO(tiziana): verify overlap with getAccessLinkSpeed.
 	TestResultsUtils.appendDataRateResults();
+	// TODO(tiziana): Verify overlap with appendDuplexMismatchResult.
 	TestResultsUtils.appendDuplexCongestionMismatchResults();
+	TestResultsUtils.appendAvgRTTAndPAcketSizeResults();
 	TestResultsUtils.appendPacketRetrasmissionResults();
+	// TODO(tiziana): Verify overlap with appendC2SPacketQueueingResult and
+	// appendC2SPacketQueueingResult.
 	TestResultsUtils.appendPacketQueueingResults(
 	    NDTConstants.TESTS_REQUESTED_BY_CLIENT);
-        TestResultsUtils.appendOtherConnectionResults();
         TestResultsUtils.appendTCPNegotiatedOptions();
-        TestResultsUtils.appendFurtherThroughputInfo();
+        TestResultsUtils.appendThroughputLimitResults();
         NDTUtils.callExternalFunction("resultsProcessed");
       }
-      appendResultDetails("=== NDT variables ===");
-      for (var key:Object in ndtVariables) {
-        appendResultDetails(key + "=" + ndtVariables[key]);
-      }
+      TestResultsUtils.appendNDTVariablesResults();
+      // TODO(tiziana): If parsing mistake, log "resultsParseError".
     }
   }
 }
