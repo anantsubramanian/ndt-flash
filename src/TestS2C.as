@@ -554,6 +554,11 @@ package  {
 
     public function run():void {
       comStage = TEST_PREPARE;
+      TestResults.appendDebugMsg(
+          ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
+          ResourceManager.getInstance().getString(
+	      NDTConstants.BUNDLE_NAME, "s2cThroughput", null, Main.locale))
       NDTUtils.callExternalFunction("testStarted", "ServerToClientThroughput");
       addResponseListener();
       // if enough bytes have already been received to proceed

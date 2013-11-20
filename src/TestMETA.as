@@ -252,8 +252,13 @@ package  {
     }
 
     public function run():void {
-      NDTUtils.callExternalFunction("testStarted", "Meta");
       comStage = TEST_PREPARE;
+      TestResults.appendDebugMsg(
+          ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
+	  ResourceManager.getInstance().getString(
+	      NDTConstants.BUNDLE_NAME, "meta", null, Main.locale));
+      NDTUtils.callExternalFunction("testStarted", "Meta");
       addResponseListener();
       if(ctlSocket.bytesAvailable > MIN_MSG_SIZE)
         testPrepare();

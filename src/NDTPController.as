@@ -135,6 +135,10 @@ package  {
               var meta:TestMETA = new TestMETA(_ctlSocket, this);
 	      meta.run();
               break;
+	  default:
+	      TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+	          NDTConstants.BUNDLE_NAME, "unknownID", null, Main.locale));
+	      failNDTTest();
         }
       } else {
         receiveRemoteResults();
@@ -143,7 +147,8 @@ package  {
 
     private function onReadTimeout(e:TimerEvent):void {
       _readResultsTimer.stop();
-      TestResults.appendErrMsg("Read timeout while reading results.");
+      TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+          NDTConstants.BUNDLE_NAME, "resultsTimeout", null, Main.locale));
       failNDTTest();
     }
 

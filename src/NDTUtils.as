@@ -81,12 +81,12 @@ package  {
                 lang + "_" + region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
         Main.locale = new String(lang + "_" + region);
-	TestResults.appendDebugMsg("Initialized locale from Flash config. " +
-	                           "Locale: " + Main.locale);
+	TestResults.appendDebugMsg(
+	    "Initialized locale from Flash config. Locale: " + Main.locale);
       } else {
-        TestResults.appendErrMsg("Not found ResourceBundle for locale " +
-	                         "requested in Flash config. Using " +
-			         "default locale" + CONFIG::defaultLocale);
+        TestResults.appendErrMsg(
+	    "Not found ResourceBundle for locale requested in Flash config. " +
+            "Using default locale: " + CONFIG::defaultLocale);
       }
     }
 
