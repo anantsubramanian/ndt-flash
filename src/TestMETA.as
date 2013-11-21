@@ -58,7 +58,8 @@ package  {
               NDTConstants.BUNDLE_NAME, "meta", null, Main.locale));
       NDTUtils.callExternalFunction("testStarted", "Meta");
       addResponseListener();
-      // In case data arrived before starting the onReceiveData listener.
+      // In case data arrived before starting the ProgressEvent.SOCKET_DATA
+      // listener.
       if(_ctlSocket.bytesAvailable > 0)
         testPrepare();
     }
@@ -88,9 +89,6 @@ package  {
      * Function that reads the TEST_PREPARE message sent by the server.
      */
     private function testPrepare():void {
-      // TODO(tiziana): Check if it's necessary to call removeResponseListener()
-      // at this point and if it's necessary to call addResponseListener() after
-      // _testStage = TEST_START.
       TestResults.appendDebugMsg(
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "sendingMetaInformation", null,
@@ -124,7 +122,9 @@ package  {
         return;
       }
       _testStage = TEST_START;
-      // In case data arrived before starting the onReceiveData listener.
+      // If TEST_PREPARE and TEST_START messages could arrive together at the
+      // client, they trigger a single ProgressEvent.SOCKET_DATA event. In such
+      // case, the following condition is needed to move to the next step.
       if (_ctlSocket.bytesAvailable > 0)
         testStart();
     }
@@ -134,9 +134,6 @@ package  {
      * indicate that the client should start sending META data.
      */
     private function testStart():void {
-      // TODO(tiziana): Check if it's necessary to call removeResponseListener()
-      // at this point and if it's necessary to call addResponseListener() after
-      // _testStage = FINALIZE_TEST.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -197,8 +194,6 @@ package  {
       Message.sendMessage(_ctlSocket, MessageType.TEST_MSG, new ByteArray());
 
       _testStage = FINALIZE_TEST;
-      if (_ctlSocket.bytesAvailable > 0)
-        finalizeTest();
     }
 
     /**
