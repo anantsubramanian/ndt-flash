@@ -26,26 +26,26 @@ package  {
    * string. This is expected to include the name and versions of the browser
    * and the underlying Operating System. Though the information inside a user-
    * agent string is not restricted to these alone, currently NDT uses this to
-   * get Browser OS only.   
+   * get Browser OS only.
    */
   public class UserAgentTools {
     private static function isLower(sParam:String):Boolean {
       return (sParam == sParam.toLowerCase());
     }
-    
+
     private static function isLetter(sParam:String):Boolean {
       return (sParam >= "A" && sParam <= "z");
     }
-    
+
     private static function isDigit(sParam:String):Boolean {
       return (sParam >= "0" && sParam <= "9");
     }
-    
+
     public static function getFirstVersionNumber(a_userAgent:String,
                                                  a_position:int,
                                                  numDigits:int):String {
       var ver:String = getVersionNumber(a_userAgent, a_position);
-      
+
       if (ver == null)
         return "";
       var i:int = 0;
@@ -56,17 +56,17 @@ package  {
       }
       return res;
     }
-    
+
     /*
       Example UserAgent String:
       Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko)
        Chrome/29.0.1547.2 Safari/537.36
     */
-    public static function getVersionNumber(a_userAgent:String, 
+    public static function getVersionNumber(a_userAgent:String,
                                             a_position:int):String {
       if(a_position < 0)
         return "";
-        
+
       var res:String = new String();
       var status:int = 0;
       while (a_position < a_userAgent.length) {
@@ -96,7 +96,7 @@ package  {
       }
       return StringUtil.trim(res);
     }
-    
+
     public static function getBotName(userAgent:String):Array {
       userAgent = userAgent.toLowerCase();
       var pos:int = 0;
@@ -129,7 +129,7 @@ package  {
         return null;
       return [res, res, res + getVersionNumber(userAgent, pos)];
     }
-    
+
     public static function getBrowser(userAgent:String):Array {
       if(userAgent == null) {
         return ["?", "?", "?"];
@@ -137,7 +137,7 @@ package  {
       var botName:Array = new Array();
       if((botName = getBotName(userAgent)) != null)
         return botName;
-        
+
       var res:Array = null;
       var pos:int;
       if ((pos = userAgent.indexOf("Lotus-Notes/")) > -1) {

@@ -88,14 +88,14 @@ package  {
                                    kickOldClientsMsg:Boolean=false):int {
       if (kickOldClientsMsg) {
         if (!readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)) {
-	  TestResults.appendErrMsg("Error reading KICK_OLD_CLIENTS message");
+          TestResults.appendErrMsg("Error reading KICK_OLD_CLIENTS message");
           return NDTConstants.PROTOCOL_MSG_READ_ERROR;
         } else {
           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
         }
       }
       if (!readHeader(socket) || !readBody(socket, length)) {
-	TestResults.appendErrMsg("Error reading message from socket");
+        TestResults.appendErrMsg("Error reading message from socket");
         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
       }
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;

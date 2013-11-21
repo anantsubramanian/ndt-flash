@@ -488,7 +488,7 @@ package  {
       // get web100 variables from the server
       while (ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(ctlSocket) !=
-	    NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+            NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           // message not read / received correctly
           TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
@@ -558,7 +558,7 @@ package  {
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
           ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "s2cThroughput", null, Main.locale))
+              NDTConstants.BUNDLE_NAME, "s2cThroughput", null, Main.locale))
       NDTUtils.callExternalFunction("testStarted", "ServerToClientThroughput");
       addResponseListener();
       // if enough bytes have already been received to proceed

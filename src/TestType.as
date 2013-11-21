@@ -13,11 +13,10 @@
 // limitations under the License.
 
 package {
-  /** 
-   * Class that defines the types of NDT tests as expected by the NDT server. 
+  /**
+   * Class that defines the types of NDT tests as expected by the NDT server.
    */
   public class TestType {
-    // 
     public static const MID:int = (1 << 0);
     public static const C2S:int = (1 << 1);
     public static const S2C:int = (1 << 2);

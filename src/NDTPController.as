@@ -125,20 +125,20 @@ package  {
         switch (currentTest) {
           case TestType.C2S:
               var c2s:TestC2S = new TestC2S(_ctlSocket, _hostname, this);
-	      c2s.run();
+              c2s.run();
               break;
           case TestType.S2C:
               var s2c:TestS2C = new TestS2C(_ctlSocket, _hostname, this);
-	      s2c.run();
+              s2c.run();
               break;
           case TestType.META:
               var meta:TestMETA = new TestMETA(_ctlSocket, this);
-	      meta.run();
+              meta.run();
               break;
-	  default:
-	      TestResults.appendErrMsg(ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "unknownID", null, Main.locale));
-	      failNDTTest();
+          default:
+              TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "unknownID", null, Main.locale));
+              failNDTTest();
         }
       } else {
         receiveRemoteResults();
@@ -188,11 +188,11 @@ package  {
           failNDTTest();
           return;
         }
-	if (msg.type == MessageType.MSG_RESULTS) {
+        if (msg.type == MessageType.MSG_RESULTS) {
             TestResults.ndt_test_results::remoteTestResults += new String(
-	        msg.body);
-	   continue;
-	}
+                msg.body);
+           continue;
+        }
         // All results obtained. "Log Out" message received now.
         if (msg.type == MessageType.MSG_LOGOUT) {
           _readResultsTimer.stop();
@@ -200,7 +200,7 @@ package  {
           succeedNDTTest();
           return;
         }
-	TestResults.appendErrMsg(
+        TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,
                 Main.locale));

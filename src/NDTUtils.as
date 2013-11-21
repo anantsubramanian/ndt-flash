@@ -44,8 +44,8 @@ package  {
         }
       } catch (e:Error) {
         // Cannot call TestResults.appendErrMsg, because it calls
-	// callExternalFunction.
-	// TODO: Decide what to do.
+        // callExternalFunction.
+        // TODO: Decide what to do.
       }
     }
     /**
@@ -55,16 +55,16 @@ package  {
     public static function initializeFromHTML(paramObject:Object):void {
       if (NDTConstants.HTML_LOCALE in paramObject) {
         Main.locale = paramObject[NDTConstants.HTML_LOCALE];
-	TestResults.appendDebugMsg("Initialized locale from HTML. Locale: "
-	                           + Main.locale);
+        TestResults.appendDebugMsg("Initialized locale from HTML. Locale: "
+                                   + Main.locale);
       } else {
         initializeLocale();
       }
       if (NDTConstants.HTML_USERAGENT in paramObject) {
         TestResults.ndt_test_results::userAgent =
-	    paramObject[NDTConstants.HTML_USERAGENT];
-	TestResults.appendDebugMsg("Initialized useragent from HTML. Useragent:"
-	                           + TestResults.ndt_test_results::userAgent);
+            paramObject[NDTConstants.HTML_USERAGENT];
+        TestResults.appendDebugMsg("Initialized useragent from HTML. Useragent:"
+                                   + TestResults.ndt_test_results::userAgent);
       }
     }
 
@@ -81,11 +81,11 @@ package  {
                 lang + "_" + region, NDTConstants.BUNDLE_NAME) != null)) {
         // Bundle for specified locale found, change value of locale
         Main.locale = new String(lang + "_" + region);
-	TestResults.appendDebugMsg(
-	    "Initialized locale from Flash config. Locale: " + Main.locale);
+        TestResults.appendDebugMsg(
+            "Initialized locale from Flash config. Locale: " + Main.locale);
       } else {
         TestResults.appendErrMsg(
-	    "Not found ResourceBundle for locale requested in Flash config. " +
+            "Not found ResourceBundle for locale requested in Flash config. " +
             "Using default locale: " + CONFIG::defaultLocale);
       }
     }
@@ -99,16 +99,16 @@ package  {
       Security.allowDomain("*");
       try {
         ExternalInterface.addCallback(
-	    "getDebugOutput", TestResults.getDebugMsg);
+            "getDebugOutput", TestResults.getDebugMsg);
         ExternalInterface.addCallback(
-	    "getAdvanced", TestResults.getResultDetails);
+            "getAdvanced", TestResults.getResultDetails);
         ExternalInterface.addCallback(
-	    "getErrors", TestResults.getErrMsg);
+            "getErrors", TestResults.getErrMsg);
         ExternalInterface.addCallback(
-	    "getNDTvar", TestResultsUtils.getNDTVariable);
+            "getNDTvar", TestResultsUtils.getNDTVariable);
       } catch (e:Error) {
         TestResults.appendErrMsg("Container doesn't support callbacks. " +
-	                         "Error: " + e);
+                                 "Error: " + e);
       } catch (e:SecurityError) {
         TestResults.appendErrMsg("Security error when adding callbacks: " + e);
       }
@@ -130,13 +130,13 @@ package  {
       while (socket.bytesAvailable && bytesRead < bytesToRead) {
         try {
           bytes[bytesRead + offset] = socket.readByte();
-	} catch (e:IOError) {
-	  TestResults.appendErrMsg("Error reading byte from socket: " + e);
-	  break;
-	} catch(error:EOFError) {
-	  // No more data to read from the socket.
-	  break;
-	}
+        } catch (e:IOError) {
+          TestResults.appendErrMsg("Error reading byte from socket: " + e);
+          break;
+        } catch(error:EOFError) {
+          // No more data to read from the socket.
+          break;
+        }
         bytesRead++;
       }
       return bytesRead;

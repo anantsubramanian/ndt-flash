@@ -115,25 +115,25 @@ package  {
       TestResultsUtils.parseNDTVariables(remoteTestResults);
       TestResultsUtils.appendClientInfo();
       if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
-	TestResultsUtils.getAccessLinkSpeed();
+        TestResultsUtils.getAccessLinkSpeed();
         TestResultsUtils.appendDuplexMismatchResults();
-	if ((NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.C2S) ==
-	    TestType.C2S)
-	  TestResultsUtils.appendC2SPacketQueueingResults();
-	if ((NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.S2C) ==
-	    TestType.S2C)
-	  TestResultsUtils.appendC2SPacketQueueingResults();
-	TestResultsUtils.appendBottleneckResults();
-	// TODO(tiziana): verify overlap with getAccessLinkSpeed.
-	TestResultsUtils.appendDataRateResults();
-	// TODO(tiziana): Verify overlap with appendDuplexMismatchResult.
-	TestResultsUtils.appendDuplexCongestionMismatchResults();
-	TestResultsUtils.appendAvgRTTAndPAcketSizeResults();
-	TestResultsUtils.appendPacketRetrasmissionResults();
-	// TODO(tiziana): Verify overlap with appendC2SPacketQueueingResult and
-	// appendC2SPacketQueueingResult.
-	TestResultsUtils.appendPacketQueueingResults(
-	    NDTConstants.TESTS_REQUESTED_BY_CLIENT);
+        if ((NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.C2S) ==
+            TestType.C2S)
+          TestResultsUtils.appendC2SPacketQueueingResults();
+        if ((NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.S2C) ==
+            TestType.S2C)
+          TestResultsUtils.appendC2SPacketQueueingResults();
+        TestResultsUtils.appendBottleneckResults();
+        // TODO(tiziana): verify overlap with getAccessLinkSpeed.
+        TestResultsUtils.appendDataRateResults();
+        // TODO(tiziana): Verify overlap with appendDuplexMismatchResult.
+        TestResultsUtils.appendDuplexCongestionMismatchResults();
+        TestResultsUtils.appendAvgRTTAndPAcketSizeResults();
+        TestResultsUtils.appendPacketRetrasmissionResults();
+        // TODO(tiziana): Verify overlap with appendC2SPacketQueueingResult and
+        // appendC2SPacketQueueingResult.
+        TestResultsUtils.appendPacketQueueingResults(
+            NDTConstants.TESTS_REQUESTED_BY_CLIENT);
         TestResultsUtils.appendTCPNegotiatedOptions();
         TestResultsUtils.appendThroughputLimitResults();
         NDTUtils.callExternalFunction("resultsProcessed");
