@@ -84,7 +84,7 @@ package  {
         TestResults.appendDebugMsg(
             "Initialized locale from Flash config. Locale: " + Main.locale);
       } else {
-        TestResults.appendErrMsg(
+        TestResults.appendDebugMsg(
             "Not found ResourceBundle for locale requested in Flash config. " +
             "Using default locale: " + CONFIG::defaultLocale);
       }
