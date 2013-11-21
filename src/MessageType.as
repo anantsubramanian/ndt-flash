@@ -23,6 +23,10 @@ package {
     public static const SRV_QUEUE:int = 1;
     public static const MSG_LOGIN:int = 2;
     public static const TEST_PREPARE:int = 3;
+    // These messages may be used to send name-value pairs, like as
+    // configuration data. There are length constraints to key-values: 64 / 256
+    // respectively.
+    // TODO(tiziana): Add check in Message.sendMessage for length constrains.
     public static const TEST_START:int = 4;
     public static const TEST_MSG:int = 5;
     public static const TEST_FINALIZE:int = 6;
