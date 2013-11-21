@@ -649,7 +649,8 @@ package  {
                   NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
               + ": " + (NDTConstants.PERCENTAGE * c2sQueue).toFixed(2) + "%");
         }
-        // TODO(tiziana): Check difference with Java applet.
+        // TODO(tiziana): Change when issue #98 is fixed.
+        // https://code.google.com/p/ndt/issues/detail?id=98
       }
 
       // Add packet queueing details found during S2C throughput test.
@@ -670,7 +671,8 @@ package  {
                   NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
               + ": " + (NDTConstants.PERCENTAGE * s2cQueue).toFixed(2) + "%");
         }
-        // TODO(tiziana): Check difference with Java applet.
+        // TODO(tiziana): Change when issue #98 is fixed.
+        // https://code.google.com/p/ndt/issues/detail?id=98
       }
     }
 
@@ -724,10 +726,6 @@ package  {
         // requested.
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
-
-        // TODO(tiziana): Commented out the next line as I believe is wrong.
-        //                Check if so. If so, fix also the Java applet.
-        // TestResults.ndtVariables[NDTConstants.WINSCALERCVD] = 0;
       } else
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
