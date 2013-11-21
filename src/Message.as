@@ -80,9 +80,9 @@ package  {
      * Receive message.
      * @return {int} Values:
      *   a) NDTConstants.PROTOCOL_MSG_READ_SUCCESS, in case of success.
-                             successfully read expected number of bytes.
+     *      successfully read expected number of bytes.
      *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
-            header or if the message body is shorther than expected.
+     *      header or if the message body is shorther than expected.
      */
     public function receiveMessage(socket:Socket,
                                    kickOldClientsMsg:Boolean=false):int {
