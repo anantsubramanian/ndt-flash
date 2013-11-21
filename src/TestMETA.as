@@ -38,9 +38,9 @@ package  {
     private var _metaTestSuccess:Boolean;
     private var _testStage:int;
 
-    public function TestMETA(socket:Socket, callerObject:NDTPController) {
+    public function TestMETA(ctlSocket:Socket, callerObject:NDTPController) {
       _callerObj = callerObject;
-      _ctlSocket = socket;
+      _ctlSocket = ctlSocket;
       _metaTestSuccess = true;  // Initially the test hasn't failed.
     }
 
@@ -98,8 +98,8 @@ package  {
       TestResults.ndt_test_results::ndtTestStatus = "sendingMetaInformation";
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
                                           "protocolError", null, Main.locale)
@@ -138,8 +138,8 @@ package  {
       // at this point and if it's necessary to call addResponseListener() after
       // _testStage = FINALIZE_TEST.
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -208,8 +208,8 @@ package  {
     private function finalizeTest():void {
       // Server closes the META test session by sending a TEST_FINALIZE message.
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
