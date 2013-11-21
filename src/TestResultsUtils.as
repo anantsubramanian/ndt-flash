@@ -26,38 +26,38 @@ package  {
       switch (dataRateInt) {
       case NDTConstants.DATA_RATE_SYSTEM_FAULT:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "systemFault", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "systemFault", null, Main.locale);
       case NDTConstants.DATA_RATE_RTT:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "rtt", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "rtt", null, Main.locale);
       case NDTConstants.DATA_RATE_DIAL_UP:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "dialup2", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "dialup2", null, Main.locale);
       case NDTConstants.DATA_RATE_T1:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "t1Str", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "t1Str", null, Main.locale);
       case NDTConstants.DATA_RATE_ETHERNET:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "ethernetStr", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "ethernetStr", null, Main.locale);
       case NDTConstants.DATA_RATE_T3:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "t3Str", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "t3Str", null, Main.locale);
       case NDTConstants.DATA_RATE_FAST_ETHERNET:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "fastEthernet", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "fastEthernet", null, Main.locale);
       case NDTConstants.DATA_RATE_OC_12:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "oc12Str", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "oc12Str", null, Main.locale);
       case NDTConstants.DATA_RATE_GIGABIT_ETHERNET:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "gigabitEthernetStr", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "gigabitEthernetStr", null, Main.locale);
       case NDTConstants.DATA_RATE_OC_48:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "oc48Str", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "oc48Str", null, Main.locale);
       case NDTConstants.DATA_RATE_10G_ETHERNET:
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "tengigabitEthernetStr", null,
-	    Main.locale);
+            NDTConstants.BUNDLE_NAME, "tengigabitEthernetStr", null,
+            Main.locale);
       }
       return null;
     }
@@ -108,7 +108,7 @@ package  {
         varName = pairs[i].split(":")[0];
         varValue = pairs[i + 1];
         // Figure out if varValue is integer or float.
-	// 1) Try integer.
+        // 1) Try integer.
         intValue = parseInt(varValue);
         if (varValue == String(intValue)) {
           // Yes, it's a valid integer.
@@ -124,7 +124,7 @@ package  {
         }
         // 3) Neither a valid integer nor a valid float.
         TestResults.appendErrMsg("Error parsing web100 var. varName: "
-	                         + varName + "; varValue: " + varValue);
+                                 + varName + "; varValue: " + varValue);
       }
     }
 
@@ -140,48 +140,48 @@ package  {
           + ": " + Capabilities.cpuArchitecture);
       TestResults.appendResultDetails(
           "Flash Info: " + ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "version", null, Main.locale)
+              NDTConstants.BUNDLE_NAME, "version", null, Main.locale)
           + " = " + Capabilities.version);
     }
 
     private static function getClient(osArchitecture:String):String {
       if (osArchitecture.indexOf("x86") == 0)
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "pc", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "pc", null, Main.locale);
       else
         return ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "workstation", null, Main.locale);
+            NDTConstants.BUNDLE_NAME, "workstation", null, Main.locale);
     }
 
     public static function getAccessLinkSpeed():void {
       if (TestResults.ndtVariables[NDTConstants.C2SDATA]
           < NDTConstants.DATA_RATE_ETHERNET) {
         if (TestResults.ndtVariables[NDTConstants.C2SDATA]
-	    < NDTConstants.DATA_RATE_RTT) {
+            < NDTConstants.DATA_RATE_RTT) {
            // Data was not sufficient to determine bottleneck type.
            TestResults.appendResultDetails(
                ResourceManager.getInstance().getString(
-	           NDTConstants.BUNDLE_NAME, "unableToDetectBottleneck", null,
-		   Main.locale));
+                   NDTConstants.BUNDLE_NAME, "unableToDetectBottleneck", null,
+                   Main.locale));
            TestResults.accessTech = NDTConstants.ACCESS_TECH_UNKNOWN;
         } else {
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "your", null, Main.locale)
+                  NDTConstants.BUNDLE_NAME, "your", null, Main.locale)
               + " " + getClient(Capabilities.cpuArchitecture) + " "
               + ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "connectedTo", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "connectedTo", null, Main.locale));
 
           if (TestResults.ndtVariables[NDTConstants.C2SDATA]
-	      == NDTConstants.DATA_RATE_DIAL_UP) {
+              == NDTConstants.DATA_RATE_DIAL_UP) {
             TestResults.appendResultDetails(
                 ResourceManager.getInstance().getString(
-		    NDTConstants.BUNDLE_NAME, "dialup", null, Main.locale));
+                    NDTConstants.BUNDLE_NAME, "dialup", null, Main.locale));
             TestResults.accessTech = NDTConstants.ACCESS_TECH_DIALUP;
           } else {
             TestResults.appendResultDetails(
                 ResourceManager.getInstance().getString(
-		    NDTConstants.BUNDLE_NAME, "cabledsl", null, Main.locale));
+                    NDTConstants.BUNDLE_NAME, "cabledsl", null, Main.locale));
             TestResults.accessTech = NDTConstants.ACCESS_TECH_CABLEDSL;
           }
         }
@@ -211,12 +211,12 @@ package  {
               TestResults.appendResultDetails(
                   ResourceManager.getInstance().getString(
                       NDTConstants.BUNDLE_NAME, "fullDuplex", null,
-		      Main.locale));
+                      Main.locale));
             else
               TestResults.appendResultDetails(
                   ResourceManager.getInstance().getString(
                       NDTConstants.BUNDLE_NAME, "halfDuplex", null,
-		      Main.locale));
+                      Main.locale));
             break;
         case NDTConstants.DATA_RATE_OC_12:
           TestResults.appendResultDetails(
@@ -244,9 +244,9 @@ package  {
            break;
          default:
            TestResults.appendErrMsg(
-	       "Non valid value for NDTConstants.C2SDATA: " +
-	       TestResults.ndtVariables[NDTConstants.C2SDATA]);
-	}
+               "Non valid value for NDTConstants.C2SDATA: " +
+               TestResults.ndtVariables[NDTConstants.C2SDATA]);
+        }
       }
       TestResults.linkSpeed = NDTConstants.ACCESS_TECH2LINK_SPEED[
           TestResults.accessTech]
@@ -292,19 +292,19 @@ package  {
           break;
         case NDTConstants.DUPLEX_OK_INDICATOR:
           if (TestResults.ndtVariables[NDTConstants.BAD_CABLE]
-	      == NDTConstants.CABLE_STATUS_NOK)
+              == NDTConstants.CABLE_STATUS_NOK)
             TestResults.appendResultDetails(
-	        ResourceManager.getInstance().getString(
+                ResourceManager.getInstance().getString(
                     NDTConstants.BUNDLE_NAME, "excessiveErrors", null,
-		    Main.locale));
+                    Main.locale));
 
            if (TestResults.ndtVariables[NDTConstants.CONGESTION]
-	       == NDTConstants.CONGESTION_YES)
+               == NDTConstants.CONGESTION_YES)
              TestResults.appendResultDetails(
-	         ResourceManager.getInstance().getString(
+                 ResourceManager.getInstance().getString(
                      NDTConstants.BUNDLE_NAME, "otherTraffic", null,
-		     Main.locale));
-	  appendRecommendedBufferSize();
+                     Main.locale));
+          appendRecommendedBufferSize();
           break;
         default:
           TestResults.appendErrMsg("Non valid duplex indicator");
@@ -321,16 +321,16 @@ package  {
       // Window size is multiplied by 2 to counter round-trip.
       if ((2 * TestResults.ndtVariables[NDTConstants.RWIN]
            / TestResults.ndtVariables[NDTConstants.RTTSEC])
-	   < TestResults.linkSpeed) {
+           < TestResults.linkSpeed) {
         // Link speed is in Mbps. Convert to kilo bytes per secs.
-	var linkSpeedInKBps:Number = Number(TestResults.linkSpeed
-	                                    * NDTConstants.KBITS2BITS
+        var linkSpeedInKBps:Number = Number(TestResults.linkSpeed
+                                            * NDTConstants.KBITS2BITS
                                             / NDTConstants.BYTES2BITS)
-	var theoreticalMaxBuffer:Number = (
-	    linkSpeedInKBps * NDTConstants.SEC2MSEC
+        var theoreticalMaxBuffer:Number = (
+            linkSpeedInKBps * NDTConstants.SEC2MSEC
             * TestResults.ndtVariables[NDTConstants.AVGRTT])
         if (theoreticalMaxBuffer
-	    > TestResults.ndtVariables[NDTConstants.MAXRWINRCVD]) {
+            > TestResults.ndtVariables[NDTConstants.MAXRWINRCVD]) {
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "receiveBufferShouldBe", null,
@@ -339,14 +339,14 @@ package  {
               + ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "toMaximizeThroughput", null,
                   Main.locale));
-	}
+        }
       }
     }
 
     public static function appendC2SPacketQueueingResults():void {
       if (TestResults.ndt_test_results::sc2sSpeed
           < (TestResults.ndt_test_results::c2sSpeed
-	  * (1.0 - NDTConstants.SPD_DIFF)))
+          * (1.0 - NDTConstants.SPD_DIFF)))
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "c2sPacketQueuingDetected", null,
@@ -356,7 +356,7 @@ package  {
     public static function appendS2CPacketQueueingResults():void {
        if (TestResults.ndt_test_results::s2cSpeed
            < (TestResults.ndt_test_results::ss2cSpeed
-	   * (1.0 - NDTConstants.SPD_DIFF)))
+           * (1.0 - NDTConstants.SPD_DIFF)))
          TestResults.appendResultDetails(
              ResourceManager.getInstance().getString(
                  NDTConstants.BUNDLE_NAME, "s2cPacketQueuingDetected", null,
@@ -369,27 +369,27 @@ package  {
           > NDTConstants.SND_LIM_TIME_THRESHOLD) {
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "thisConnIs", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "thisConnIs", null, Main.locale)
             + " " + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME,  "limitRx", null, Main.locale)
+                NDTConstants.BUNDLE_NAME,  "limitRx", null, Main.locale)
             + " " + (TestResults.ndtVariables[NDTConstants.RWINTIME]
-	             * NDTConstants.PERCENTAGE).toFixed(2)
+                     * NDTConstants.PERCENTAGE).toFixed(2)
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
         // Multiplying by 2 to counter round-trip.
-	var receiverLimit:Number = (
-	    2 * TestResults.ndtVariables[NDTConstants.RWIN]
-	    / TestResults.ndtVariables[NDTConstants.RTTSEC]);
-	var idealReceiverBuffer:Number = (
-	     TestResults.ndtVariables[NDTConstants.MAXRWINRCVD]
-	     / NDTConstants.KBITS2BITS);
+        var receiverLimit:Number = (
+            2 * TestResults.ndtVariables[NDTConstants.RWIN]
+            / TestResults.ndtVariables[NDTConstants.RTTSEC]);
+        var idealReceiverBuffer:Number = (
+             TestResults.ndtVariables[NDTConstants.MAXRWINRCVD]
+             / NDTConstants.KBITS2BITS);
         if (receiverLimit < TestResults.linkSpeed)
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "incrRxBuf", null, Main.locale)
+                  NDTConstants.BUNDLE_NAME, "incrRxBuf", null, Main.locale)
               + " (" + idealReceiverBuffer.toFixed(2) + " KB)"
-	      + ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "willImprove", null, Main.locale));
+              + ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "willImprove", null, Main.locale));
       }
 
       // 2) Is the connection sender limited?
@@ -397,29 +397,29 @@ package  {
           > NDTConstants.SND_LIM_TIME_THRESHOLD) {
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "thisConnIs", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "thisConnIs", null, Main.locale)
             + " " + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "limitTx", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "limitTx", null, Main.locale)
           + " " + (TestResults.ndtVariables[NDTConstants.SENDTIME]
-	           * NDTConstants.PERCENTAGE).toFixed(2)
+                   * NDTConstants.PERCENTAGE).toFixed(2)
           + ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
+              NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
 
-	var senderLimit:Number = (
-	    2 * TestResults.ndtVariables[NDTConstants.SWIN]
-	    / TestResults.ndtVariables[NDTConstants.RTTSEC]);
-	var idealSenderBuffer:Number = (
-	     TestResults.ndtVariables[NDTConstants.SNDBUF]
-	     / (2 * NDTConstants.KBITS2BITS));
+        var senderLimit:Number = (
+            2 * TestResults.ndtVariables[NDTConstants.SWIN]
+            / TestResults.ndtVariables[NDTConstants.RTTSEC]);
+        var idealSenderBuffer:Number = (
+             TestResults.ndtVariables[NDTConstants.SNDBUF]
+             / (2 * NDTConstants.KBITS2BITS));
 
         if (senderLimit < TestResults.linkSpeed)
           // Dividing by 2 to counter round-trip.
           TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "incrTxBuf", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "incrTxBuf", null, Main.locale)
             + " (" + idealSenderBuffer.toFixed(2) + " KB)"
-	    + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "willImprove", null, Main.locale));
+            + ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "willImprove", null, Main.locale));
       }
 
       // 3) Is the connection network limited?
@@ -427,23 +427,23 @@ package  {
           > NDTConstants.CWND_LIM_TIME_THRESHOLD) {
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "thisConnIs", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "thisConnIs", null, Main.locale)
             + " " + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "limitNet", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "limitNet", null, Main.locale)
             + " " + (TestResults.ndtVariables[NDTConstants.CWNDTIME]
-	             * NDTConstants.PERCENTAGE).toFixed(2)
+                     * NDTConstants.PERCENTAGE).toFixed(2)
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
       }
 
       // 4) Is the loss excessive?
       if ((TestResults.ndtVariables[NDTConstants.SPD]
            < NDTConstants.DATA_RATE_T3)
-	  && (TestResults.ndtVariables[NDTConstants.LOSS]
-	   > NDTConstants.LOSS_THRESHOLD)) {
+          && (TestResults.ndtVariables[NDTConstants.LOSS]
+           > NDTConstants.LOSS_THRESHOLD)) {
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "excLoss", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "excLoss", null, Main.locale));
       }
     }
 
@@ -452,62 +452,62 @@ package  {
         case NDTConstants.DATA_RATE_INSUFFICIENT_DATA:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "insufficient", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "insufficient", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_SYSTEM_FAULT:
           TestResults.appendResultDetails(
-	      ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "ipcFail", null, Main.locale));
+              ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "ipcFail", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_RTT:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "rttFail", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "rttFail", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_DIAL_UP:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "foundDialup", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "foundDialup", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_T1:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "foundDsl", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "foundDsl", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_ETHERNET:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found10mbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found10mbps", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_T3:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found45mbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found45mbps", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_FAST_ETHERNET:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found100mbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found100mbps", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_OC_12:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found622mbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found622mbps", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_GIGABIT_ETHERNET:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found1gbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found1gbps", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_OC_48:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found2.4gbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found2.4gbps", null, Main.locale));
           break;
         case NDTConstants.DATA_RATE_10G_ETHERNET:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "found10gbps", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "found10gbps", null, Main.locale));
             break;
       }
     }
@@ -516,60 +516,60 @@ package  {
       if (TestResults.ndtVariables[NDTConstants.HALF_DUPLEX]
           == NDTConstants.DUPLEX_OK_INDICATOR)
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "linkFullDpx", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "linkFullDpx", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "linkHalfDpx", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "linkHalfDpx", null, Main.locale));
 
       if (TestResults.ndtVariables[NDTConstants.CONGESTION]
           == NDTConstants.CONGESTION_NONE)
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "congestNo", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "congestNo", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "congestYes", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "congestYes", null, Main.locale));
 
       if (TestResults.ndtVariables[NDTConstants.BAD_CABLE]
           == NDTConstants.CABLE_STATUS_OK)
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "cablesOk", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "cablesOk", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "cablesNok", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "cablesNok", null, Main.locale));
 
       switch(TestResults.ndtVariables[NDTConstants.MISMATCH]) {
         case NDTConstants.DUPLEX_OK_INDICATOR:
           TestResults.appendResultDetails(
-	      ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "duplexOk", null, Main.locale));
-	  break;
+              ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "duplexOk", null, Main.locale));
+          break;
         case NDTConstants.DUPLEX_NOK_INDICATOR:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "duplexNok", null, Main.locale));
-	  break;
+                  NDTConstants.BUNDLE_NAME, "duplexNok", null, Main.locale));
+          break;
         case NDTConstants.DUPLEX_SWITCH_FULL_HOST_HALF:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "duplexFullHalf", null,
-		  Main.locale));
-	  break;
+                  NDTConstants.BUNDLE_NAME, "duplexFullHalf", null,
+                  Main.locale));
+          break;
         case NDTConstants.DUPLEX_SWITCH_HALF_HOST_FULL:
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "duplexHalfFull", null,
-		  Main.locale));
+                  NDTConstants.BUNDLE_NAME, "duplexHalfFull", null,
+                  Main.locale));
       }
     }
 
     public static function appendAvgRTTAndPAcketSizeResults():void {
       TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "web100rtt", null, Main.locale)
-	    + " = " + TestResults.ndtVariables[NDTConstants.AVGRTT] + "ms");
+            NDTConstants.BUNDLE_NAME, "web100rtt", null, Main.locale)
+            + " = " + TestResults.ndtVariables[NDTConstants.AVGRTT] + "ms");
       TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "packetsize", null, Main.locale)
-	    + " = " + TestResults.ndtVariables[NDTConstants.CURMSS]
-	    + "bytes");
+            NDTConstants.BUNDLE_NAME, "packetsize", null, Main.locale)
+            + " = " + TestResults.ndtVariables[NDTConstants.CURMSS]
+            + "bytes");
     }
 
     public static function appendPacketRetrasmissionResults():void {
@@ -578,23 +578,23 @@ package  {
         TestResults.appendResultDetails(
             TestResults.ndtVariables[NDTConstants.PKTSRETRANS] + " "
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "pktsRetrans", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "pktsRetrans", null, Main.locale));
         TestResults.appendResultDetails(
             TestResults.ndtVariables[NDTConstants.DUPACKSIN] + " "
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "dupAcksIn", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "dupAcksIn", null, Main.locale));
         TestResults.appendResultDetails(
             TestResults.ndtVariables[NDTConstants.SACKSRCVD] + " "
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "sackReceived", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "sackReceived", null, Main.locale));
 
         if (TestResults.ndtVariables[NDTConstants.TIMEOUTS] > 0)
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "connStalled", null, Main.locale)
-	      + " " + TestResults.ndtVariables[NDTConstants.TIMEOUTS] + " "
+                  NDTConstants.BUNDLE_NAME, "connStalled", null, Main.locale)
+              + " " + TestResults.ndtVariables[NDTConstants.TIMEOUTS] + " "
               + ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "timesPktLoss", null, Main.locale));
+                  NDTConstants.BUNDLE_NAME, "timesPktLoss", null, Main.locale));
 
         var percIdleTime:Number = (
             TestResults.ndtVariables[NDTConstants.WAITSEC]
@@ -606,26 +606,26 @@ package  {
             + " " + TestResults.ndtVariables[NDTConstants.WAITSEC].toFixed(2)
             + " " + ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "seconds", null, Main.locale)
-	    + " (" + percIdleTime.toFixed(2) +
+            + " (" + percIdleTime.toFixed(2) +
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale)
-	    + ")");
+                NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale)
+            + ")");
       } else if (TestResults.ndtVariables[NDTConstants.DUPACKSIN] > 0) {
         // No packet loss, but packets arrived out-of-order.
-	var percOrder:Number = (TestResults.ndtVariables[NDTConstants.ORDER]
-	                        * NDTConstants.PERCENTAGE);
+        var percOrder:Number = (TestResults.ndtVariables[NDTConstants.ORDER]
+                                * NDTConstants.PERCENTAGE);
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "noPktLoss1", null, Main.locale)
-	    + " - " + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "ooOrder", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "noPktLoss1", null, Main.locale)
+            + " - " + ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "ooOrder", null, Main.locale)
             + " " + percOrder.toFixed(2) +
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
+                NDTConstants.BUNDLE_NAME, "pctOfTime", null, Main.locale));
       } else {
         // No packet retransmissions found.
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "noPktLoss2", null, Main.locale) + ".");
+            NDTConstants.BUNDLE_NAME, "noPktLoss2", null, Main.locale) + ".");
       }
     }
 
@@ -634,43 +634,43 @@ package  {
       // Data is displayed as percentage.
       if ((requestedTests & TestType.C2S) == TestType.C2S) {
         if ((TestResults.ndt_test_results::c2sSpeed
-	     > TestResults.ndt_test_results::sc2sSpeed)
+             > TestResults.ndt_test_results::sc2sSpeed)
             && (TestResults.ndt_test_results::sc2sSpeed
-	        < (TestResults.ndt_test_results::c2sSpeed
-	          * (1.0 - NDTConstants.SPD_DIFF)))) {
+                < (TestResults.ndt_test_results::c2sSpeed
+                  * (1.0 - NDTConstants.SPD_DIFF)))) {
           var c2sQueue:Number = (TestResults.ndt_test_results::c2sSpeed
-	                         - TestResults.ndt_test_results::sc2sSpeed)
-	                         / TestResults.ndt_test_results::c2sSpeed;
+                                 - TestResults.ndt_test_results::sc2sSpeed)
+                                 / TestResults.ndt_test_results::c2sSpeed;
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "c2s", null, Main.locale)
-	      + " "  +
+                  NDTConstants.BUNDLE_NAME, "c2s", null, Main.locale)
+              + " "  +
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
-	      + ": " + (NDTConstants.PERCENTAGE * c2sQueue).toFixed(2) + "%");
+                  NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
+              + ": " + (NDTConstants.PERCENTAGE * c2sQueue).toFixed(2) + "%");
         }
-	// TODO(tiziana): Check difference with Java applet.
+        // TODO(tiziana): Check difference with Java applet.
       }
 
       // Add packet queueing details found during S2C throughput test.
       // Data is displayed as a percentage.
       if ((requestedTests & TestType.S2C) == TestType.S2C) {
         if ((TestResults.ndt_test_results::ss2cSpeed
-	     > TestResults.ndt_test_results::s2cSpeed)
-	     && (TestResults.ndt_test_results::ss2cSpeed
-	         < (TestResults.ndt_test_results::ss2cSpeed
-		    * (1.0 - NDTConstants.SPD_DIFF)))) {
+             > TestResults.ndt_test_results::s2cSpeed)
+             && (TestResults.ndt_test_results::ss2cSpeed
+                 < (TestResults.ndt_test_results::ss2cSpeed
+                    * (1.0 - NDTConstants.SPD_DIFF)))) {
           var s2cQueue:Number = (TestResults.ndt_test_results::c2sSpeed
-	                         - TestResults.ndt_test_results::sc2sSpeed)
-	                         / TestResults.ndt_test_results::c2sSpeed;
+                                 - TestResults.ndt_test_results::sc2sSpeed)
+                                 / TestResults.ndt_test_results::c2sSpeed;
           TestResults.appendResultDetails(
               ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "s2c", null, Main.locale)
+                  NDTConstants.BUNDLE_NAME, "s2c", null, Main.locale)
               + " " + ResourceManager.getInstance().getString(
-	          NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
+                  NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
               + ": " + (NDTConstants.PERCENTAGE * s2cQueue).toFixed(2) + "%");
         }
-	// TODO(tiziana): Check difference with Java applet.
+        // TODO(tiziana): Check difference with Java applet.
       }
     }
 
@@ -685,61 +685,61 @@ package  {
             NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
 
       TestResults.appendResultDetails("RFC 896 Nagle Algorithm:");
       if (TestResults.ndtVariables[NDTConstants.NAGLEENABLED]
           == NDTConstants.NAGLEENABLED_OFF)
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
 
       TestResults.appendResultDetails(
           "RFC 3168 Explicit Congestion Notification:");
       if (TestResults.ndtVariables[NDTConstants.ECNENABLED]
           == NDTConstants.ECNENABLED_OFF)
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
 
       TestResults.appendResultDetails("RFC 1323 Time Stamping:");
       if (TestResults.ndtVariables[NDTConstants.TIMESTAMPSENABLED]
           == NDTConstants.TIMESTAMPSENABLED_OFF)
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
       else
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "on", null, Main.locale));
 
       TestResults.appendResultDetails("RFC 1323 Window Scaling:");
       if ((TestResults.ndtVariables[NDTConstants.MAXRWINRCVD]
            < NDTConstants.TCP_MAX_RECV_WIN_SIZE)
-	  || (TestResults.ndtVariables[NDTConstants.WINSCALERCVD]
-	   > NDTConstants.TCP_MAX_WINSCALERCVD)) {
-	// Max rcvd window size lesser than TCP's max value, so no scaling
-	// requested.
+          || (TestResults.ndtVariables[NDTConstants.WINSCALERCVD]
+           > NDTConstants.TCP_MAX_WINSCALERCVD)) {
+        // Max rcvd window size lesser than TCP's max value, so no scaling
+        // requested.
         TestResults.appendResultDetails(ResourceManager.getInstance().getString(
-	    NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
+            NDTConstants.BUNDLE_NAME, "off", null, Main.locale));
 
-	// TODO(tiziana): Commented out the next line as I believe is wrong.
-	//                Check if so. If so, fix also the Java applet.
+        // TODO(tiziana): Commented out the next line as I believe is wrong.
+        //                Check if so. If so, fix also the Java applet.
         // TestResults.ndtVariables[NDTConstants.WINSCALERCVD] = 0;
       } else
         TestResults.appendResultDetails(
-	    ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "on", null, Main.locale) + "; "
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "on", null, Main.locale) + "; "
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "scalingFactors", null, Main.locale)
-	    + " - " + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "server", null, Main.locale) + "="
-	    + TestResults.ndtVariables[NDTConstants.WINSCALERCVD] + ", "
+                NDTConstants.BUNDLE_NAME, "scalingFactors", null, Main.locale)
+            + " - " + ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "server", null, Main.locale) + "="
+            + TestResults.ndtVariables[NDTConstants.WINSCALERCVD] + ", "
             + ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "client", null, Main.locale) + "="
-	    + TestResults.ndtVariables[NDTConstants.WINSCALESENT]);
+                NDTConstants.BUNDLE_NAME, "client", null, Main.locale) + "="
+            + TestResults.ndtVariables[NDTConstants.WINSCALESENT]);
     }
 
     public static function appendThroughputLimitResults():void {
@@ -749,37 +749,37 @@ package  {
       TestResults.appendResultDetails(
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "theoreticalLimit", null, Main.locale)
-	  + " " + TestResults.ndtVariables[NDTConstants.BW].toFixed(2) + " "
-	  + "Mbps");
+          + " " + TestResults.ndtVariables[NDTConstants.BW].toFixed(2) + " "
+          + "Mbps");
 
       // 2) NDT server buffer imposed limit.
       // Divide by 2 to counter round-trip.
       var ndtServerBuffer:Number = (
           TestResults.ndtVariables[NDTConstants.SNDBUF]
-	  / (2 * NDTConstants.KBITS2BITS))
+          / (2 * NDTConstants.KBITS2BITS))
       var ndtServerLimit:Number = (
           TestResults.ndtVariables[NDTConstants.SWIN]
           / TestResults.ndtVariables[NDTConstants.RTTSEC])
       TestResults.appendResultDetails(
           ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "ndtServerHas", null, Main.locale)
+              NDTConstants.BUNDLE_NAME, "ndtServerHas", null, Main.locale)
           + " " + ndtServerBuffer.toFixed(2) + " "
           + ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "kbyteBufferLimits", null, Main.locale)
+              NDTConstants.BUNDLE_NAME, "kbyteBufferLimits", null, Main.locale)
           + " " + ndtServerLimit.toFixed(2) + " Mbps");
 
       // PC buffer imposed throughput limit.
       var pcReceiverBuffer:Number = (
           TestResults.ndtVariables[NDTConstants.MAXRWINRCVD]
-	  / NDTConstants.KBITS2BITS)
+          / NDTConstants.KBITS2BITS)
       var pcLimit:Number = (TestResults.ndtVariables[NDTConstants.RWIN]
                             / TestResults.ndtVariables[NDTConstants.RTTSEC]);
       TestResults.appendResultDetails(
           ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "yourPcHas", null, Main.locale)
+              NDTConstants.BUNDLE_NAME, "yourPcHas", null, Main.locale)
           + " " + pcReceiverBuffer.toFixed(2) + " "
           + ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "kbyteBufferLimits", null, Main.locale)
+              NDTConstants.BUNDLE_NAME, "kbyteBufferLimits", null, Main.locale)
           + " " + pcLimit.toFixed(2) + " Mbps");
 
       // Network based flow control limit imposed throughput limit.
@@ -788,7 +788,7 @@ package  {
           / TestResults.ndtVariables[NDTConstants.RTTSEC])
       TestResults.appendResultDetails(
           ResourceManager.getInstance().getString(
-	      NDTConstants.BUNDLE_NAME, "flowControlLimits", null, Main.locale)
+              NDTConstants.BUNDLE_NAME, "flowControlLimits", null, Main.locale)
           + " " + networkLimit.toFixed(2) + " Mbps");
 
       // Client, Server data reports on link capacity.
@@ -804,30 +804,30 @@ package  {
       if (c2sData != null)
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "clientDataReports", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "clientDataReports", null, Main.locale)
             + " " + c2sData);
       if (c2sAck != null)
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "clientAcksReport", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "clientAcksReport", null, Main.locale)
             + " " + c2sAck);
       if (s2cData != null)
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "serverDataReports", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "serverDataReports", null, Main.locale)
             + " " + s2cData);
       if (s2cAck != null)
         TestResults.appendResultDetails(
             ResourceManager.getInstance().getString(
-	        NDTConstants.BUNDLE_NAME, "serverAcksReport", null, Main.locale)
+                NDTConstants.BUNDLE_NAME, "serverAcksReport", null, Main.locale)
             + " " + s2cAck);
     }
 
     public static function appendNDTVariablesResults():void {
         TestResults.appendResultDetails("=== NDT variables ===");
-	for (var key:Object in TestResults.ndtVariables)
+        for (var key:Object in TestResults.ndtVariables)
           TestResults.appendResultDetails(
-	      key + "=" + TestResults.ndtVariables[key]);
+              key + "=" + TestResults.ndtVariables[key]);
     }
   }
 }
