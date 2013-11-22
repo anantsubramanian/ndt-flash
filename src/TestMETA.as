@@ -80,7 +80,7 @@ package  {
                             break;
         case FINALIZE_TEST: finalizeTest();
                             break;
-        case ALL_COMPLETE:  onComplete();
+        case ALL_COMPLETE:  completeTest();
                             break;
       }
     }
@@ -103,7 +103,7 @@ package  {
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        onComplete();
+        completeTest();
         return;
       }
 
@@ -118,13 +118,13 @@ package  {
                                    + parseInt(new String(msg.body), 16));
         }
         _metaTestSuccess = false;
-        onComplete();
+        completeTest();
         return;
       }
       _testStage = TEST_START;
-      // If TEST_PREPARE and TEST_START messages could arrive together at the
-      // client, they trigger a single ProgressEvent.SOCKET_DATA event. In such
-      // case, the following condition is needed to move to the next step.
+      // If TEST_PREPARE and TEST_START messages arrive together at the client,
+      // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+      // the following condition is needed to move to the next step.
       if (_ctlSocket.bytesAvailable > 0)
         testStart();
     }
@@ -142,7 +142,7 @@ package  {
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        return onComplete();
+        return completeTest();
       }
       if (msg.type != MessageType.TEST_START) {
         TestResults.appendErrMsg(
@@ -154,7 +154,7 @@ package  {
               "ERROR MSG: " + parseInt(new String(msg.body), 16));
         }
         _metaTestSuccess = false;
-        onComplete();
+        completeTest();
         return;
       }
       _testStage = SEND_DATA;
@@ -210,7 +210,7 @@ package  {
               NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        onComplete();
+        completeTest();
         return;
       }
       if (msg.type != MessageType.TEST_FINALIZE) {
@@ -223,11 +223,11 @@ package  {
               "ERROR MSG: " + parseInt(new String(msg.body), 16));
         }
         _metaTestSuccess = false;
-        onComplete();
+        completeTest();
         return;
       }
       _metaTestSuccess = true;
-      onComplete();
+      completeTest();
       return;
     }
 
@@ -235,8 +235,9 @@ package  {
      * Function triggered when the test is complete, regardless of whether the
      * test completed successfully or not.
      */
-    private function onComplete():void {
-      // Display status as "complete" and assign status.
+    private function completeTest():void {
+      removeResponseListener();
+
       if (_metaTestSuccess)
         TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "done", null, Main.locale));
@@ -245,10 +246,9 @@ package  {
             NDTConstants.BUNDLE_NAME, "metaFailed", null, Main.locale));
 
       TestResults.ndt_test_results::ndtTestStatus = "done";
-
-      removeResponseListener();
       NDTUtils.callExternalFunction(
           "testCompleted", "Meta", (!_metaTestSuccess).toString());
+
       _callerObj.runTests();
     }
   }
