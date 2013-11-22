@@ -13,8 +13,8 @@
 // limitations under the License.
 
 package  {
-  import flash.net.Socket;
   import flash.events.ProgressEvent;
+  import flash.net.Socket;
   import mx.resources.ResourceManager;
   import mx.utils.StringUtil;
 
@@ -24,26 +24,54 @@ package  {
    * different stages of communication with the server.
    */
   public class Handshake {
-    // constants used within the class
+    // Valid values for _testStage.
     private const KICK_CLIENTS:int = 0;
     private const SRV_QUEUE:int = 1;
     private const VERIFY_VERSION:int = 2;
     private const VERIFY_SUITE:int = 3;
 
-    // variables declaration section
-    private var ctlSocket:Socket;
-    private var msg:Message;
-    private var _yTests:int;
-    private var callerObj:NDTPController;
-    private var comStage:int; // variable representing the stage of communication
-                              // with the server.
-    private var i:int, wait:int;
-    private var iServerWaitFlag:int; // flag indicating whether wait message
-                                     // was already received once
+    private var _callerObj:NDTPController;
+    private var _ctlSocket:Socket;
+    private var _testStage:int;
+    private var _testsRequestByClient:int;
+    // Has the client already received a wait message?
+    private var _isNotFirstWaitFlag:Boolean;
 
-    // event handler functions
+    /**
+     * @param {Socket} socket The object used for communication.
+     * @param {int} testPack The requested test-suite.
+     * @param {NDTPController} callerObject Reference to the caller object.
+     */
+    public function Handshake(ctlSocket:Socket, testsRequestByClient:int,
+                              callerObject:NDTPController) {
+      _callerObj = callerObject;
+      _ctlSocket = ctlSocket;
+      _testsRequestByClient = testsRequestByClient;
+      _testStage = KICK_CLIENTS;
+      _isNotFirstWaitFlag = false;  // No wait messages received yet.
+
+      addResponseListener();
+    }
+
+    /**
+     * Starts the handshake by sending a MSG_LOGIN message to the server to
+     * commonicate the suite of tests requested by the client.
+     */
+    public function run():void {
+      Message.sendMessage(_ctlSocket, MessageType.MSG_LOGIN,
+                          Message.getBody(_testsRequestByClient));
+    }
+
+    private function addResponseListener():void {
+      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    }
+
+    private function removeResponseListener():void {
+      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    }
+
     public function onResponse(e:ProgressEvent):void {
-      switch (comStage) {
+      switch (_testStage) {
         case KICK_CLIENTS:    kickOldClients();
                               break;
         case SRV_QUEUE:       srvQueue();
@@ -53,18 +81,6 @@ package  {
         case VERIFY_SUITE:    verifySuite();
                               break;
       }
-      if (TestResults.ndt_test_results::ndtTestFailed) {
-        removeResponseListener();
-        callerObj.finishNDTTest();
-      }
-    }
-
-    private function addResponseListener():void {
-      ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onResponse);
-    }
-
-    private function removeResponseListener():void {
-      ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onResponse);
     }
 
     /**
@@ -72,109 +88,129 @@ package  {
      * old and unsupported clients.
      */
     public function kickOldClients():void {
-      // read the message that kicks old clients
-      if (msg.receiveMessage(ctlSocket, true) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "unsupportedClient",
-                                          null, Main.locale));
-        TestResults.ndt_test_results::ndtTestFailed = true;
-        return;
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket, true)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "unsupportedClient", null, Main.locale));
+        removeResponseListener();
+        _callerObj.failNDTTest()
       }
-      comStage = SRV_QUEUE;
-      if (ctlSocket.bytesAvailable > 0) {
+      _testStage = SRV_QUEUE;
+      // If KICK_CLIENTS and SRV_QUEUE messages arrive together at the client,
+      // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+      // the following condition is needed to move to the next step.
+      if (_ctlSocket.bytesAvailable > 0) {
         srvQueue();
       }
     }
 
     /**
-     * Function that handles the queue responses from the server. The onResponse
-     * function will continue to loop here until comStage is changed to indicate
-     * that the waiting period is over.
+     * Function that handles the queue responses from the server.
+     * The onResponse function will continue to iexecute srvQueue() until
+     * _testStage is changed to indicate that the waiting period is over.
      */
+
     public function srvQueue():void {
-      // If SRV_QUEUE message sent by the server does not indicate
-      // that the test session starts now, return
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.SRV_QUEUE_TEST_STARTS_NOW) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        TestResults.ndt_test_results::ndtTestFailed = true;
-        return;
+      // TODO(tiziana): Open issue for Java Applet, to replace
+      // SRV_QUEUE_TEST_STARTS_NOW with PROTOCOL_MSG_READ_SUCCESS.
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+          + parseInt(new String(msg.body), 16) + " instead.");
+        removeResponseListener();
+        _callerObj.failNDTTest();
       }
       // If message is not of SRV_QUEUE type, it is incorrect at this stage.
       if (msg.type != MessageType.SRV_QUEUE) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "loggingWrongMessage",
-                                          null, Main.locale));
-        TestResults.ndt_test_results::ndtTestFailed = true;
-        return;
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "loggingWrongMessage", null,
+            Main.locale));
+        removeResponseListener();
+        _callerObj.failNDTTest();
       }
 
-      // Handling different queued-client cases below
-      // Get wait flag value
-      var tmpstr:String = new String(msg.body);
-      wait = parseInt(tmpstr);
-      TestResults.appendDebugMsg("Wait flag received = " + String(wait));
-      if (wait == 0) {
-        // SRV_QUEUE message indicates tests should start,
-        // so proceed to next stage.
-        TestResults.appendDebugMsg("Finished waiting");
-        comStage = VERIFY_VERSION;
-        if(ctlSocket.bytesAvailable > 0) {
-          verifyVersion();
-          return;
-        }
-        return;
-      }
-      if (wait == NDTConstants.SRV_QUEUE_SERVER_BUSY) {
-        if (iServerWaitFlag == 0) {
-          // Message indicating server is busy,
-          TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                            "serverBusy",null, Main.locale));
-          TestResults.ndt_test_results::ndtTestFailed = true;
-          return;
-        } else {
-          // Server fault, return
-          TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                            "serverFault", null, Main.locale));
-          TestResults.ndt_test_results::ndtTestFailed = true;
-          return;
-        }
-      }
-      // server busy for 60s, wait for previous test to finish
-      if (wait == NDTConstants.SRV_QUEUE_SERVER_BUSY_60s) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "serverBusy60s", null, Main.locale));
-        TestResults.ndt_test_results::ndtTestFailed = true;
-        return;
-      }
-      // server sends signal to see if client is still alive
-      // client should respond with a MSG_WAITING message
-      if (wait == NDTConstants.SRV_QUEUE_HEARTBEAT) {
-        Message.sendMessage(ctlSocket, MessageType.MSG_WAITING,
-                            Message.getBody(_yTests));
-        return;
-      }
+      // The body of a SRV_QUEUE message contains a wait flag that indicates one
+      // of a few queuing statuses, which will be handled individually below.
+      var waitFlagString:String = new String(msg.body);
+      TestResults.appendDebugMsg("Wait flag received = " + waitFlagString);
+      var waitFlag:int = parseInt(waitFlagString);
 
-      // Each test should take less than 30s, so tell them 45 sec * number of
-      // test suites waiting in the queue. Server sends a number equal to number
-      // of queued clients == number of minutes to wait before starting tests.
-      // wait = minutes to wait = number of queued clients.
-      wait = (wait * 45);
-      TestResults.appendDebugMsg(
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                        "otherClient", null, Main.locale) + wait
-        + ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "seconds", null, Main.locale));
-      iServerWaitFlag = 1;  // first message from server now already encountered
+      // Handling different queued-client cases.
+      switch(waitFlag) {
+        case NDTConstants.SRV_QUEUE_TEST_STARTS_NOW:
+          // No more waiting. Proceed.
+          TestResults.appendDebugMsg("Finished waiting.");
+          _testStage = VERIFY_VERSION;
+
+          // If SRV_QUEUE and VERIFY_VERSION messages arrive together at the
+          // client, they trigger a single ProgressEvent.SOCKET_DATA event. In
+          // such case, the following condition is needed to move to the next
+          // step.
+          if(_ctlSocket.bytesAvailable > 0)
+            verifyVersion();
+          return;
+
+        case NDTConstants.SRV_QUEUE_SERVER_FAULT:
+          // Server fault. Fail.
+          // TODO(tiziana): Check why the Java client does not support the
+          // SRV_QUEUE_SERVER_FAULT value, while the c client does.
+          TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
+          removeResponseListener();
+          _callerObj.failNDTTest();
+          return;
+
+        case NDTConstants.SRV_QUEUE_SERVER_BUSY:
+          if (!_isNotFirstWaitFlag) {
+            // Server busy. Fail.
+            // TODO(tiziana): Check if it's supposed to fail.
+            TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "serverBusy",null, Main.locale));
+            removeResponseListener();
+            _callerObj.failNDTTest();
+          } else {
+            // Server fault. Fail.
+            TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
+            removeResponseListener();
+            _callerObj.failNDTTest();
+          }
+          return;
+
+        case NDTConstants.SRV_QUEUE_SERVER_BUSY_60s:
+          // Server busy for 60s. Fail.
+          // TODO(tiziana): Check if it's supposed to fail.
+          TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "serverBusy60s", null, Main.locale));
+          removeResponseListener();
+          _callerObj.failNDTTest();
+          return;
+
+        case NDTConstants.SRV_QUEUE_HEARTBEAT:
+          // Server sends signal to see if client is still alive.
+          // Client should respond with a MSG_WAITING message.
+          Message.sendMessage(_ctlSocket, MessageType.MSG_WAITING,
+                              Message.getBody(_testsRequestByClient));
+          return;
+
+        default:
+          // Each test should take less than 30s, so tell them 45 sec * number
+          // of test suites waiting in the queue. Server sends a number equal
+          // to number of queued clients == number of minutes to wait before
+          // starting tests. wait = minutes to wait = number of queued clients.
+          // TODO(tiziana): Check the comment above, copied over from the c and
+          // Java clients.
+          TestResults.appendDebugMsg(
+              ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "otherClient", null, Main.locale)
+              + (waitFlag * 45)
+              + ResourceManager.getInstance().getString(
+                  NDTConstants.BUNDLE_NAME, "seconds", null, Main.locale));
+          _isNotFirstWaitFlag = false;  // First message from server received.
+      }
     }
 
     /**
@@ -182,41 +218,46 @@ package  {
      * and the client.
      */
     public function verifyVersion():void {
-      // The server must send a message to verify version,
-      // and this is a MSG_LOGIN type message.
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        // there is a protocol error so return
+      // The server must send a message to verify version, and this is a
+      // MSG_LOGIN type message.
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        TestResults.ndt_test_results::ndtTestFailed = true;
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+            + parseInt(new String(msg.body), 16) + " instead.");
+        removeResponseListener();
+        _callerObj.failNDTTest();
         return;
       }
       if (msg.type != MessageType.MSG_LOGIN) {
-        // only this type of message should be received at this stage.
-        // every other message is wrong.
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "versionWrongMessage",
-                                          null, Main.locale));
-        TestResults.ndt_test_results::ndtTestFailed = true;
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "versionWrongMessage", null,
+            Main.locale));
+        removeResponseListener();
+        _callerObj.failNDTTest();
         return;
       }
-      // version compatibility between server and client must be verified.
-      var vVersion:String = new String(msg.body);
-      if (!(vVersion.indexOf("v") == 0)) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "incompatibleVersion",
-                                          null, Main.locale));
-        TestResults.ndt_test_results::ndtTestFailed = true;
+      // Version compatibility between server and client must be verified.
+      var version:String = new String(msg.body);
+      // TODO(tiziana): Check why the Java client does not actually check the
+      // version, while the c cliet does. Fixed this client as well, when a
+      // solution is found.
+      if (version.indexOf("v") != 0) {
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "incompatibleVersion",null, Main.locale));
+        removeResponseListener();
+        _callerObj.failNDTTest();
         return;
       }
-      TestResults.appendDebugMsg("Server Version : " + vVersion.substring(1));
-      comStage = VERIFY_SUITE;
-      if (ctlSocket.bytesAvailable > 0) {
+      TestResults.appendDebugMsg("Server Version: " + version.substring(1));
+      _testStage = VERIFY_SUITE;
+
+      // If VERIFY_VERSION and VERIFY_SUITE messages arrive together at the
+      // client, they trigger a single ProgressEvent.SOCKET_DATA event. In such
+      // case, the following condition is needed to move to the next step.
+      if (_ctlSocket.bytesAvailable > 0) {
         verifySuite();
       }
     }
@@ -231,70 +272,38 @@ package  {
       // Read server message again. Server must send a MSG_LOGIN message to
       // negotiate the test suite and this should be the same set of tests
       // requested by the client earlier.
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        TestResults.ndt_test_results::ndtTestFailed = true;
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+            + parseInt(new String(msg.body), 16) + " instead");
+        removeResponseListener();
+        _callerObj.failNDTTest();
         return;
       }
       if (msg.type != MessageType.MSG_LOGIN) {
-        // only tests negotiation message expected at this point.
-        // any other type is wrong.
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "testsuiteWrongMessage",
-                                          null, Main.locale));
-        TestResults.ndt_test_results::ndtTestFailed = true;
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "testsuiteWrongMessage", null,
+            Main.locale));
+        removeResponseListener();
+        _callerObj.failNDTTest();
         return;
       }
+
       // Extract the list of tests confirmed by the server.
-      var tStr:String = new String(msg.body);
-      tStr = new String(StringUtil.trim(tStr));
-      allComplete(tStr);
+      var confirmedTests:String = new String(msg.body);
+      completeTest(StringUtil.trim(confirmedTests));
     }
 
     /**
      * Function that removes the local event handler for the Control Socket
      * responses and passes control back to the caller object.
      */
-    public function allComplete(confirmedTests:String):void {
+    public function completeTest(confirmedTests:String):void {
       removeResponseListener();
-      callerObj.initiateTests(confirmedTests);
-    }
-
-    /**
-     * Constructor for the class. Initializes local variables to the ones
-     * obtained from NDTPController. Starts the handshake process by sending a
-     * MSG_LOGIN type message to the server.
-     * @param {Socket} socket The object used for communication
-     * @param {int} testPack The requested test-suite
-     * @param {NDTPController} callerObject Reference to the caller object instance.
-     */
-    public function Handshake(socket:Socket,
-                              testPack:int, callerObject:NDTPController) {
-      ctlSocket = socket;
-      msg = new Message();
-      _yTests =  testPack;
-      callerObj = callerObject;
-
-      // initializing local variables
-      iServerWaitFlag = 0;
-      wait = 0;
-      i = 0;
-      comStage = KICK_CLIENTS;
-      TestResults.ndt_test_results::ndtTestFailed = false;
-      addResponseListener();
-    }
-
-    public function sendLoginMessage():void {
-      // The beginning of the protocol
-      // write out test suite request by sending a login message
-      // _yTests indicates the requested test-suite
-      Message.sendMessage(ctlSocket, MessageType.MSG_LOGIN,
-                          Message.getBody(_yTests));
+      _callerObj.initiateTests(confirmedTests);
     }
   }
 }

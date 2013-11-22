@@ -82,6 +82,7 @@ package  {
 
     public function startNDTTest():void {
       TestResults.recordStartTime();
+      TestResults.ndt_test_results::ndtTestFailed = false;
       TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "connectingTo", null, Main.locale)
           + " " + _hostname + " " + ResourceManager.getInstance().getString(
@@ -103,7 +104,7 @@ package  {
     private function startHandshake():void {
       var handshake:Handshake = new Handshake(
           _ctlSocket, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
-      handshake.sendLoginMessage();
+      handshake.run();
     }
 
     /**
@@ -211,7 +212,7 @@ package  {
                 msg.body);
            continue;
         }
-        // All results obtained. "Log Out" message received now.
+        // All results obtained. LOGOUT message received now.
         if (msg.type == MessageType.MSG_LOGOUT) {
           _readResultsTimer.stop();
           removeOnReceivedDataListener();
@@ -252,8 +253,8 @@ package  {
       try {
         _ctlSocket.close();
       } catch (e:IOError) {
-        TestResults.appendErrMsg("Client failed to close control socket. "
-                                       + "Error" + e);
+        TestResults.appendErrMsg(
+            "Client failed to close control socket. Error" + e);
       }
       TestResults.interpretResults();
       if (Main.guiEnabled) {
