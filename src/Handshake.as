@@ -155,7 +155,7 @@ package  {
         case NDTConstants.SRV_QUEUE_SERVER_FAULT:
           // Server fault. Fail.
           // TODO(tiziana): Check if this value is supported.
-          // See https://code.google.com/p/ndt/issues/detail?id=102.
+          //   See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
           removeResponseListener();
@@ -203,7 +203,7 @@ package  {
           // to number of queued clients == number of minutes to wait before
           // starting tests. wait = minutes to wait = number of queued clients.
           // TODO(tiziana):
-          // See https://code.google.com/p/ndt/issues/detail?id=103.
+          //   See https://code.google.com/p/ndt/issues/detail?id=103.
           TestResults.appendDebugMsg(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "otherClient", null, Main.locale)
@@ -242,9 +242,8 @@ package  {
       }
       // Version compatibility between server and client must be verified.
       var version:String = new String(msg.body);
-      // TODO(tiziana): Check why the Java client does not actually check the
-      // version, while the c cliet does. Fixed this client as well, when a
-      // solution is found.
+      // TODO(tiziana): Change once issue#104 is resolved
+      //   https://code.google.com/p/ndt/issues/detail?id=104.
       if (version.indexOf("v") != 0) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "incompatibleVersion",null, Main.locale));
