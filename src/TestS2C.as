@@ -472,7 +472,8 @@ package  {
 
       // Client has to send its throughput to the server inside
       // a TEST_MSG message
-      Message.sendMessage(ctlSocket, MessageType.TEST_MSG, buff);
+      var msgToSend:Message = new Message(MessageType.TEST_MSG, buff);
+      msgToSend.sendMessage(ctlSocket);
       _sTestResults = "";
       if (ctlSocket.bytesAvailable > WEB100_VARS_MIN_SIZE) {
         getWeb100();

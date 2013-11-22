@@ -15,6 +15,7 @@
 package  {
   import flash.events.ProgressEvent;
   import flash.net.Socket;
+  import flash.utils.ByteArray;
   import mx.resources.ResourceManager;
   import mx.utils.StringUtil;
 
@@ -58,8 +59,10 @@ package  {
      * commonicate the suite of tests requested by the client.
      */
     public function run():void {
-      Message.sendMessage(_ctlSocket, MessageType.MSG_LOGIN,
-                          Message.getBody(_testsRequestByClient));
+      var msgBody:ByteArray = new ByteArray();
+      msgBody.writeByte(_testsRequestByClient);
+      var msg:Message = new Message(MessageType.MSG_LOGIN, msgBody);
+      msg.sendMessage(_ctlSocket);
     }
 
     private function addResponseListener():void {
@@ -193,8 +196,10 @@ package  {
         case NDTConstants.SRV_QUEUE_HEARTBEAT:
           // Server sends signal to see if client is still alive.
           // Client should respond with a MSG_WAITING message.
-          Message.sendMessage(_ctlSocket, MessageType.MSG_WAITING,
-                              Message.getBody(_testsRequestByClient));
+          var msgBody:ByteArray = new ByteArray();
+          msgBody.writeByte(_testsRequestByClient);
+          msg = new Message(MessageType.MSG_WAITING, msgBody);
+          msg.sendMessage(_ctlSocket);
           return;
 
         default:

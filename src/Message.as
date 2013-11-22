@@ -26,31 +26,29 @@ package  {
    * - the 2nd and 3rd bytes contain the length of the message.
    */
   public class Message {
-    private var _type:int = MessageType.UNDEF_TYPE;
-    private var _length:int = 0;
+    private var _type:int;
     private var _body:ByteArray;
+    private var _length:int;
+
+    public function Message(
+        type:int=MessageType.UNDEF_TYPE, body:ByteArray=null):void {
+      _type = type;
+      _body = new ByteArray();
+      if (body != null)
+        _body.writeBytes(body);
+      _length = _body.length;
+    }
 
     public function get type():int {
       return _type;
     }
+
     public function get length():int {
       return _length;
     }
+
     public function get body():ByteArray {
       return _body;
-    }
-    public static function getBody(intToSend:int): ByteArray {
-      var body:ByteArray = new ByteArray();
-      // TODO(tiziana): Verify if writeInteger should be used instead.
-      body.writeByte(intToSend);
-      return body;
-    }
-    public static function createHeader(type:int, length:int):ByteArray {
-      var header:ByteArray = new ByteArray();
-      header[0] = type;
-      header[1] = (length >> 8);
-      header[2] = length;
-      return header;
     }
 
     private function readHeader(socket:Socket):Boolean {
@@ -104,17 +102,19 @@ package  {
     /**
      * Send protocol messages given their type and data byte array.
      */
-    public static function sendMessage(
-        socket:Socket, type:int, body:ByteArray):void {
+    public function sendMessage(socket:Socket):void {
+      var header:ByteArray = new ByteArray();
+      header[0] = _type;
+      header[1] = (_length >> 8);
+      header[2] = _length;
       try {
-        var header:ByteArray = createHeader(type, body.length);
         socket.writeBytes(header);
       } catch(e:IOError) {
         TestResults.appendErrMsg("Error writing header to socket: " + e);
         return;
       }
       try {
-        socket.writeBytes(body);
+        socket.writeBytes(_body);
       } catch(e:IOError) {
         TestResults.appendErrMsg("Error writing body to socket: " + e);
         return;

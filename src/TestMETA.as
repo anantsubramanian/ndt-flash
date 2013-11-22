@@ -171,19 +171,22 @@ package  {
 
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_OS + ":" + Capabilities.os));
-      Message.sendMessage(_ctlSocket, MessageType.TEST_MSG, bodyToSend);
+      var msg:Message = new Message(MessageType.TEST_MSG, bodyToSend);
+      msg.sendMessage(_ctlSocket);
 
       bodyToSend.clear();
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_BROWSER + ":" + UserAgentTools.getBrowser(
               TestResults.ndt_test_results::userAgent)[2]));
-      Message.sendMessage(_ctlSocket, MessageType.TEST_MSG, bodyToSend);
+      msg = new Message(MessageType.TEST_MSG, bodyToSend);
+      msg.sendMessage(_ctlSocket);
 
       bodyToSend.clear();
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_VERSION + ":"
           + NDTConstants.CLIENT_VERSION));
-      Message.sendMessage(_ctlSocket, MessageType.TEST_MSG, bodyToSend);
+      msg = new Message(MessageType.TEST_MSG, bodyToSend);
+      msg.sendMessage(_ctlSocket);
 
       bodyToSend.clear();
       bodyToSend.writeUTFBytes(new String(
@@ -191,7 +194,8 @@ package  {
 
       // Client can send any number of such meta data in a TEST_MSG format and
       // signal the send of the transmission using an empty TEST_MSG.
-      Message.sendMessage(_ctlSocket, MessageType.TEST_MSG, new ByteArray());
+      msg = new Message(MessageType.TEST_MSG, new ByteArray());
+      msg.sendMessage(_ctlSocket);
 
       _testStage = FINALIZE_TEST;
     }
