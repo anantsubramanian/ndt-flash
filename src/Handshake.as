@@ -112,7 +112,7 @@ package  {
      */
 
     public function srvQueue():void {
-      // TODO(tiziana): See https://code.google.com/p/ndt/issues/detail?id=101
+      // See https://code.google.com/p/ndt/issues/detail?id=101.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -154,7 +154,7 @@ package  {
 
         case NDTConstants.SRV_QUEUE_SERVER_FAULT:
           // Server fault. Fail.
-          // TODO(tiziana):
+          // TODO(tiziana): Check if this value is supported.
           // See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
@@ -166,6 +166,7 @@ package  {
           if (!_isNotFirstWaitFlag) {
             // Server busy. Fail.
             // TODO(tiziana): Check if it's supposed to fail.
+            //   See https://code.google.com/p/ndt/issues/detail?id=102.
             TestResults.appendErrMsg(ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "serverBusy",null, Main.locale));
             removeResponseListener();
@@ -182,6 +183,7 @@ package  {
         case NDTConstants.SRV_QUEUE_SERVER_BUSY_60s:
           // Server busy for 60s. Fail.
           // TODO(tiziana): Check if it's supposed to fail.
+          //   See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverBusy60s", null, Main.locale));
           removeResponseListener();
@@ -200,8 +202,8 @@ package  {
           // of test suites waiting in the queue. Server sends a number equal
           // to number of queued clients == number of minutes to wait before
           // starting tests. wait = minutes to wait = number of queued clients.
-          // TODO(tiziana): Check the comment above, copied over from the c and
-          // Java clients.
+          // TODO(tiziana):
+          // See https://code.google.com/p/ndt/issues/detail?id=103.
           TestResults.appendDebugMsg(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "otherClient", null, Main.locale)
