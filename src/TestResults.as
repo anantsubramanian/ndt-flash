@@ -124,7 +124,7 @@ package  {
             TestType.S2C)
           TestResultsUtils.appendC2SPacketQueueingResults();
         TestResultsUtils.appendBottleneckResults();
-        // TODO(tiziana): verify overlap with getAccessLinkSpeed.
+        // TODO(tiziana): Verify overlap with getAccessLinkSpeed.
         TestResultsUtils.appendDataRateResults();
         // TODO(tiziana): Verify overlap with appendDuplexMismatchResult.
         TestResultsUtils.appendDuplexCongestionMismatchResults();
@@ -139,7 +139,7 @@ package  {
         NDTUtils.callExternalFunction("resultsProcessed");
       }
       TestResultsUtils.appendNDTVariablesResults();
-      // TODO(tiziana): If parsing mistake, log "resultsParseError".
+      // TODO(tiziana): If parsing mistake, log message "resultsParseError".
     }
   }
 }
