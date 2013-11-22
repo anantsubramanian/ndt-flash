@@ -35,10 +35,6 @@ package  {
     // Valid only when ndtTestFailed == false.
     ndt_test_results static var ndtTestStatus:String = null;
     ndt_test_results static var ndtTestFailed:Boolean = false;
-    // Never used. TODO: Remove.
-    ndt_test_results static var c2sTime:Number = 0.0;
-    // Never used. TODO: Remove.
-    ndt_test_results static var c2sPktsSent:Number = 0.0;
     ndt_test_results static var c2sSpeed:Number = 0.0;
     ndt_test_results static var s2cSpeed:Number = 0.0;
     ndt_test_results static var sc2sSpeed:Number = 0.0;

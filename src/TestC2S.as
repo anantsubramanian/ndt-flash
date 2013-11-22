@@ -71,7 +71,6 @@ package  {
                             break;
         case TEST_START:    // Mark the start time for the test
                             _dTime = getTimer();
-                            TestResults.ndt_test_results::c2sTime = _dTime;
                             testStart();
                             break;
         case COMP_SERVER:   compareWithServer();
@@ -328,7 +327,6 @@ package  {
       // (no. of iterations) * (buffer size) + (bytes sent from last message)
       _dPktsSent = (_iPkts * _iLength) + (_iLength - _iPktsRem);
 
-      TestResults.ndt_test_results::c2sPktsSent = _dPktsSent;
       TestResults.appendDebugMsg(_dTime + " millisec test completed" + ", "
                                     + yabuff2Write.length + ", " + _iPkts + ", "
                                     + (_iLength - _iPktsRem));
