@@ -294,6 +294,8 @@ package  {
 
       // Extract the list of tests confirmed by the server.
       var confirmedTests:String = new String(msg.body);
+      TestResults.ndt_test_results::testsConfirmedByServer =
+          TestType.stringToInt(confirmedTests);
       completeTest(StringUtil.trim(confirmedTests));
     }
 

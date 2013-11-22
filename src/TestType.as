@@ -23,5 +23,13 @@ package {
     public static const SFW:int = (1 << 3);
     public static const STATUS:int = (1 << 4);
     public static const META:int = (1 << 5);
+
+    public static function stringToInt(testString:String):int {
+      var testInt:int = 0;
+      for each (var item:String in testString.split(" ")) {
+          testInt = testInt | parseInt(item);
+      }
+      return testInt;
+    }
   }
 }
