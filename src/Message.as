@@ -41,7 +41,7 @@ package  {
     }
     public static function getBody(intToSend:int): ByteArray {
       var body:ByteArray = new ByteArray();
-      // TODO: Verify if writeInteger should be used instead.
+      // TODO(tiziana): Verify if writeInteger should be used instead.
       body.writeByte(intToSend);
       return body;
     }

@@ -20,7 +20,7 @@ package  {
     // Client MUST request the TEST_STATUS.
     public static const TESTS_REQUESTED_BY_CLIENT:int =
         TestType.C2S | TestType.S2C | TestType.META | TestType.STATUS;
-    // TODO: Get hostname from mlab-ns.
+    // TODO(tiziana): Get hostname from mlab-ns.
     public static const SERVER_HOSTNAME:String =
         "ndt.iupui.mlab1.nuq0t.measurement-lab.org";
     // For localization.

@@ -113,7 +113,7 @@ package  {
      */
     public function initiateTests(testsConfirmedByServer:String):void {
       _testsToRun = testsConfirmedByServer.split(" ");
-      // TODO: Use tests confirmed by the server.
+      // TODO(tiziana): Use tests confirmed by the server.
       runTests();
     }
 

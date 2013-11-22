@@ -45,7 +45,7 @@ package  {
       } catch (e:Error) {
         // Cannot call TestResults.appendErrMsg, because it calls
         // callExternalFunction.
-        // TODO: Decide what to do.
+        // TODO(tiziana): Decide what to do. Possibly nothing.
       }
     }
     /**
@@ -95,7 +95,7 @@ package  {
      * data to be sent to JavaScript.
      */
     public static function addJSCallbacks():void {
-      // TODO: restrict domain to the M-Lab website / server
+      // TODO(tiziana): Restrict domain to the M-Lab website/erver.
       Security.allowDomain("*");
       try {
         ExternalInterface.addCallback(

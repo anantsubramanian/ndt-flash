@@ -51,7 +51,7 @@ package  {
       return _ndtTestEndTime - _ndtTestStartTime;
     }
 
-    // TODO: Move to TestType.
+    // TODO(tiziana): Move to TestType.
     public static function get testList():String {
        var testSuite:String = "";
        if(NDTConstants.TESTS_REQUESTED_BY_CLIENT & TestType.C2S)
@@ -88,10 +88,10 @@ package  {
       _debugMsg += msg + "\n";
       NDTUtils.callExternalFunction("appendDebugOutput", msg);
       // _ndtTestStartTime > 0 ensures the console window has been created.
-      // TODO: Verify if there is cleaner alternative.
+      // TODO(tiziana): Verify if there is cleaner alternative.
       if (Main.guiEnabled && _ndtTestStartTime > 0)
-        // TODO: Handle the communication with GUI via events, instead of
-        // blocking calls.
+        // TODO(tiziana): Handle the communication with GUI via events, instead
+        // of blocking calls.
         GUI.addConsoleOutput(msg + "\n");
     }
 
