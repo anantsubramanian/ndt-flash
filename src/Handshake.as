@@ -112,8 +112,7 @@ package  {
      */
 
     public function srvQueue():void {
-      // TODO(tiziana): Open issue for Java Applet, to replace
-      // SRV_QUEUE_TEST_STARTS_NOW with PROTOCOL_MSG_READ_SUCCESS.
+      // TODO(tiziana): See https://code.google.com/p/ndt/issues/detail?id=101
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -155,8 +154,8 @@ package  {
 
         case NDTConstants.SRV_QUEUE_SERVER_FAULT:
           // Server fault. Fail.
-          // TODO(tiziana): Check why the Java client does not support the
-          // SRV_QUEUE_SERVER_FAULT value, while the c client does.
+          // TODO(tiziana):
+          // See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
           removeResponseListener();
