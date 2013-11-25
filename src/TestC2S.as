@@ -13,254 +13,204 @@
 // limitations under the License.
 
 package  {
-  import flash.utils.ByteArray;
-  import flash.utils.Timer;
-  import flash.events.TimerEvent;
-  import flash.utils.getTimer;
-  import flash.net.Socket;
-  import flash.events.ProgressEvent;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
-  import flash.events.SecurityErrorEvent;
   import flash.events.OutputProgressEvent;
+  import flash.events.ProgressEvent;
+  import flash.events.SecurityErrorEvent;
+  import flash.events.TimerEvent;
   import flash.errors.IOError;
+  import flash.net.Socket;
+  import flash.utils.ByteArray;
+  import flash.utils.getTimer;
+  import flash.utils.Timer;
   import mx.resources.ResourceManager;
 
   /**
-   * Class that contains functions that perform the Client-to-Server
-   * throughput test. It is a 10 second memory-to-memory data transfer
-   * to test achievable network bandwidth.
+   * Class that contains functions that perform the Client-to-Server throughput
+   * test. It is a 10 second memory-to-memory data transfer to test achievable
+   * network bandwidth.
    */
   public class TestC2S {
-    // Constants used in this class
-    private static const buffSize:int = 64 * NDTConstants.KBITS2BITS;
-    private static const MIN_MSG_SIZE:int   = 1;
-    private static const PKT_WAIT_SIZE:int   = 5;
-    private static const TEST_PREPARE:int   = 0;
-    private static const TEST_START:int      = 1;
-    private static const SENDING_DATA:int   = 2;
-    private static const CALC_THRUPUT:int  = 3;
-    private static const COMP_SERVER:int  = 4;
-    private static const FINALIZE_TEST:int   = 5;
-    private static const ALL_COMPLETE:int   = 6;
+    // Valid values for _testStage.
+    private static const PREPARE_TEST:int = 0;
+    private static const START_TEST:int = 1;
+    private static const SEND_DATA:int = 2;
+    private static const CALC_THROUGHPUT:int = 3;
+    private static const CMP_SERVER:int = 4;
+    private static const FINALIZE_TEST:int = 5;
+    private static const END_TEST:int = 6;
 
-    // variables declaration section
-    private var callerObj:NDTPController;
-    private var ctlSocket:Socket;
-    private var sHostname:String;
-    private var msg:Message;
-    private var _dC2sspd:Number;
-    private var _dSc2sspd:Number;
-    private var outSocket:Socket;
-    private var _iLength:int = NDTConstants.PREDEFINED_BUFFER_SIZE;
-    private var _iPkts:int;
-    private var _iPktsRem:int;  // indicating the number of packets not sent
-                                // from the last outSocket send operation
-    private var _dPktsSent:Number;
-    private var _dTime:Number;
-    private var outTimer:Timer;
-    private var c2sTest:Boolean;
-    private static var comStage:int; // indicates the communication stage
-    private static var yabuff2Write:ByteArray;
+    private var _callerObj:NDTPController;
+    private var _c2sTestSuccess:Boolean;
+    private var _c2sTestDuration:Number;
+    private var _ctlSocket:Socket;
+    private var _dataToSend:ByteArray;
+    private var _outSocket:Socket;
+    private var _outSendCount:int;
+    // Bytes not sent from last send operation on out socket.
+    private var _outBytesNotSent:int;
+    private var _outTimer:Timer;
+    private var _serverHostname:String;
+    private var _testStage:int;
 
-    // Event listener functions
-    private function onCtlResponse(e:ProgressEvent):void {
-      switch (comStage) {
 
-        case TEST_PREPARE:  testPrepare();
+    public function TestC2S(ctlSocket:Socket, serverHostname:String,
+                            callerObj:NDTPController) {
+      _callerObj = callerObj;
+      _ctlSocket = ctlSocket;
+      _serverHostname = serverHostname;
+
+      _c2sTestSuccess = true;  // Initially the test has not failed.
+      _c2sTestDuration = 0.0;
+      _dataToSend = new ByteArray();
+      _outSendCount = 0;
+      _outBytesNotSent = 0;
+    }
+
+    public function run():void {
+      TestResults.appendDebugMsg(
+          ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
+          ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "c2sThroughput", null, Main.locale));
+      NDTUtils.callExternalFunction("testStarted", "ClientToServerThroughput");
+
+      addCtlSocketOnReceivedDataListener();
+      _testStage = PREPARE_TEST;
+      // In case data arrived before starting the ProgressEvent.SOCKET_DATA
+      // listener.
+      if (_ctlSocket.bytesAvailable > 0)
+        testPrepare();
+    }
+
+    private function addCtlSocketOnReceivedDataListener():void {
+      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onCtlReceivedData);
+    }
+
+    private function removeCtlSocketOnReceivedDataListener():void {
+      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA,
+                                     onCtlReceivedData);
+    }
+
+    private function onCtlReceivedData(e:ProgressEvent):void {
+      switch (_testStage) {
+        case PREPARE_TEST:  testPrepare();
                             break;
-        case TEST_START:    // Mark the start time for the test
-                            _dTime = getTimer();
-                            testStart();
+        case START_TEST:    testStart();
                             break;
-        case COMP_SERVER:   compareWithServer();
+        case CMP_SERVER:    compareWithServer();
                             break;
         case FINALIZE_TEST: finalizeTest();
                             break;
-        case ALL_COMPLETE:  break;
-      }
-      if(comStage == ALL_COMPLETE)
-        onComplete();
-    }
-
-    /**
-     * Function triggered on completion of the test.
-     * It may have been successful or unsuccessful.
-     */
-    private function onComplete():void {
-      if (!c2sTest) {
-        TestResults.appendDebugMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "c2sThroughputFailed",
-                                          null, Main.locale));
-      }
-      if (!isNaN(_dC2sspd))
-        TestResults.ndt_test_results::c2sSpeed = _dC2sspd;
-      if (!isNaN(_dSc2sspd))
-        TestResults.ndt_test_results::sc2sSpeed = _dSc2sspd;
-      NDTUtils.callExternalFunction("testCompleted", "ClientToServerThroughput",
-                                    (!c2sTest).toString());
-
-      // mark this test as complete and continue
-      callerObj.runTests();
-    }
-
-    private function addResponseListener():void {
-      ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onCtlResponse);
-    }
-
-    private function removeResponseListener():void {
-      ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onCtlResponse);
-    }
-
-    /**
-     * Function triggered on successful connection of the test socket.
-     */
-    private function onOutConnect(e:Event):void {
-      TestResults.appendDebugMsg("C2S Socket Connected");
-    }
-
-    /**
-     * Function triggered when the test socket connection is closed by the
-     * server.
-     */
-    private function onOutClose(e:Event):void {
-      // get time duration for the test
-      _dTime = getTimer() - _dTime;
-      _iPktsRem = 0;
-      outTimer.stop();
-      TestResults.appendDebugMsg("C2S Socket closed");
-      removeEventListeners();
-      calculateThroughput();
-    }
-
-    private function onOutSecError(e:SecurityErrorEvent):void {
-      TestResults.appendErrMsg("C2S Security error: " + e);
-      c2sTest = false;
-      removeEventListeners();
-      removeResponseListener();
-      onComplete();
-    }
-
-    private function onOutError(e:IOErrorEvent):void {
-      TestResults.appendErrMsg("C2S IOError: " + e);
-      c2sTest = false;
-      removeEventListeners();
-      removeResponseListener();
-      onComplete();
-    }
-
-    /**
-     * Function triggered when data is moved from the write buffer of the
-     * socket to its network transport layer.
-     */
-    private function onOutProgress(e:OutputProgressEvent):void {
-      if (outSocket.bytesPending == 0) {
-        _iPkts++;
-        if (outSocket.connected) {
-          sendData();
-          return;
-        } else {
-          // get time duration for the test
-          _dTime = getTimer() - _dTime;
-          _iPktsRem = 0;
-          outTimer.stop();
-          removeEventListeners();
-          calculateThroughput();
-        }
+        case END_TEST:      endTest();
+                            break;
       }
     }
 
     /**
-     * Function triggered when 10 sec of writing to the socket
-     * is complete.
-     */
-    private function onOutTimeout(e:TimerEvent):void {
-      // get time duration for the test
-      _dTime = getTimer() - _dTime;
-      // save the num of bytes not sent from last message if any
-      if (outSocket.connected)
-        _iPktsRem = outSocket.bytesPending;
-      else _iPktsRem = 0;
-      outTimer.stop();
-      removeEventListeners();
-      calculateThroughput();
-    }
-
-    private function addEventListeners():void {
-      outSocket.addEventListener(Event.CONNECT, onOutConnect);
-      outSocket.addEventListener(Event.CLOSE, onOutClose);
-      outSocket.addEventListener(IOErrorEvent.IO_ERROR, onOutError);
-      outSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onOutSecError);
-      outSocket.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, onOutProgress);
-    }
-
-    private function removeEventListeners():void {
-      outSocket.removeEventListener(Event.CONNECT, onOutConnect);
-      outSocket.removeEventListener(Event.CLOSE, onOutClose);
-      outSocket.removeEventListener(IOErrorEvent.IO_ERROR, onOutError);
-      outSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onOutSecError);
-      outSocket.removeEventListener(OutputProgressEvent.OUTPUT_PROGRESS, onOutProgress);
-    }
-
-    /**
-     * Function that handles the initial test prepare message sent by the server.
+     * Function that handles the TEST_PREPARE message sent by the server.
      * It fills the buffer ByteArray with data and creates a new Socket object
      * to connect to the port specified by the server.
      */
     private function testPrepare():void {
-      TestResults.appendDebugMsg(
-        ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                        "runningOutboundTest",
-                                        null, Main.locale) + " ");
+      TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
+          NDTConstants.BUNDLE_NAME, "runningOutboundTest", null,
+          Main.locale));
       TestResults.ndt_test_results::ndtTestStatus = "runningOutboundTest";
 
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        // error reading / receiving message
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        c2sTest = false;
-        onComplete();
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+          + parseInt(new String(msg.body), 16) + " instead.");
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
-      // Initial message from the server is TEST_PREPARE
-      // containing the socket to connect to
+
       if (msg.type != MessageType.TEST_PREPARE) {
-        // 'wrong' message type
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "outboundWrongMessage",
-                                          null, Main.locale));
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "outboundWrongMessage",null,
+            Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
-          TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.body), 16));
+          TestResults.appendErrMsg(
+              "ERROR MSG: " + parseInt(new String(msg.body), 16));
         }
-        c2sTest = false;
-        onComplete();
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
 
-      // Fill buffer upto NDTConstants.PREDEFINED_BUFFER_SIZE packets
-      var c:int = parseInt('0');
-      var i:int;
-      for (i = 0; i < _iLength; i++) {
-        if (c == parseInt('z')) {
-          c = parseInt('0');
-        }
-        yabuff2Write.writeByte(c++);
-      }
-      TestResults.appendDebugMsg("******Send buffer size = " + i);
+      var c2sPort:int = parseInt(new String(msg.body));
+      _outSocket = new Socket(_serverHostname, c2sPort);
+      addOutSocketEventListeners();
 
-      // get port to bind to from message
-      var iC2sport:int = parseInt(new String(msg.body));
-      comStage = TEST_START;
-      outSocket = new Socket(sHostname, iC2sport);
-      addEventListeners();
-      if (ctlSocket.bytesAvailable > MIN_MSG_SIZE)
+      _testStage = START_TEST;
+      // If TEST_PREPARE and TEST_START messages arrive together at the client,
+      // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+      // the following condition is needed to move to the next step.
+      if (_ctlSocket.bytesAvailable > 0)
         testStart();
+    }
+
+    private function addOutSocketEventListeners():void {
+      _outSocket.addEventListener(Event.CONNECT, onOutConnect);
+      _outSocket.addEventListener(Event.CLOSE, onOutClose);
+      _outSocket.addEventListener(IOErrorEvent.IO_ERROR, onOutIOError);
+      _outSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
+                                  onOutSecError);
+      _outSocket.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS,
+                                  onOutProgress);
+    }
+
+    private function removeOutSocketEventListeners():void {
+      _outSocket.removeEventListener(Event.CONNECT, onOutConnect);
+      _outSocket.removeEventListener(Event.CLOSE, onOutClose);
+      _outSocket.removeEventListener(IOErrorEvent.IO_ERROR, onOutIOError);
+      _outSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,
+                                     onOutSecError);
+      _outSocket.removeEventListener(OutputProgressEvent.OUTPUT_PROGRESS,
+                                     onOutProgress);
+    }
+
+    private function onOutConnect(e:Event):void {
+      TestResults.appendDebugMsg("C2S socket connected.");
+    }
+
+    private function onOutClose(e:Event):void {
+      TestResults.appendDebugMsg("C2S socket closed.");
+      closeOutSocket();
+    }
+
+    private function onOutIOError(e:IOErrorEvent):void {
+      TestResults.appendErrMsg("IOError on C2S socket: " + e);
+      _c2sTestSuccess = false;
+      removeOutSocketEventListeners();
+      removeCtlSocketOnReceivedDataListener();
+      endTest();
+    }
+
+    private function onOutSecError(e:SecurityErrorEvent):void {
+      TestResults.appendErrMsg("Security error on C2S socket: " + e);
+      _c2sTestSuccess = false;
+      removeOutSocketEventListeners();
+      removeCtlSocketOnReceivedDataListener();
+      endTest();
+    }
+
+    private function onOutProgress(e:OutputProgressEvent):void {
+      if (_outSocket.bytesPending == 0) {
+        _outSendCount++;
+        if (_outSocket.connected) {
+          sendData();
+          return;
+        } else {
+          closeOutSocket();
+        }
+      }
     }
 
     /**
@@ -268,84 +218,120 @@ package  {
      * indicate to the client that it should start sending data.
      */
     private function testStart():void {
-      // remove ctlSocket listener so it doesn't interfere with
-      // the outSocket listeners.
-      removeResponseListener();
-      comStage = SENDING_DATA;
-      _iPkts = 0;
-      outTimer = new Timer(10000, 0);
-      outTimer.addEventListener(TimerEvent.TIMER, onOutTimeout);
+      // Remove ctl socket listener so it does not interfere with the out socket
+      // listeners.
+      removeCtlSocketOnReceivedDataListener();
 
-      // read signal from server application
-      // This signal tells the client to start pumping out data
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      // The server tells the client to start pumping out data.
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        c2sTest = false;
-        onComplete();
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+            + parseInt(new String(msg.body), 16) + " instead.");
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
-      // Expecting a TEST_START message from the server now.
-      // Any other message is an error
+
       if (msg.type != MessageType.TEST_START) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "outboundWrongMessage",
-                                          null, Main.locale));
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "outboundWrongMessage", null,
+            Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
-          TestResults.appendErrMsg ("ERROR MSG: "
-                                    + parseInt(new String(msg.body), 16));
+          TestResults.appendErrMsg("ERROR MSG: "
+                                   + parseInt(new String(msg.body), 16));
         }
-        c2sTest = false;
-        onComplete();
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
-      outTimer.start();
+
+      // Prepare the data to send to the server.
+      for (var i:int = 0; i < NDTConstants.PREDEFINED_BUFFER_SIZE; i++) {
+        _dataToSend.writeByte(i);
+      }
+      TestResults.appendDebugMsg(
+          "Each message of the C2S test has " + _dataToSend.length + " bytes.");
+
+      // Mark the start time of the test.
+      _c2sTestDuration = getTimer();
+      _outTimer = new Timer(NDTConstants.C2S_DURATION, 0);
+      _outTimer.addEventListener(TimerEvent.TIMER, onOutTimeout);
+      _outTimer.start();
+
+      _outSendCount = 0;
+      _testStage = SEND_DATA;
       sendData();
     }
 
     /**
-     * Function that is called repeatedly to write data through the Socket
-     * connection to the server.
-     * @See: onOutProgress
-    */
-    private function sendData():void {
-      outSocket.writeBytes(yabuff2Write, 0, yabuff2Write.length);
-      outSocket.flush();
+     * Function triggered when 10 sec of writing to the socket is complete.
+     */
+    private function onOutTimeout(e:TimerEvent):void {
+      closeOutSocket();
     }
 
     /**
-     * Function that is called to calculate the throughput once all data that
-     * can be sent in the time duration _dTime has been sent to the server.
+     * Function that is called repeatedly to send data to the server through the
+     * C2S socket.
+    */
+    private function sendData():void {
+      _outSocket.writeBytes(_dataToSend, 0, _dataToSend.length);
+      _outSocket.flush();
+    }
+
+    private function closeOutSocket():void {
+      _outTimer.stop();
+      _c2sTestDuration = getTimer() - _c2sTestDuration;
+      TestResults.appendDebugMsg(
+          "C2S test lasted " + _c2sTestDuration + " milliseconds.");
+
+      _outBytesNotSent = _outSocket.bytesPending;
+      // TODO(tiziana): Verify if the commented check is necessary.
+      //if (_outSocket.connected)
+      //    _outBytesNotSent = _outSocket.bytesPending;
+      //else
+      //    _outBytesNotSent = 0;
+
+      removeOutSocketEventListeners();
+      try {
+        _outSocket.close();
+      } catch (e:IOError) {
+        TestResults.appendErrMsg(
+            "IO Error while closing C2S Test socket : " + e);
+      }
+      addCtlSocketOnReceivedDataListener();
+
+      _testStage = CALC_THROUGHPUT;
+      calculateThroughput();
+    }
+
+    /**
+     * Function that is called to calculate the throughput once all data is sent
+     * to the server
      */
     private function calculateThroughput():void {
-      comStage = CALC_THRUPUT;
-      // number of packets sent =
-      // (no. of iterations) * (buffer size) + (bytes sent from last message)
-      _dPktsSent = (_iPkts * _iLength) + (_iLength - _iPktsRem);
+      var outByteSent:Number = (
+          _outSendCount * NDTConstants.PREDEFINED_BUFFER_SIZE
+          + (NDTConstants.PREDEFINED_BUFFER_SIZE - _outBytesNotSent));
+      TestResults.appendDebugMsg("C2S test sent " + outByteSent + " bytes.");
 
-      TestResults.appendDebugMsg(_dTime + " millisec test completed" + ", "
-                                    + yabuff2Write.length + ", " + _iPkts + ", "
-                                    + (_iLength - _iPktsRem));
-      if (_dTime == 0)
-        _dTime = 1;
+      if (_c2sTestDuration == 0)
+        _c2sTestDuration = 1;
 
-      // Calculate C2S throughput in kbps
-      // 8 for calculating bits
-      TestResults.appendDebugMsg((NDTConstants.BYTES2BITS * _dPktsSent) / _dTime
-                                    + " kb/s outbound");
-      _dC2sspd = ((NDTConstants.BYTES2BITS * _dPktsSent) / NDTConstants.SEC2MSEC) / _dTime;
+      // Calculate C2S throughput (in kbps).
+      var c2sSpeed:Number = (
+          outByteSent * NDTConstants.BYTES2BITS / NDTConstants.SEC2MSEC
+          / _c2sTestDuration);
+      TestResults.ndt_test_results::c2sSpeed = c2sSpeed;
+      TestResults.appendDebugMsg(
+          "C2S throughput computed by client is " + c2sSpeed + " kbps.");
 
-      comStage = COMP_SERVER;
-      addResponseListener();
-      try {
-        outSocket.close();
-      } catch (e:IOError) {
-        TestResults.appendErrMsg("IO Error while closing C2S Test Socket : " + e);
-      }
+      _testStage = CMP_SERVER;
+      if (_ctlSocket.bytesAvailable > 0)
+        compareWithServer();
     }
 
     /**
@@ -353,45 +339,47 @@ package  {
      * stores it in the corresponding field.
      */
     private function compareWithServer():void {
-      if (ctlSocket.bytesAvailable <= PKT_WAIT_SIZE)
+      var msg:Message = new Message();
+      // TODO(tiziana): Check
+      var PKT_WAIT_SIZE:int = 5;
+      if (_ctlSocket.bytesAvailable <= PKT_WAIT_SIZE)
         return;
 
-      // The client has stopped streaming data, and the server is now
-      // expected to send a TEST_MSG message with the throughput it
-      // calculated at its end.
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        c2sTest = false;
-        onComplete();
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+          + parseInt(new String(msg.body), 16) + " instead.");
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
+
       if (msg.type != MessageType.TEST_MSG) {
-        // 'wrong' type received
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "outboundWrongMessage",
-                                          null, Main.locale));
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "outboundWrongMessage", null,
+            Main.locale));
         if(msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.body), 16));
         }
-        c2sTest = false;
-        onComplete();
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
 
       // Get throughput calculated by the server
-      var tmpstr:String = new String(msg.body);
-      _dSc2sspd = parseFloat(tmpstr) / NDTConstants.SEC2MSEC;
-      // Display server calculated throughput value
-      TestResults.appendDebugMsg("Server calculated throughput value = "
-                                 + _dSc2sspd + " Mb/s");
-      comStage = FINALIZE_TEST;
-      if(ctlSocket.bytesAvailable > MIN_MSG_SIZE)
+      var sc2sSpeedStr:String = new String(msg.body);
+      var sc2sSpeed:Number = parseFloat(sc2sSpeedStr) / NDTConstants.SEC2MSEC;
+      TestResults.ndt_test_results::sc2sSpeed = sc2sSpeed;
+
+      TestResults.appendDebugMsg(
+          "C2S throughput computed by client is "
+          + (sc2sSpeed * NDTConstants.KBITS2BITS).toFixed(2) + "kb/s");
+
+      _testStage = FINALIZE_TEST;
+      if(_ctlSocket.bytesAvailable > 0)
         finalizeTest();
     }
 
@@ -400,78 +388,52 @@ package  {
      * all local Event Listeners.
      */
     private function finalizeTest():void {
-      // Print results in the most convinient units
-      if (_dSc2sspd < 1.0) {
-        TestResults.appendDebugMsg(
-          (_dSc2sspd * NDTConstants.SEC2MSEC).toFixed(2) + "kb/s");
-      } else {
-        TestResults.appendDebugMsg((_dSc2sspd).toFixed(2) + "Mb/s");
-      }
-
-      // Server should close session with a TEST_FINALIZE message
-      if (msg.receiveMessage(ctlSocket) !=
-          NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      var msg:Message = new Message();
+      if (msg.receiveMessage(_ctlSocket)
+          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead");
-        c2sTest = false;
-        onComplete();
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+            + parseInt(new String(msg.body), 16) + " instead.");
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
+
       if (msg.type != MessageType.TEST_FINALIZE) {
-        // 'wrong' message type
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "outboundWrongMessage",
-                                          null, Main.locale));
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "outboundWrongMessage", null,
+            Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.body), 16));
         }
-        c2sTest = false;
-        onComplete();
+        _c2sTestSuccess = false;
+        endTest();
         return;
       }
-      // All done with test
-      removeResponseListener();
-      onComplete();
+
+      removeCtlSocketOnReceivedDataListener();
+      endTest();
     }
 
     /**
-     * Constructor for the TestC2S class that adds response listeners
-     * and calls the testPrepare method if data is available at the
-     * Control Socket.
-     * @param {Socket} socket The Control Socket of communication
-     * @param {String} host The Hostname of the server
-     * @param {NDTPController} callerObject Reference to instance of the caller object
-    */
-    public function TestC2S(socket:Socket, host:String,
-                            callerObject:NDTPController) {
-      callerObj = callerObject
-      ctlSocket = socket;
-      sHostname = host;
-      c2sTest = true;    // initially the test has not failed
+     * Function triggered when the test is complete, regardless of whether the
+     * test completed successfully or not.
+     */
+    private function endTest():void {
+      if (_c2sTestSuccess)
+        TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "done", null, Main.locale));
+      else
+        TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "c2sThroughputFailed", null,
+            Main.locale));
 
-      // initializing local variables
-      _iPkts = 0;
-      _iPktsRem = 0;
-      _dPktsSent = 0.0;
-      _dTime = 0.0;
-      yabuff2Write = new ByteArray();
-      msg = new Message();
-    }
-    public function run():void {
-      comStage = TEST_PREPARE;
-      TestResults.appendDebugMsg(
-          ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
-          ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "c2sThroughput", null, Main.locale));
-      NDTUtils.callExternalFunction("testStarted", "ClientToServerThroughput");
-      addResponseListener();
-      if (ctlSocket.bytesAvailable > MIN_MSG_SIZE)
-        testPrepare();
+      NDTUtils.callExternalFunction("testCompleted", "ClientToServerThroughput",
+                                    (!_c2sTestSuccess).toString());
+
+      _callerObj.runTests();
     }
   }
 }
