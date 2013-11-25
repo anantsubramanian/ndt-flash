@@ -27,11 +27,11 @@ package  {
    */
   public class TestMETA {
     // Valid values for _testStage.
-    private static const TEST_PREPARE:int  = 0;
-    private static const TEST_START:int    = 1;
+    private static const PREPARE_TEST:int  = 0;
+    private static const START_TEST:int    = 1;
     private static const SEND_DATA:int     = 2;
     private static const FINALIZE_TEST:int = 3;
-    private static const ALL_COMPLETE:int  = 4;
+    private static const END_TEST:int  = 4;
 
     private var _callerObj:NDTPController;
     private var _ctlSocket:Socket;
@@ -41,16 +41,10 @@ package  {
     public function TestMETA(ctlSocket:Socket, callerObject:NDTPController) {
       _callerObj = callerObject;
       _ctlSocket = ctlSocket;
-      _metaTestSuccess = true;  // Initially the test hasn't failed.
+      _metaTestSuccess = true;  // Initially the test has not failed.
     }
 
-    /**
-     * Constructor that initializes local variables to their appropriate values
-     * and triggers the testPrepare method if data is waiting to be read at the
-     * socket.
-     */
     public function run():void {
-      _testStage = TEST_PREPARE;
       TestResults.appendDebugMsg(
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
@@ -58,10 +52,12 @@ package  {
               NDTConstants.BUNDLE_NAME, "meta", null, Main.locale));
       NDTUtils.callExternalFunction("testStarted", "Meta");
       addResponseListener();
+
+      _testStage = PREPARE_TEST;
       // In case data arrived before starting the ProgressEvent.SOCKET_DATA
       // listener.
       if(_ctlSocket.bytesAvailable > 0)
-        testPrepare();
+        prepareTest();
     }
 
     private function addResponseListener():void {
@@ -74,13 +70,13 @@ package  {
 
     private function onResponse(e:ProgressEvent):void {
       switch (_testStage) {
-        case TEST_PREPARE:  testPrepare();
+        case PREPARE_TEST:  prepareTest();
                             break;
-        case TEST_START:    testStart();
+        case START_TEST:    startTest();
                             break;
         case FINALIZE_TEST: finalizeTest();
                             break;
-        case ALL_COMPLETE:  completeTest();
+        case END_TEST:      endTest();
                             break;
       }
     }
@@ -88,7 +84,7 @@ package  {
     /**
      * Function that reads the TEST_PREPARE message sent by the server.
      */
-    private function testPrepare():void {
+    private function prepareTest():void {
       TestResults.appendDebugMsg(
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "sendingMetaInformation", null,
@@ -103,7 +99,7 @@ package  {
                                           "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        completeTest();
+        endTest();
         return;
       }
 
@@ -118,22 +114,22 @@ package  {
                                    + parseInt(new String(msg.body), 16));
         }
         _metaTestSuccess = false;
-        completeTest();
+        endTest();
         return;
       }
-      _testStage = TEST_START;
+      _testStage = START_TEST;
       // If TEST_PREPARE and TEST_START messages arrive together at the client,
       // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
       // the following condition is needed to move to the next step.
       if (_ctlSocket.bytesAvailable > 0)
-        testStart();
+        startTest();
     }
 
     /**
      * Function triggered when the server sends the TEST_START message to
      * indicate that the client should start sending META data.
      */
-    private function testStart():void {
+    private function startTest():void {
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -142,7 +138,7 @@ package  {
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        return completeTest();
+        return endTest();
       }
       if (msg.type != MessageType.TEST_START) {
         TestResults.appendErrMsg(
@@ -154,7 +150,7 @@ package  {
               "ERROR MSG: " + parseInt(new String(msg.body), 16));
         }
         _metaTestSuccess = false;
-        completeTest();
+        endTest();
         return;
       }
       _testStage = SEND_DATA;
@@ -214,7 +210,7 @@ package  {
               NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        completeTest();
+        endTest();
         return;
       }
       if (msg.type != MessageType.TEST_FINALIZE) {
@@ -227,11 +223,11 @@ package  {
               "ERROR MSG: " + parseInt(new String(msg.body), 16));
         }
         _metaTestSuccess = false;
-        completeTest();
+        endTest();
         return;
       }
       _metaTestSuccess = true;
-      completeTest();
+      endTest();
       return;
     }
 
@@ -239,7 +235,7 @@ package  {
      * Function triggered when the test is complete, regardless of whether the
      * test completed successfully or not.
      */
-    private function completeTest():void {
+    private function endTest():void {
       removeResponseListener();
 
       if (_metaTestSuccess)
