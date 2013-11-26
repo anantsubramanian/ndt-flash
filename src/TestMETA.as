@@ -194,6 +194,10 @@ package  {
       msg.sendMessage(_ctlSocket);
 
       _testStage = FINALIZE_TEST;
+      // The following check is probably not necessary. Added anyway, in case
+      // the TEST_FINALIZE message does not trigger onResponse.
+      if (_ctlSocket.bytesAvailable > 0)
+        finalizeTest();
     }
 
     /**
