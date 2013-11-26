@@ -53,10 +53,11 @@ package  {
 
     private function readHeader(socket:Socket):Boolean {
       var header:ByteArray = new ByteArray();
-      if(NDTUtils.readBytes(socket, header, 0,
-                            NDTConstants.MSG_HEADER_LENGTH) !=
-         NDTConstants.MSG_HEADER_LENGTH) {
-        TestResults.appendErrMsg("Error reading header from socket");
+      var bytesRead:int = NDTUtils.readBytes(
+          socket, header, 0, NDTConstants.MSG_HEADER_LENGTH);
+      if(bytesRead != NDTConstants.MSG_HEADER_LENGTH) {
+        TestResults.appendErrMsg("Error reading header from socket. Only "
+                                 + bytesRead + "bytes read");
         return false;
       }
       _type = header[0]
@@ -67,8 +68,10 @@ package  {
 
     private function readBody(socket:Socket, bytesToRead:int):Boolean {
       _body = new ByteArray();
-      if(NDTUtils.readBytes(socket, _body, 0, bytesToRead) != bytesToRead) {
-        TestResults.appendErrMsg("Error reading body from socket");
+      var bytesRead:int = NDTUtils.readBytes(socket, _body, 0, bytesToRead);
+      if(bytesRead != bytesToRead) {
+        TestResults.appendErrMsg("Error reading body from socket. Only "
+                                 + bytesRead + "bytes read.");
         return false;
       }
       return true;
