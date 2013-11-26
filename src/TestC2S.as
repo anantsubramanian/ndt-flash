@@ -74,14 +74,14 @@ package  {
               NDTConstants.BUNDLE_NAME, "startingTest", null, Main.locale) +
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "c2sThroughput", null, Main.locale));
-      NDTUtils.callExternalFunction("testStarted", "ClientToServerThroughput");
+      NDTUtils.callExternalFunction("startTested", "ClientToServerThroughput");
 
       addCtlSocketOnReceivedDataListener();
       _testStage = PREPARE_TEST;
       // In case data arrived before starting the ProgressEvent.SOCKET_DATA
       // listener.
       if (_ctlSocket.bytesAvailable > 0)
-        testPrepare();
+        prepareTest();
     }
 
     private function addCtlSocketOnReceivedDataListener():void {
@@ -95,9 +95,9 @@ package  {
 
     private function onCtlReceivedData(e:ProgressEvent):void {
       switch (_testStage) {
-        case PREPARE_TEST:  testPrepare();
+        case PREPARE_TEST:  prepareTest();
                             break;
-        case START_TEST:    testStart();
+        case START_TEST:    startTest();
                             break;
         case CMP_SERVER:    compareWithServer();
                             break;
@@ -113,7 +113,7 @@ package  {
      * It fills the buffer ByteArray with data and creates a new Socket object
      * to connect to the port specified by the server.
      */
-    private function testPrepare():void {
+    private function prepareTest():void {
       TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "runningOutboundTest", null,
           Main.locale));
@@ -153,7 +153,7 @@ package  {
       // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
       // the following condition is needed to move to the next step.
       if (_ctlSocket.bytesAvailable > 0)
-        testStart();
+        startTest();
     }
 
     private function addOutSocketEventListeners():void {
@@ -217,7 +217,7 @@ package  {
      * Function triggered when the server sends the TEST_START message to
      * indicate to the client that it should start sending data.
      */
-    private function testStart():void {
+    private function startTest():void {
       // Remove ctl socket listener so it does not interfere with the out socket
       // listeners.
       removeCtlSocketOnReceivedDataListener();
@@ -289,7 +289,8 @@ package  {
           "C2S test lasted " + _c2sTestDuration + " milliseconds.");
 
       _outBytesNotSent = _outSocket.bytesPending;
-      // TODO(tiziana): Verify if the commented check is necessary.
+      // TODO(tiziana): Verify if the commented code is better than the above
+      // line.
       //if (_outSocket.connected)
       //    _outBytesNotSent = _outSocket.bytesPending;
       //else
@@ -340,9 +341,8 @@ package  {
      */
     private function compareWithServer():void {
       var msg:Message = new Message();
-      // TODO(tiziana): Check
-      var PKT_WAIT_SIZE:int = 5;
-      if (_ctlSocket.bytesAvailable <= PKT_WAIT_SIZE)
+      // TODO(tiziana): Check why the following check is needed.
+      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
 
       if (msg.receiveMessage(_ctlSocket)
