@@ -48,10 +48,8 @@ package  {
       _callerObj = callerObject;
       _ctlSocket = ctlSocket;
       _testsRequestByClient = testsRequestByClient;
-      _testStage = KICK_CLIENTS;
-      _isNotFirstWaitFlag = false;  // No wait messages received yet.
 
-      addResponseListener();
+      _isNotFirstWaitFlag = false;  // No wait messages received yet.
     }
 
     /**
@@ -59,21 +57,29 @@ package  {
      * commonicate the suite of tests requested by the client.
      */
     public function run():void {
+      addOnReceivedDataListener();
+
       var msgBody:ByteArray = new ByteArray();
       msgBody.writeByte(_testsRequestByClient);
       var msg:Message = new Message(MessageType.MSG_LOGIN, msgBody);
-      msg.sendMessage(_ctlSocket);
+      if (!msg.sendMessage(_ctlSocket)) {
+        failHandshake();
+      }
+
+      _testStage = KICK_CLIENTS;
+      if (_ctlSocket.bytesAvailable > 0)
+        kickOldClients();
     }
 
-    private function addResponseListener():void {
-      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    private function addOnReceivedDataListener():void {
+      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
 
-    private function removeResponseListener():void {
-      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    private function removeOnReceivedDataListener():void {
+      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
 
-    public function onResponse(e:ProgressEvent):void {
+    private function onReceivedData(e:ProgressEvent):void {
       switch (_testStage) {
         case KICK_CLIENTS:    kickOldClients();
                               break;
@@ -90,15 +96,17 @@ package  {
      * Function that reads and processes the message from the server to kick
      * old and unsupported clients.
      */
-    public function kickOldClients():void {
+    private function kickOldClients():void {
+      TestResults.appendDebugMsg("Handshake: KICK_CLIENTS stage.");
+
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket, true)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "unsupportedClient", null, Main.locale));
-        removeResponseListener();
-        _callerObj.failNDTTest()
+        failHandshake();
       }
+
       _testStage = SRV_QUEUE;
       // If KICK_CLIENTS and SRV_QUEUE messages arrive together at the client,
       // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
@@ -110,11 +118,13 @@ package  {
 
     /**
      * Function that handles the queue responses from the server.
-     * The onResponse function will continue to iexecute srvQueue() until
+     * The onReceivedData function will continue to iexecute srvQueue() until
      * _testStage is changed to indicate that the waiting period is over.
      */
 
-    public function srvQueue():void {
+    private function srvQueue():void {
+      TestResults.appendDebugMsg("Handshake: SRV_QUEUE stage.");
+
       // See https://code.google.com/p/ndt/issues/detail?id=101.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
@@ -122,16 +132,14 @@ package  {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
-        removeResponseListener();
-        _callerObj.failNDTTest();
+        failHandshake();
       }
       // If message is not of SRV_QUEUE type, it is incorrect at this stage.
       if (msg.type != MessageType.SRV_QUEUE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "loggingWrongMessage", null,
             Main.locale));
-        removeResponseListener();
-        _callerObj.failNDTTest();
+        failHandshake();
       }
 
       // The body of a SRV_QUEUE message contains a wait flag that indicates one
@@ -161,8 +169,7 @@ package  {
           //   See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
-          removeResponseListener();
-          _callerObj.failNDTTest();
+          failHandshake();
           return;
 
         case NDTConstants.SRV_QUEUE_SERVER_BUSY:
@@ -172,14 +179,12 @@ package  {
             //   See https://code.google.com/p/ndt/issues/detail?id=102.
             TestResults.appendErrMsg(ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "serverBusy",null, Main.locale));
-            removeResponseListener();
-            _callerObj.failNDTTest();
+            failHandshake();
           } else {
             // Server fault. Fail.
             TestResults.appendErrMsg(ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
-            removeResponseListener();
-            _callerObj.failNDTTest();
+            failHandshake();
           }
           return;
 
@@ -189,8 +194,7 @@ package  {
           //   See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverBusy60s", null, Main.locale));
-          removeResponseListener();
-          _callerObj.failNDTTest();
+          failHandshake();
           return;
 
         case NDTConstants.SRV_QUEUE_HEARTBEAT:
@@ -199,8 +203,9 @@ package  {
           var msgBody:ByteArray = new ByteArray();
           msgBody.writeByte(_testsRequestByClient);
           msg = new Message(MessageType.MSG_WAITING, msgBody);
-          msg.sendMessage(_ctlSocket);
-          return;
+          if (!msg.sendMessage(_ctlSocket)) {
+            failHandshake();
+          }
 
         default:
           // Each test should take less than 30s, so tell them 45 sec * number
@@ -223,7 +228,9 @@ package  {
      * Function that verifies version compatibility between the server
      * and the client.
      */
-    public function verifyVersion():void {
+    private function verifyVersion():void {
+      TestResults.appendDebugMsg("Handshake: VERIFY_VERSION stage.");
+
       // The server must send a message to verify version, and this is a
       // MSG_LOGIN type message.
       var msg:Message = new Message();
@@ -233,16 +240,14 @@ package  {
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
             + parseInt(new String(msg.body), 16) + " instead.");
-        removeResponseListener();
-        _callerObj.failNDTTest();
+        failHandshake();
         return;
       }
       if (msg.type != MessageType.MSG_LOGIN) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "versionWrongMessage", null,
             Main.locale));
-        removeResponseListener();
-        _callerObj.failNDTTest();
+        failHandshake();
         return;
       }
       // Version compatibility between server and client must be verified.
@@ -252,13 +257,12 @@ package  {
       if (version.indexOf("v") != 0) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "incompatibleVersion",null, Main.locale));
-        removeResponseListener();
-        _callerObj.failNDTTest();
+        failHandshake();
         return;
       }
-      TestResults.appendDebugMsg("Server Version: " + version.substring(1));
-      _testStage = VERIFY_SUITE;
+      TestResults.appendDebugMsg("Server version: " + version.substring(1));
 
+      _testStage = VERIFY_SUITE;
       // If VERIFY_VERSION and VERIFY_SUITE messages arrive together at the
       // client, they trigger a single ProgressEvent.SOCKET_DATA event. In such
       // case, the following condition is needed to move to the next step.
@@ -273,7 +277,9 @@ package  {
      * the function calls allComplete that initiates the tests requested in the
      * test suite.
      */
-    public function verifySuite():void {
+    private function verifySuite():void {
+      TestResults.appendDebugMsg("Handshake: VERIFY_SUITE stage.");
+
       // Read server message again. Server must send a MSG_LOGIN message to
       // negotiate the test suite and this should be the same set of tests
       // requested by the client earlier.
@@ -284,16 +290,13 @@ package  {
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
             + parseInt(new String(msg.body), 16) + " instead");
-        removeResponseListener();
-        _callerObj.failNDTTest();
+        failHandshake();
         return;
       }
       if (msg.type != MessageType.MSG_LOGIN) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "testsuiteWrongMessage", null,
             Main.locale));
-        removeResponseListener();
-        _callerObj.failNDTTest();
         return;
       }
 
@@ -301,15 +304,26 @@ package  {
       var confirmedTests:String = new String(msg.body);
       TestResults.ndt_test_results::testsConfirmedByServer =
           TestType.stringToInt(confirmedTests);
-      completeTest(StringUtil.trim(confirmedTests));
+
+      TestResults.appendDebugMsg("Test suite: " + confirmedTests);
+      endHandshake(StringUtil.trim(confirmedTests));
+    }
+
+    private function failHandshake():void {
+      TestResults.appendDebugMsg("Handshake: FAIL.");
+
+      removeOnReceivedDataListener();
+      _callerObj.failNDTTest();
     }
 
     /**
      * Function that removes the local event handler for the Control Socket
      * responses and passes control back to the caller object.
      */
-    public function completeTest(confirmedTests:String):void {
-      removeResponseListener();
+    private function endHandshake(confirmedTests:String):void {
+      TestResults.appendDebugMsg("Handshake: END.");
+
+      removeOnReceivedDataListener();
       _callerObj.initiateTests(confirmedTests);
     }
   }
