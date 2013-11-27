@@ -57,7 +57,7 @@ package  {
           socket, header, 0, NDTConstants.MSG_HEADER_LENGTH);
       if(bytesRead != NDTConstants.MSG_HEADER_LENGTH) {
         TestResults.appendErrMsg("Error reading header from socket. Only "
-                                 + bytesRead + "bytes read");
+                                 + bytesRead + " bytes read");
         return false;
       }
       _type = header[0]
@@ -105,7 +105,7 @@ package  {
     /**
      * Send protocol messages given their type and data byte array.
      */
-    public function sendMessage(socket:Socket):void {
+    public function sendMessage(socket:Socket):Boolean {
       var header:ByteArray = new ByteArray();
       header[0] = _type;
       header[1] = (_length >> 8);
@@ -114,20 +114,21 @@ package  {
         socket.writeBytes(header);
       } catch(e:IOError) {
         TestResults.appendErrMsg("Error writing header to socket: " + e);
-        return;
+        return false;
       }
       try {
         socket.writeBytes(_body);
       } catch(e:IOError) {
         TestResults.appendErrMsg("Error writing body to socket: " + e);
-        return;
+        return false;
       }
       try {
         socket.flush();
       } catch(e:IOError) {
         TestResults.appendErrMsg("Error flushing socket: " + e);
-        return;
+        return false;
       }
+      return true;
     }
   }
 }
