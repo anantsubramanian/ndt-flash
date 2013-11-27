@@ -210,16 +210,13 @@ package  {
           }
 
         default:
-          // Each test should take less than 30s, so tell them 45 sec * number
-          // of test suites waiting in the queue. Server sends a number equal
-          // to number of queued clients == number of minutes to wait before
-          // starting tests. wait = minutes to wait = number of queued clients.
-          // TODO(tiziana):
-          //   See https://code.google.com/p/ndt/issues/detail?id=103.
+          // Server sends the number of queued clients (== number of minutes
+          // to wait before starting tests).
+          // See https://code.google.com/p/ndt/issues/detail?id=103.
           TestResults.appendDebugMsg(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "otherClient", null, Main.locale)
-              + (waitFlag * 45)
+              + (waitFlag * 60)
               + ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "seconds", null, Main.locale));
           _isNotFirstWaitFlag = false;  // First message from server received.
