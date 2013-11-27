@@ -30,54 +30,18 @@ package  {
    * Calls functions to perform the required tests and to interpret the results.
    */
   public class NDTPController {
+    private const READ_TIMEOUT:int = 10000;  // 10sec
+
     private var _ctlSocket:Socket = null;
     private var _hostname:String;
     private var _readResultsTimer:Timer;
+    private var _remoteTestResults:String;
     private var _testsToRun:Array;
 
     public function NDTPController(hostname:String) {
       _hostname = hostname;
-      _readResultsTimer = new Timer(10000);
-    }
 
-    // Control socket event listeners.
-    private function onConnect(e:Event):void {
-      TestResults.appendDebugMsg("Control socket connected");
-      startHandshake();
-    }
-
-    private function onClose(e:Event):void {
-      TestResults.appendDebugMsg("Control socket closed by server");
-    }
-
-    private function onIOError(e:IOErrorEvent):void {
-      TestResults.appendErrMsg("IOError on control socket: " + e);
-      failNDTTest();
-    }
-
-    private function onSecurityError(e:SecurityErrorEvent):void {
-      TestResults.appendErrMsg("Security error on control socket: " + e);
-      failNDTTest();
-    }
-
-    private function addSocketEventListeners():void {
-      _ctlSocket.addEventListener(Event.CONNECT, onConnect);
-      _ctlSocket.addEventListener(Event.CLOSE, onClose);
-      _ctlSocket.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
-      _ctlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
-                                  onSecurityError);
-    }
-
-    private function onReceivedData(e:ProgressEvent):void {
-      getRemoteResults();
-    }
-
-    private function addOnReceivedDataListener():void {
-      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
-    }
-
-    private function removeOnReceivedDataListener():void {
-      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
+      _remoteTestResults = ""
     }
 
     public function startNDTTest():void {
@@ -101,6 +65,33 @@ package  {
       }
     }
 
+    private function addSocketEventListeners():void {
+      _ctlSocket.addEventListener(Event.CONNECT, onConnect);
+      _ctlSocket.addEventListener(Event.CLOSE, onClose);
+      _ctlSocket.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+      _ctlSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
+                                  onSecurityError);
+    }
+
+    private function onConnect(e:Event):void {
+      TestResults.appendDebugMsg("Control socket connected.");
+      startHandshake();
+    }
+
+    private function onClose(e:Event):void {
+      TestResults.appendDebugMsg("Control socket closed by server.");
+    }
+
+    private function onIOError(e:IOErrorEvent):void {
+      TestResults.appendErrMsg("IOError on control socket: " + e);
+      failNDTTest();
+    }
+
+    private function onSecurityError(e:SecurityErrorEvent):void {
+      TestResults.appendErrMsg("Security error on control socket: " + e);
+      failNDTTest();
+    }
+
     private function startHandshake():void {
       var handshake:Handshake = new Handshake(
           _ctlSocket, NDTConstants.TESTS_REQUESTED_BY_CLIENT, this);
@@ -113,7 +104,6 @@ package  {
      */
     public function initiateTests(testsConfirmedByServer:String):void {
       _testsToRun = testsConfirmedByServer.split(" ");
-      // TODO(tiziana): Use tests confirmed by the server.
       runTests();
     }
 
@@ -126,32 +116,14 @@ package  {
         switch (currentTest) {
           case TestType.C2S:
               var c2s:TestC2S = new TestC2S(_ctlSocket, _hostname, this);
-              TestResults.appendDebugMsg(
-                  ResourceManager.getInstance().getString(
-                      NDTConstants.BUNDLE_NAME, "startingTest", null,
-                      Main.locale)
-                  + ResourceManager.getInstance().getString(
-                      NDTConstants.BUNDLE_NAME, "c2sThroughput"));
               c2s.run();
               break;
           case TestType.S2C:
               var s2c:TestS2C = new TestS2C(_ctlSocket, _hostname, this);
-              TestResults.appendDebugMsg(
-                  ResourceManager.getInstance().getString(
-                      NDTConstants.BUNDLE_NAME, "startingTest", null,
-                      Main.locale)
-                  + ResourceManager.getInstance().getString(
-                      NDTConstants.BUNDLE_NAME, "s2cThroughput"));
               s2c.run();
               break;
           case TestType.META:
               var meta:TestMETA = new TestMETA(_ctlSocket, this);
-              TestResults.appendDebugMsg(
-                  ResourceManager.getInstance().getString(
-                      NDTConstants.BUNDLE_NAME, "startingTest", null,
-                      Main.locale)
-                  + ResourceManager.getInstance().getString(
-                      NDTConstants.BUNDLE_NAME, "meta"));
               meta.run();
               break;
           default:
@@ -160,8 +132,26 @@ package  {
               failNDTTest();
         }
       } else {
-        receiveRemoteResults();
+        addOnReceivedDataListener();
+        _readResultsTimer = new Timer(READ_TIMEOUT);
+        _readResultsTimer.addEventListener(TimerEvent.TIMER, onReadTimeout);
+        _readResultsTimer.start();
+        // In case data arrived before starting the onReceiveData listener.
+        if (_ctlSocket.bytesAvailable > 0)
+          getRemoteResults();
       }
+    }
+
+    private function addOnReceivedDataListener():void {
+      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
+    }
+
+    private function removeOnReceivedDataListener():void {
+      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
+    }
+
+    private function onReceivedData(e:ProgressEvent):void {
+      getRemoteResults();
     }
 
     private function onReadTimeout(e:TimerEvent):void {
@@ -171,33 +161,15 @@ package  {
       failNDTTest();
     }
 
-    private function addOnReadTimeout():void {
-      _readResultsTimer.reset();
-      _readResultsTimer.addEventListener(TimerEvent.TIMER, onReadTimeout);
-      _readResultsTimer.start();
-    }
-
-    public function receiveRemoteResults():void {
-      addOnReadTimeout();
-      addOnReceivedDataListener();
-      // In case data arrived before starting the onReceiveData listener.
-      if (_ctlSocket.bytesAvailable > 0) {
-        getRemoteResults();
-      }
-    }
-
    /**
      * Function that reads the rest of the server calculated results and appends
      * them to the test results String for interpretation.
      */
     private function getRemoteResults():void {
-      TestResults.ndt_test_results::remoteTestResults =
-          TestResults.ndt_test_results::s2cTestResults;
-
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
-        if (msg.receiveMessage(_ctlSocket) !=
-            NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        if (msg.receiveMessage(_ctlSocket)
+            != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
           TestResults.appendErrMsg(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -207,11 +179,12 @@ package  {
           failNDTTest();
           return;
         }
+
         if (msg.type == MessageType.MSG_RESULTS) {
-            TestResults.ndt_test_results::remoteTestResults += new String(
-                msg.body);
+            _remoteTestResults += new String(msg.body);
            continue;
         }
+
         // All results obtained. LOGOUT message received now.
         if (msg.type == MessageType.MSG_LOGOUT) {
           _readResultsTimer.stop();
@@ -219,11 +192,12 @@ package  {
           succeedNDTTest();
           return;
         }
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,
-                Main.locale));
+
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,
+            Main.locale));
         _readResultsTimer.stop();
+        removeOnReceivedDataListener();
         failNDTTest();
         return;
       }
@@ -233,14 +207,14 @@ package  {
     public function failNDTTest():void {
       TestResults.ndt_test_results::ndtTestFailed = true;
       NDTUtils.callExternalFunction("fatalErrorOccured");
-      TestResults.appendErrMsg("NDT test failed");
+      TestResults.appendErrMsg("NDT test failed.");
       finishNDTTest();
     }
 
     public function succeedNDTTest():void {
       TestResults.ndt_test_results::ndtTestFailed = false;
       NDTUtils.callExternalFunction("allTestsCompleted");
-      TestResults.appendDebugMsg("All the tests completed successfully");
+      TestResults.appendDebugMsg("All the tests completed successfully.");
       finishNDTTest();
     }
 
@@ -248,14 +222,17 @@ package  {
      * Function that is called on completion of all the tests and after the
      * retrieval of the last set of results.
      */
-    public function finishNDTTest():void {
-      TestResults.recordEndTime();
+    private function finishNDTTest():void {
       try {
         _ctlSocket.close();
       } catch (e:IOError) {
         TestResults.appendErrMsg(
             "Client failed to close control socket. Error" + e);
       }
+
+      TestResults.recordEndTime();
+      TestResults.ndt_test_results::remoteTestResults += _remoteTestResults;
+
       TestResults.interpretResults();
       if (Main.guiEnabled) {
         Main.gui.displayResults();
