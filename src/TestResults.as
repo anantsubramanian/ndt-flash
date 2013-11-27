@@ -108,7 +108,7 @@ package  {
     }
 
     public static function interpretResults():void {
-      TestResultsUtils.parseNDTVariables(remoteTestResults);
+      TestResultsUtils.parseNDTVariables(s2cTestResults + remoteTestResults);
       TestResultsUtils.appendClientInfo();
       if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
         TestResultsUtils.getAccessLinkSpeed();
@@ -131,9 +131,9 @@ package  {
         TestResultsUtils.appendThroughputLimitResults();
         NDTUtils.callExternalFunction("resultsProcessed");
       }
-      TestResultsUtils.appendNDTVariablesResults();
+      TestResults.appendResultDetails("=== Results sent by the server ===");
+      TestResults.appendResultDetails(s2cTestResults + remoteTestResults);
       // TODO(tiziana): If parsing mistake, log message "resultsParseError".
     }
   }
 }
-

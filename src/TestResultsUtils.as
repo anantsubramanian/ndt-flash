@@ -95,9 +95,9 @@ package  {
       return null;
     }
 
-    public static function parseNDTVariables(variables:String):void {
+    public static function parseNDTVariables(testResults:String):void {
       // Extract the key-value pairs.
-      var pairs:Array = StringUtil.trim(variables).split(/\s/);
+      var pairs:Array = StringUtil.trim(testResults).split(/\s/);
       var i:int;
       var varName:String;
       var varValue:String;
@@ -819,13 +819,6 @@ package  {
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "serverAcksReport", null, Main.locale)
             + " " + s2cAck);
-    }
-
-    public static function appendNDTVariablesResults():void {
-        TestResults.appendResultDetails("=== NDT variables ===");
-        for (var key:Object in TestResults.ndtVariables)
-          TestResults.appendResultDetails(
-              key + "=" + TestResults.ndtVariables[key]);
     }
   }
 }
