@@ -41,6 +41,7 @@ package  {
     public function TestMETA(ctlSocket:Socket, callerObject:NDTPController) {
       _callerObj = callerObject;
       _ctlSocket = ctlSocket;
+
       _metaTestSuccess = true;  // Initially the test has not failed.
     }
 
@@ -51,8 +52,8 @@ package  {
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "meta", null, Main.locale));
       NDTUtils.callExternalFunction("testStarted", "Meta");
-      addResponseListener();
 
+      addOnReceivedDataListener();
       _testStage = PREPARE_TEST;
       // In case data arrived before starting the ProgressEvent.SOCKET_DATA
       // listener.
@@ -60,15 +61,15 @@ package  {
         prepareTest();
     }
 
-    private function addResponseListener():void {
-      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+    private function addOnReceivedDataListener():void {
+      _ctlSocket.addEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
 
     private function removeResponseListener():void {
-      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onResponse);
+      _ctlSocket.removeEventListener(ProgressEvent.SOCKET_DATA, onReceivedData);
     }
 
-    private function onResponse(e:ProgressEvent):void {
+    private function onReceivedData(e:ProgressEvent):void {
       switch (_testStage) {
         case PREPARE_TEST:  prepareTest();
                             break;
@@ -85,6 +86,7 @@ package  {
      * Function that reads the TEST_PREPARE message sent by the server.
      */
     private function prepareTest():void {
+      TestResults.appendDebugMsg("META test: PREPARE_TEST stage.");
       TestResults.appendDebugMsg(
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "sendingMetaInformation", null,
@@ -95,20 +97,17 @@ package  {
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
         TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(NDTConstants.BUNDLE_NAME,
-                                          "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead.");
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
+            + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
         endTest();
         return;
       }
 
-      // Server must start with a TEST_PREPARE message.
       if (msg.type != MessageType.TEST_PREPARE) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "metaWrongMessage", null,
-                Main.locale));
+        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
+            NDTConstants.BUNDLE_NAME, "metaWrongMessage", null, Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
                                    + parseInt(new String(msg.body), 16));
@@ -117,6 +116,7 @@ package  {
         endTest();
         return;
       }
+
       _testStage = START_TEST;
       // If TEST_PREPARE and TEST_START messages arrive together at the client,
       // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
@@ -130,6 +130,8 @@ package  {
      * indicate that the client should start sending META data.
      */
     private function startTest():void {
+      TestResults.appendDebugMsg("META test: START_TEST stage.");
+
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -138,7 +140,8 @@ package  {
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
         _metaTestSuccess = false;
-        return endTest();
+        endTest();
+        return;
       }
       if (msg.type != MessageType.TEST_START) {
         TestResults.appendErrMsg(
@@ -153,6 +156,7 @@ package  {
         endTest();
         return;
       }
+
       _testStage = SEND_DATA;
       sendData();
     }
@@ -161,6 +165,8 @@ package  {
      * Function that sends META data to the server.
      */
     private function sendData():void {
+      TestResults.appendDebugMsg("META test: SEND_DATA stage.");
+
       // As a response to the server's TEST_START message, the client responds
       // with TEST_MSG type message.
       var bodyToSend:ByteArray = new ByteArray();
@@ -168,21 +174,33 @@ package  {
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_OS + ":" + Capabilities.os));
       var msg:Message = new Message(MessageType.TEST_MSG, bodyToSend);
-      msg.sendMessage(_ctlSocket);
+      if (!msg.sendMessage(_ctlSocket)) {
+        _metaTestSuccess = false;
+        endTest();
+        return;
+      }
 
       bodyToSend.clear();
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_BROWSER + ":" + UserAgentTools.getBrowser(
               TestResults.ndt_test_results::userAgent)[2]));
       msg = new Message(MessageType.TEST_MSG, bodyToSend);
-      msg.sendMessage(_ctlSocket);
+      if (!msg.sendMessage(_ctlSocket)) {
+        _metaTestSuccess = false;
+        endTest();
+        return;
+      }
 
       bodyToSend.clear();
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_VERSION + ":"
           + NDTConstants.CLIENT_VERSION));
       msg = new Message(MessageType.TEST_MSG, bodyToSend);
-      msg.sendMessage(_ctlSocket);
+      if (!msg.sendMessage(_ctlSocket)) {
+        _metaTestSuccess = false;
+        endTest();
+        return;
+      }
 
       bodyToSend.clear();
       bodyToSend.writeUTFBytes(new String(
@@ -191,11 +209,15 @@ package  {
       // Client can send any number of such meta data in a TEST_MSG format and
       // signal the send of the transmission using an empty TEST_MSG.
       msg = new Message(MessageType.TEST_MSG, new ByteArray());
-      msg.sendMessage(_ctlSocket);
+      if (!msg.sendMessage(_ctlSocket)) {
+        _metaTestSuccess = false;
+        endTest();
+        return;
+      }
 
       _testStage = FINALIZE_TEST;
       // The following check is probably not necessary. Added anyway, in case
-      // the TEST_FINALIZE message does not trigger onResponse.
+      // the TEST_FINALIZE message does not trigger onReceivedData.
       if (_ctlSocket.bytesAvailable > 0)
         finalizeTest();
     }
@@ -205,7 +227,8 @@ package  {
      * sent.
      */
     private function finalizeTest():void {
-      // Server closes the META test session by sending a TEST_FINALIZE message.
+      TestResults.appendDebugMsg("META test: FINALIZE_TEST stage.");
+
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -240,11 +263,15 @@ package  {
      * test completed successfully or not.
      */
     private function endTest():void {
+      TestResults.appendDebugMsg("META test: END_TEST stage.");
       removeResponseListener();
 
       if (_metaTestSuccess)
-        TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
-            NDTConstants.BUNDLE_NAME, "done", null, Main.locale));
+        TestResults.appendDebugMsg(
+             ResourceManager.getInstance().getString(
+                 NDTConstants.BUNDLE_NAME, "meta", null, Main.locale)
+            + " test " + ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "done", null, Main.locale));
       else
         TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "metaFailed", null, Main.locale));
