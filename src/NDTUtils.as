@@ -95,7 +95,7 @@ package  {
      * data to be sent to JavaScript.
      */
     public static function addJSCallbacks():void {
-      // TODO(tiziana): Restrict domain to the M-Lab website/erver.
+      // TODO(tiziana): Restrict domain to the M-Lab website/server.
       Security.allowDomain("*");
       try {
         ExternalInterface.addCallback(
