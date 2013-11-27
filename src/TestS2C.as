@@ -237,7 +237,7 @@ package  {
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
-        // TODO(tiziana): See https://code.google.com/p/ndt/issues/detail?id=105
+        // See https://code.google.com/p/ndt/issues/detail?id=105
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -247,7 +247,7 @@ package  {
         return;
       }
       if (msg.type != MessageType.TEST_START) {
-        // TODO(tiziana): See https://code.google.com/p/ndt/issues/detail?id=105
+        // See https://code.google.com/p/ndt/issues/detail?id=105
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "inboundWrongMessage", null, Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
