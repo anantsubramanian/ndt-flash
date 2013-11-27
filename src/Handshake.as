@@ -165,8 +165,8 @@ package  {
 
         case NDTConstants.SRV_QUEUE_SERVER_FAULT:
           // Server fault. Fail.
-          // TODO(tiziana): Check if this value is supported.
-          //   See https://code.google.com/p/ndt/issues/detail?id=102.
+          // TODO(tiziana): Change when issue #102 is fixed.
+          // See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
           failHandshake();
@@ -175,13 +175,15 @@ package  {
         case NDTConstants.SRV_QUEUE_SERVER_BUSY:
           if (!_isNotFirstWaitFlag) {
             // Server busy. Fail.
-            // TODO(tiziana): Check if it's supposed to fail.
-            //   See https://code.google.com/p/ndt/issues/detail?id=102.
+            // TODO(tiziana): Change when issue #102 is fixed.
+            // See https://code.google.com/p/ndt/issues/detail?id=102.
             TestResults.appendErrMsg(ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "serverBusy",null, Main.locale));
             failHandshake();
           } else {
             // Server fault. Fail.
+            // TODO(tiziana): Change when issue #102 is fixed.
+            // See https://code.google.com/p/ndt/issues/detail?id=102.
             TestResults.appendErrMsg(ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "serverFault", null, Main.locale));
             failHandshake();
@@ -190,8 +192,8 @@ package  {
 
         case NDTConstants.SRV_QUEUE_SERVER_BUSY_60s:
           // Server busy for 60s. Fail.
-          // TODO(tiziana): Check if it's supposed to fail.
-          //   See https://code.google.com/p/ndt/issues/detail?id=102.
+          // TODO(tiziana): Change when issue #102 is fixed.
+          // See https://code.google.com/p/ndt/issues/detail?id=102.
           TestResults.appendErrMsg(ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "serverBusy60s", null, Main.locale));
           failHandshake();
