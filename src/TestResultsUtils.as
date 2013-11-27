@@ -633,11 +633,10 @@ package  {
       // Add Packet queueing details found during C2S throughput test.
       // Data is displayed as percentage.
       if ((requestedTests & TestType.C2S) == TestType.C2S) {
-        if ((TestResults.ndt_test_results::c2sSpeed
-             > TestResults.ndt_test_results::sc2sSpeed)
-            && (TestResults.ndt_test_results::sc2sSpeed
-                < (TestResults.ndt_test_results::c2sSpeed
-                  * (1.0 - NDTConstants.SPD_DIFF)))) {
+        // TODO(tiziana): Change when issue #98 is fixed.
+        // https://code.google.com/p/ndt/issues/detail?id=98
+        if (TestResults.ndt_test_results::c2sSpeed
+            > TestResults.ndt_test_results::sc2sSpeed) {
           var c2sQueue:Number = (TestResults.ndt_test_results::c2sSpeed
                                  - TestResults.ndt_test_results::sc2sSpeed)
                                  / TestResults.ndt_test_results::c2sSpeed;
@@ -649,18 +648,15 @@ package  {
                   NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
               + ": " + (NDTConstants.PERCENTAGE * c2sQueue).toFixed(2) + "%");
         }
-        // TODO(tiziana): Change when issue #98 is fixed.
-        // https://code.google.com/p/ndt/issues/detail?id=98
       }
 
       // Add packet queueing details found during S2C throughput test.
       // Data is displayed as a percentage.
       if ((requestedTests & TestType.S2C) == TestType.S2C) {
-        if ((TestResults.ndt_test_results::ss2cSpeed
-             > TestResults.ndt_test_results::s2cSpeed)
-             && (TestResults.ndt_test_results::ss2cSpeed
-                 < (TestResults.ndt_test_results::ss2cSpeed
-                    * (1.0 - NDTConstants.SPD_DIFF)))) {
+        // TODO(tiziana): Change when issue #98 is fixed.
+        // https://code.google.com/p/ndt/issues/detail?id=98
+        if (TestResults.ndt_test_results::ss2cSpeed
+            > TestResults.ndt_test_results::s2cSpeed) {
           var s2cQueue:Number = (TestResults.ndt_test_results::c2sSpeed
                                  - TestResults.ndt_test_results::sc2sSpeed)
                                  / TestResults.ndt_test_results::c2sSpeed;
@@ -671,8 +667,6 @@ package  {
                   NDTConstants.BUNDLE_NAME, "qSeen", null, Main.locale)
               + ": " + (NDTConstants.PERCENTAGE * s2cQueue).toFixed(2) + "%");
         }
-        // TODO(tiziana): Change when issue #98 is fixed.
-        // https://code.google.com/p/ndt/issues/detail?id=98
       }
     }
 
