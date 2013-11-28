@@ -14,6 +14,8 @@
 
 package  {
   public class NDTConstants {
+    public static const MLAB_SITE:String = "http://www.measurementlab.net";
+
     // Constants common to all the tests.
     public static const CLIENT_VERSION:String = CONFIG::ndtClientVersion;
     public static const CLIENT_ID:String = "swf";

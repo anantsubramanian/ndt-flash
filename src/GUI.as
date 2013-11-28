@@ -40,7 +40,6 @@ package  {
     [Embed(source="../assets/mlab-logo.png")]
     private var mLabLogo:Class;
     private var Mlab_logo:DisplayObject;
-    private var Mlab_url:String = "http://www.measurementlab.net";
     private var Url_request:URLRequest;
     [Embed(source="../assets/hover.png")]
     private var hover:Class;
@@ -473,7 +472,7 @@ package  {
 
       // variables initialization
       Mlab_logo = new mLabLogo();
-      Url_request = new URLRequest(Mlab_url);
+      Url_request = new URLRequest(NDTConstants.MLAB_SITE);
       Start_button = new MovieClip();
         hoverButton = new hover();
         hoverButton.width *= 0.40;
