@@ -92,7 +92,7 @@ package  {
       if (Main.guiEnabled && _ndtTestStartTime > 0)
         // TODO(tiziana): Handle the communication with GUI via events, instead
         // of blocking calls.
-        GUI.addConsoleOutput(msg + "\n");
+        Main.gui.addConsoleOutput(msg + "\n");
     }
 
     public static function getDebugMsg():String {

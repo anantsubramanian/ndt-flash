@@ -54,7 +54,7 @@ package  {
     private var Learn_more_format:TextFormat;
     private var About_text_format:TextFormat;
     private var About_ndt_text:TextField;
-    private static var consoleText:TextField;
+    private var consoleText:TextField;
 
     // results display variables
     private var resultsField:TextField;
@@ -268,7 +268,7 @@ package  {
      * the console output while the tests are running.
      * @param {String} sParam The text to be added to the TextField
      */
-    public static function addConsoleOutput(sParam:String):void {
+    public function addConsoleOutput(sParam:String):void {
       consoleText.appendText(sParam);
     }
 
