@@ -63,6 +63,10 @@ package  {
         TestResults.appendErrMsg("Control socket connect security error: " + e);
         failNDTTest();
       }
+      TestResults.appendDebugMsg(                                                
+          ResourceManager.getInstance().getString(                               
+              NDTConstants.BUNDLE_NAME, "connected", null, Main.locale)
+              + " " + _hostname);
     }
 
     private function addSocketEventListeners():void {
