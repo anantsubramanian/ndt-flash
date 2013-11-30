@@ -14,7 +14,7 @@
 
 package  {
   import flash.display.Graphics;
-  import flash.display.MovieClip;
+  import flash.display.Sprite;
   import flash.text.TextField;
   import flash.text.*;
   import flash.display.Sprite;
@@ -28,381 +28,301 @@ package  {
   import spark.effects.*;
 
   /**
-   * Class that creates a Flash GUI for the tool. This is optional and
-   * can be disabled in the 'Main' class.
+   * Class that creates a Flash GUI for the tool. The GUI is optional and can
+   * be disabled in the 'Main' class.
    */
-  public class GUI extends Sprite{
-    // variables declaration section
-    private var stagewidth:int;
-    private var stageheight:int;
-    private var parentObject:NDTPController;
+  public class GUI extends Sprite {
+    public static const BUTTON_INDEX:int = 0;
+    public static const TEXT_INDEX:int = 1;
 
     [Embed(source="../assets/mlab-logo.png")]
-    private var mLabLogo:Class;
-    private var Mlab_logo:DisplayObject;
-    private var Url_request:URLRequest;
-    [Embed(source="../assets/hover.png")]
-    private var hover:Class;
-    [Embed(source="../assets/noHover.png")]
-    private var noHover:Class;
-    private var Start_button:MovieClip;
-      private var hoverButton:DisplayObject;
-      private var noHoverButton:DisplayObject;
-    private var Learn_text_container:Sprite;
-    private var Learn_more_text:TextField;
-    private var Learn_more_format:TextFormat;
-    private var About_text_format:TextFormat;
-    private var About_ndt_text:TextField;
-    private var consoleText:TextField;
+    private var MLabLogoImg:Class;
+    private var _fadeEffect:Fade;
 
-    // results display variables
-    private var resultsField:TextField;
-    private var resultsTextFormat:TextFormat;
-    private var resultsRect:MovieClip;
-    private var statsButton:MovieClip;
-    private var mainResult:MovieClip;
-    private var errorsButton:MovieClip;
-    private var diagnosticsButton:MovieClip;
+    private var _stageWidth:int;
+    private var _stageHeight:int;
+    private var _callerObj:NDTPController;
+
+    private var _mlabLogo:DisplayObject;
+    private var _aboutNDTText:TextField;
+    private var _learnMoreLink:Sprite;
+    private var _urlRequest:URLRequest;
+    private var _startButton:Sprite;
+
+    private var _consoleText:TextField;
+    private var _resultsTextField:TextField;
+    private var _resultsButton:Sprite;
+    private var _detailsButton:Sprite;
+    private var _errorsButton:Sprite;
+    private var _debugButton:Sprite;
+
+// SSS
     private var scrollBar:Sprite;
     private var scrollBlock:Sprite;
     [Embed(source="../assets/scrollUp.png")]
     private var scrollUp:Class;
     [Embed(source="../assets/scrollDown.png")]
     private var scrollDown:Class;
-    private var scrollUpButton:MovieClip;
-    private var scrollDownButton:MovieClip;
-    private var blur:BlurFilter;
+    private var scrollUpButton:Sprite;
+    private var scrollDownButton:Sprite;
+// EEE
 
-    // Tween variables
-    private var fadeEffect:Fade;
-
-    // event listener functions
-    private function clickLearnText(e:MouseEvent):void {
+    // Event listeners
+    private function clickLearnMoreLink(e:MouseEvent):void {
       try {
-        navigateToURL(Url_request);
+        navigateToURL(_urlRequest);
       } catch (error:Error) {
         TestResults.appendErrMsg(error.toString());
       }
     }
 
-    private function rollOverStart(e:MouseEvent):void {
-      if (!(Start_button.getChildAt(0) is TextField)) {
-         Start_button.removeChildAt(0);
-      }
-      Start_button.addChildAt(hoverButton, 0);
+    private function rollOver(e:MouseEvent):void {
+      e.target.alpha = 0.8;
     }
 
-    private function rollOutStart(e:MouseEvent):void {
-      if (!(Start_button.getChildAt(0) is TextField)) {
-         Start_button.removeChildAt(0);
-      }
-      Start_button.addChildAt(noHoverButton, 0);
+    private function rollOut(e:MouseEvent):void {
+      e.target.alpha = 1;
     }
 
     private function clickStart(e:MouseEvent):void {
       hideInitialScreen();
-      consoleText = new TextField();
-      consoleText.text = "\n\n";
-      consoleText.wordWrap = true;
-      consoleText.width = stagewidth;
-      consoleText.height = stageheight;
-      this.addChild(consoleText);
-      // Start tests
-      parentObject.startNDTTest();
+      _consoleText = new ResultsTextField();
+      _consoleText.scrollV = 0;
+      _consoleText.x = 0.02 * _stageWidth;
+      _consoleText.y = 0.02 * _stageHeight;
+      _consoleText.width = 0.98 * _stageWidth;
+      _consoleText.height = 0.98 * _stageHeight;
+      this.addChild(_consoleText);
+      _callerObj.startNDTTest();
     }
 
-    private function rollOverResult(e:MouseEvent):void {
-      if(!(e.target.getChildAt(0) is TextField))
-        e.target.removeChildAt(0);
-      hoverButton = new hover();
-      hoverButton.width *= 0.25;
-      hoverButton.height *= 0.25;
-      e.target.addChildAt(hoverButton,0);
-    }
+    private function hideInitialScreen():void {
+      _fadeEffect.end();
+      _fadeEffect.play(
+          [_mlabLogo, _aboutNDTText, _learnMoreLink, _startButton], true);
 
-    private function rollOutResult(e:MouseEvent):void {
-      if(!(e.target.getChildAt(0) is TextField))
-        e.target.removeChildAt(0);
-      noHoverButton = new noHover();
-      noHoverButton.width *= 0.25;
-      noHoverButton.height *= 0.25;
-      e.target.addChildAt(noHoverButton,0);
-    }
+      _learnMoreLink.removeEventListener(MouseEvent.CLICK, clickLearnMoreLink);
+      _startButton.removeEventListener(MouseEvent.ROLL_OVER, rollOver);
+      _startButton.removeEventListener(MouseEvent.ROLL_OUT, rollOut);
+      _startButton.removeEventListener(MouseEvent.CLICK, clickStart);
 
-    private function clickMainResult(e:MouseEvent):void {
-      fadeEffect.play([resultsField, scrollBlock], true);
-      resultsField.text = TestResults.getDebugMsg();
-      resultsField.scrollV = 0;
-      fadeEffect.end();
-      scrollBlock.height = scrollBar.height / resultsField.maxScrollV;
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField, scrollBlock]);
-    }
-    private function clickStats(e:MouseEvent):void {
-      fadeEffect.play([resultsField, scrollBlock], true);
-      resultsField.text = TestResults.getDebugMsg();
-      resultsField.scrollV = 0;
-      fadeEffect.end();
-      scrollBlock.height = scrollBar.height / resultsField.maxScrollV;
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField, scrollBlock]);
-    }
-    private function clickDiagnostics(e:MouseEvent):void {
-      fadeEffect.play([resultsField, scrollBlock], true);
-      resultsField.text = TestResults.getResultDetails();
-      resultsField.scrollV = 0;
-      fadeEffect.end();
-      scrollBlock.height = 2 * scrollBar.height / resultsField.maxScrollV;
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField, scrollBlock]);
-    }
-    private function clickErrors(e:MouseEvent):void {
-      fadeEffect.play([resultsField], true);
-      resultsField.text = TestResults.getErrMsg();
-      resultsField.scrollV = 0;
-      fadeEffect.end();
-      scrollBlock.height = scrollBar.height / resultsField.maxScrollV;
-      scrollBlock.y = 0;
-      fadeEffect.play([resultsField, scrollBlock]);
-    }
-    private function scrollBarMove(e:MouseEvent):void {
-      var scrollTo:int =
-        int((Number(resultsField.maxScrollV) / scrollBar.height) * mouseY);
-      if (resultsField.scrollV != scrollTo)
-      {
-        resultsField.scrollV = scrollTo;
-        scrollBlock.y =
-          (Number(scrollBar.height) / resultsField.maxScrollV) * scrollTo;
+      while (this.numChildren > 0) {
+        this.removeChildAt(0);
       }
     }
+
+    /**
+     * Function that adds text to the TextField that is displaying the console
+     * output while the tests are running.
+     */
+    public function addConsoleOutput(text:String):void {
+      _consoleText.appendText(text);
+      _consoleText.scrollV++;
+    }
+
+    private function hideConsoleScreen():void {
+      _fadeEffect.play([_consoleText], true);
+      while (this.numChildren) {
+        this.removeChildAt(0);
+      }
+    }
+/// SSS
+    private function clickResults(e:MouseEvent):void {
+      _fadeEffect.play([_resultsTextField, scrollBlock], true);
+      _resultsTextField.text = TestResults.getDebugMsg();
+      _resultsTextField.scrollV = 0;
+      _fadeEffect.end();
+      scrollBlock.height = scrollBar.height / _resultsTextField.maxScrollV;
+      scrollBlock.y = 0;
+      _fadeEffect.play([_resultsTextField, scrollBlock]);
+    }
+
+    private function clickDetails(e:MouseEvent):void {
+      _fadeEffect.play([_resultsTextField, scrollBlock], true);
+      _resultsTextField.text = TestResults.getDebugMsg();
+      _resultsTextField.scrollV = 0;
+      _fadeEffect.end();
+      scrollBlock.height = scrollBar.height / _resultsTextField.maxScrollV;
+      scrollBlock.y = 0;
+      _fadeEffect.play([_resultsTextField, scrollBlock]);
+    }
+
+    private function clickDebug(e:MouseEvent):void {
+      _fadeEffect.play([_resultsTextField, scrollBlock], true);
+      _resultsTextField.text = TestResults.getResultDetails();
+      _resultsTextField.scrollV = 0;
+      _fadeEffect.end();
+      scrollBlock.height = 2 * scrollBar.height / _resultsTextField.maxScrollV;
+      scrollBlock.y = 0;
+      _fadeEffect.play([_resultsTextField, scrollBlock]);
+    }
+
+    private function clickErrors(e:MouseEvent):void {
+      _fadeEffect.play([_resultsTextField], true);
+      _resultsTextField.text = TestResults.getErrMsg();
+      _resultsTextField.scrollV = 0;
+      _fadeEffect.end();
+      scrollBlock.height = scrollBar.height / _resultsTextField.maxScrollV;
+      scrollBlock.y = 0;
+      _fadeEffect.play([_resultsTextField, scrollBlock]);
+    }
+
+    private function scrollBarMove(e:MouseEvent):void {
+      var scrollTo:int =
+        int((Number(_resultsTextField.maxScrollV) / scrollBar.height) * mouseY);
+      if (_resultsTextField.scrollV != scrollTo)
+      {
+        _resultsTextField.scrollV = scrollTo;
+        scrollBlock.y =
+          (Number(scrollBar.height) / _resultsTextField.maxScrollV) * scrollTo;
+      }
+    }
+
     private function moveScrollBlock(e:MouseEvent):void {
       scrollBar.removeEventListener(MouseEvent.CLICK, scrollBarMove);
       scrollBar.addEventListener(MouseEvent.MOUSE_MOVE, startDragging);
     }
+
     private function startDragging(e:MouseEvent):void {
       scrollBlock.y = mouseY - scrollBlock.height / 2;
     }
+
     private function stopScrollBlock(e:MouseEvent):void {
       scrollBar.removeEventListener(MouseEvent.MOUSE_MOVE, startDragging);
       var scrollTo:int =
-        int((Number(resultsField.maxScrollV) / scrollBar.height) * mouseY);
-      if (resultsField.scrollV != scrollTo)
+        int((Number(_resultsTextField.maxScrollV) / scrollBar.height) * mouseY);
+      if (_resultsTextField.scrollV != scrollTo)
       {
-        resultsField.scrollV = scrollTo;
+        _resultsTextField.scrollV = scrollTo;
         scrollBlock.y =
-          (Number(scrollBar.height) / resultsField.maxScrollV) * scrollTo;
+          (Number(scrollBar.height) / _resultsTextField.maxScrollV) * scrollTo;
       }
       else
         scrollBlock.y =
-          (Number(scrollBar.height) / resultsField.maxScrollV) * resultsField.scrollV;
+          (Number(scrollBar.height) / _resultsTextField.maxScrollV)
+          * _resultsTextField.scrollV;
       scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
     }
+
     private function scrollResults(e:MouseEvent):void {
-      if (resultsField.scrollV == resultsField.maxScrollV)
+      if (_resultsTextField.scrollV == _resultsTextField.maxScrollV)
       {
         scrollBlock.y = scrollBar.height - scrollBlock.height;
         return;
       }
-      else if (resultsField.scrollV == 1)
+      else if (_resultsTextField.scrollV == 1)
       {
         scrollBlock.y = 0;
         return;
       }
-      else if (resultsField.scrollV > resultsField.maxScrollV
-          || resultsField.scrollV < 0)
+      else if (_resultsTextField.scrollV > _resultsTextField.maxScrollV
+          || _resultsTextField.scrollV < 0)
         return;
       scrollBlock.y =
-          (Number(scrollBar.height) / resultsField.maxScrollV) * resultsField.scrollV;
+          (Number(scrollBar.height) / _resultsTextField.maxScrollV)
+          * _resultsTextField.scrollV;
     }
     private function scrollResultsUp(e:MouseEvent):void {
-      resultsField.scrollV--;
+      _resultsTextField.scrollV--;
       scrollResults(e);
     }
     private function scrollResultsDown(e:MouseEvent):void {
-      resultsField.scrollV++;
+      _resultsTextField.scrollV++;
       scrollResults(e);
     }
-    // end event-listener functions
+// EEE
 
-    // animation functions
-    private function startUpAnimation():void {
-      Mlab_logo.alpha = 0;
-      Start_button.alpha = 0;
-      About_ndt_text.alpha = 0;
-      Learn_text_container.alpha = 0;
-      fadeEffect.play([Mlab_logo, About_ndt_text,
-                      Learn_text_container, Start_button]);
-    }
-
-    private function hideInitialScreen():void {
-      fadeEffect.end();
-      fadeEffect.play([Mlab_logo, About_ndt_text,
-                      Learn_text_container, Start_button], true);
-
-      if (this.getChildByName("Mlab_logo")) {
-        this.removeChild(Mlab_logo);
-      }
-      if (this.getChildByName("About_ndt_text")) {
-        this.removeChild(About_ndt_text);
-      }
-      if (this.getChildByName("Learn_text_container")) {
-        this.removeChild(Learn_text_container);
-      }
-      if (this.getChildByName("Start_button")) {
-        this.removeChild(Start_button);
-      }
-
-      // removing initial event listeners
-      Learn_text_container.removeEventListener(MouseEvent.CLICK,
-                                               clickLearnText);
-      Start_button.removeEventListener(MouseEvent.ROLL_OVER, rollOverStart);
-      Start_button.removeEventListener(MouseEvent.ROLL_OUT, rollOutStart);
-      Start_button.removeEventListener(MouseEvent.CLICK, clickStart);
-      Learn_text_container.buttonMode = false;
-      Start_button.buttonMode = false;
-    }
-
-    /**
-     * Function that adds text to the TextField that is displaying
-     * the console output while the tests are running.
-     * @param {String} sParam The text to be added to the TextField
-     */
-    public function addConsoleOutput(sParam:String):void {
-      consoleText.appendText(sParam);
-    }
-
-    /**
-     * Function that creates and populates the Results screen
-     */
     public function displayResults():void {
-      fadeEffect.play([consoleText], true);
-      while (this.numChildren) {
-        this.removeChildAt(0);
-      }
-      resultsRect = new MovieClip();
+      hideConsoleScreen();
+
+      var resultsRect:Sprite = new Sprite();
+      resultsRect.x = 0.25 * _stageWidth;
       resultsRect.graphics.beginFill(0);
-      resultsRect.x = 0.25 * stagewidth;
-      resultsRect.graphics.drawRect(0, 0, 0.75*stagewidth, stageheight);
+      resultsRect.graphics.drawRect(0, 0, 0.75 *_stageWidth, _stageHeight);
       resultsRect.graphics.endFill();
       resultsRect.alpha = 0.125;
+      var blur:BlurFilter = new BlurFilter(16.0, 0, 1);
       resultsRect.filters = [blur];
-
-      resultsTextFormat = new TextFormat();
-      resultsTextFormat.font = "Verdana";
-      resultsTextFormat.size = 12;
-      resultsTextFormat.color = 0x000000;
-
-      resultsField = new TextField();
-      resultsField.defaultTextFormat = resultsTextFormat;
-      resultsField.x = (0.275*stagewidth);
-      resultsField.y = 0.05 * stageheight;
-      resultsField.width = (0.725*stagewidth);
-      resultsField.height = 0.90*stageheight;
-      resultsField.wordWrap = true;
       this.addChild(resultsRect);
-      this.addChild(resultsField);
+
+      _resultsTextField = new ResultsTextField();
+      _resultsTextField.x = 0.275 * _stageWidth;
+      _resultsTextField.y = 0.05 * _stageHeight;
+      _resultsTextField.width = 0.725 * _stageWidth;
+      _resultsTextField.height = 0.90 * _stageHeight;
+      this.addChild(_resultsTextField);
+
+      _resultsButton = new NDTButton("Results", 18, 0.25);
+      _detailsButton = new NDTButton("Details", 18, 0.25);
+      _errorsButton = new NDTButton("Errors", 18, 0.25);
+      if (CONFIG::debug)
+        _debugButton = new NDTButton("Debug", 18, 0.25);
+
+      var verticalMargin:Number = _stageHeight / 4;
+      if (CONFIG::debug)
+        verticalMargin = _stageHeight / 5;
+      _resultsButton.y = verticalMargin;
+      _detailsButton.y = _resultsButton.y + verticalMargin;
+      _errorsButton.y = _detailsButton.y  + verticalMargin;
+      _debugButton.y = _errorsButton.y + verticalMargin;
+      _resultsButton.x += _resultsButton.width / 2;
+      _detailsButton.x += _detailsButton.width / 2;
+      _errorsButton.x += _errorsButton.width / 2;
+      _debugButton.x += _debugButton.width / 2;
+
+      this.addChild(_resultsButton);
+      this.addChild(_detailsButton);
+      this.addChild(_errorsButton);
+      if (_debugButton)
+        this.addChild(_debugButton);
+
+      _resultsButton.addEventListener(MouseEvent.ROLL_OVER, rollOver);
+      _detailsButton.addEventListener(MouseEvent.ROLL_OVER, rollOver);
+      _errorsButton.addEventListener(MouseEvent.ROLL_OVER, rollOver);
+      if (_debugButton)
+        _debugButton.addEventListener(MouseEvent.ROLL_OVER, rollOver);
+
+      _resultsButton.addEventListener(MouseEvent.ROLL_OUT, rollOut);
+      _detailsButton.addEventListener(MouseEvent.ROLL_OUT, rollOut);
+      _errorsButton.addEventListener(MouseEvent.ROLL_OUT, rollOut);
+      if (_debugButton)
+        _debugButton.addEventListener(MouseEvent.ROLL_OUT, rollOut);
+
+      _resultsButton.addEventListener(MouseEvent.CLICK, clickResults);
+      _detailsButton.addEventListener(MouseEvent.CLICK, clickDetails);
+      _errorsButton.addEventListener(MouseEvent.CLICK, clickErrors);
+      if (_debugButton)
+        _debugButton.addEventListener(MouseEvent.CLICK, clickDebug);
+
       if (TestResults.ndt_test_results::ndtTestFailed)
-        resultsField.appendText("Test Failed! View errors for more details.\n");
+        _resultsTextField.appendText(
+            "Test Failed! View errors for more details.\n");
       else
-        resultsField.appendText("\n" + TestResults.getDebugMsg() + "\n");
+        _resultsTextField.appendText(TestResults.getResultDetails());
 
-      var tempText:TextField = new TextField();
-      resultsTextFormat.size = 18;
-      resultsTextFormat.font = "Comic Sans";
-      resultsTextFormat.bold = true;
-      resultsTextFormat.color = 0xFFFFFF;
-      resultsTextFormat.align = TextFormatAlign.CENTER;
-      tempText.defaultTextFormat = resultsTextFormat;
-      tempText.text = "Results";
-
-      var diff:Number = stageheight / 3;
-
-      // Results Button
-      noHoverButton = new noHover();
-      noHoverButton.width *= 0.25;
-      noHoverButton.height *= 0.25;
-      tempText.width = 0.75 * noHoverButton.width;
-      tempText.height = 0.50 * noHoverButton.height;
-      mainResult = new MovieClip();
-      mainResult.addChild(noHoverButton);
-      mainResult.mouseChildren = false;
-      tempText.x = noHoverButton.width/2 - tempText.width/2;
-      tempText.y = noHoverButton.height/2 - tempText.height/2;
-      mainResult.addChild(tempText);
-
-      // Details Button
-      noHoverButton = new noHover();
-      noHoverButton.width *= 0.25;
-      noHoverButton.height *= 0.25;
-      tempText = new TextField();
-      tempText.defaultTextFormat = resultsTextFormat;
-      tempText.text = "Details";
-      tempText.width = 0.75 * noHoverButton.width;
-      tempText.height = 0.50 * noHoverButton.height;
-      statsButton = new MovieClip();
-      statsButton.addChild(noHoverButton);
-      statsButton.mouseChildren = false;
-      tempText.x = noHoverButton.width/2 - tempText.width/2;
-      tempText.y = noHoverButton.height/2 - tempText.height/2;
-      statsButton.addChild(tempText);
-
-      // Advanced Button
-      noHoverButton = new noHover();
-      noHoverButton.width *= 0.25;
-      noHoverButton.height *= 0.25;
-      tempText = new TextField();
-      tempText.defaultTextFormat = resultsTextFormat;
-      tempText.text = "Advanced";
-      tempText.width = 0.75 * noHoverButton.width;
-      tempText.height = 0.50 * noHoverButton.height;
-      diagnosticsButton = new MovieClip();
-      diagnosticsButton.addChild(noHoverButton);
-      diagnosticsButton.mouseChildren = false;
-      tempText.x = noHoverButton.width/2 - tempText.width/2;
-      tempText.y = noHoverButton.height/2 - tempText.height/2;
-      diagnosticsButton.addChild(tempText);
-
-      // Errors Button
-      if (TestResults.getErrMsg() != "") {
-        tempText = new TextField();
-        noHoverButton = new noHover();
-        noHoverButton.width *= 0.25;
-        noHoverButton.height *= 0.25;
-        tempText.defaultTextFormat = resultsTextFormat;
-        tempText.text = "Errors";
-        tempText.width = 0.75 * noHoverButton.width;
-        tempText.height = 0.50 * noHoverButton.height;
-        errorsButton = new MovieClip();
-        errorsButton.addChild(noHoverButton);
-        errorsButton.mouseChildren = false;
-        tempText.x = noHoverButton.width/2 - tempText.width/2;
-        tempText.y = noHoverButton.height/2 - tempText.height/2;
-        errorsButton.addChild(tempText);
-        diff = stageheight / 4;
-      }
-
+// SSS
       // create scrollbar
       scrollBar = new Sprite();
       scrollBar.graphics.beginFill(0x808080, 0.35);
-      scrollBar.graphics.drawRect(0, 0, 8, stageheight - 30);
+      scrollBar.graphics.drawRect(0, 0, 8, _stageHeight - 30);
       scrollBar.graphics.endFill();
-      scrollBar.x = stagewidth - 8;
+      scrollBar.x = _stageWidth - 8;
       scrollBar.y = 15;
       scrollBlock = new Sprite();
       scrollBlock.graphics.beginFill(0xC0C0C0, 0.50);
-      scrollBlock.graphics.drawRect(1, 0, 6, scrollBar.height/resultsField.maxScrollV);
+      scrollBlock.graphics.drawRect(1, 0, 6, scrollBar.height/_resultsTextField.maxScrollV);
       scrollBlock.graphics.endFill();
 
-      scrollUpButton = new MovieClip();
-      scrollDownButton = new MovieClip();
-      scrollUpButton.x = stagewidth - 8;
+      scrollUpButton = new Sprite();
+      scrollDownButton = new Sprite();
+      scrollUpButton.x = _stageWidth - 8;
       scrollUp.y = 0;
       scrollUpButton.addChild(new scrollUp());
       scrollUpButton.width = 8;
       scrollUpButton.height = 15;
       scrollUpButton.buttonMode = true;
-      scrollDownButton.x = stagewidth - 8;
-      scrollDownButton.y = stageheight - 15;
+      scrollDownButton.x = _stageWidth - 8;
+      scrollDownButton.y = _stageHeight - 15;
       scrollDownButton.addChild(new scrollDown());
       scrollDownButton.width = 8;
       scrollDownButton.height = 15;
@@ -418,157 +338,153 @@ package  {
       scrollBlock.addEventListener(MouseEvent.MOUSE_UP, stopScrollBlock);
       scrollUpButton.addEventListener(MouseEvent.CLICK, scrollResultsUp);
       scrollDownButton.addEventListener(MouseEvent.CLICK, scrollResultsDown);
-      resultsField.addEventListener(MouseEvent.MOUSE_WHEEL, scrollResults);
-
-      mainResult.y = 0.05 * stageheight;
-      statsButton.y = mainResult.y + diff;
-      diagnosticsButton.y = statsButton.y + diff;
-      if (errorsButton)
-        errorsButton.y = diagnosticsButton.y  + diff;
-      mainResult.buttonMode = true;
-      statsButton.buttonMode = true;
-      diagnosticsButton.buttonMode = true;
-      if (errorsButton)
-        errorsButton.buttonMode = true;
-
-      this.addChild(mainResult);
-      this.addChild(statsButton);
-      this.addChild(diagnosticsButton);
-      if (errorsButton)
-        this.addChild(errorsButton);
+      _resultsTextField.addEventListener(MouseEvent.MOUSE_WHEEL, scrollResults);
       this.addChild(scrollBar);
-
-      mainResult.addEventListener(MouseEvent.ROLL_OVER, rollOverResult);
-      statsButton.addEventListener(MouseEvent.ROLL_OVER, rollOverResult);
-      diagnosticsButton.addEventListener(MouseEvent.ROLL_OVER, rollOverResult);
-      if (errorsButton)
-        errorsButton.addEventListener(MouseEvent.ROLL_OVER, rollOverResult);
-
-      mainResult.addEventListener(MouseEvent.ROLL_OUT, rollOutResult);
-      statsButton.addEventListener(MouseEvent.ROLL_OUT, rollOutResult);
-      diagnosticsButton.addEventListener(MouseEvent.ROLL_OUT, rollOutResult);
-      if (errorsButton)
-        errorsButton.addEventListener(MouseEvent.ROLL_OUT, rollOutResult);
-
-      mainResult.addEventListener(MouseEvent.CLICK, clickMainResult);
-      statsButton.addEventListener(MouseEvent.CLICK, clickStats);
-      diagnosticsButton.addEventListener(MouseEvent.CLICK, clickDiagnostics);
-      if (errorsButton)
-        errorsButton.addEventListener(MouseEvent.CLICK, clickErrors);
+// EEE
     }
 
-    /**
-       Constructor of the GUI class. Initializes the objects and positions
-       them on the screen using a relative layout.
-       @param {int} stageW Width of the stage to which the GUI is added
-       @param {int} stageH Height of the stage
-       @param {NDTPController} Parent The class in which the object of GUI
-          was created.
-     */
-    public function GUI(stageW:int, stageH:int, Parent:NDTPController) {
-      stagewidth  = stageW;
-      stageheight = stageH;
-      parentObject = Parent;
+    public function GUI(
+        stageWidth:int, stageHeight:int, callerObj:NDTPController) {
+      _stageWidth  = stageWidth;
+      _stageHeight = stageHeight;
+      _callerObj = callerObj;
 
-      // variables initialization
-      Mlab_logo = new mLabLogo();
-      Url_request = new URLRequest(NDTConstants.MLAB_SITE);
-      Start_button = new MovieClip();
-        hoverButton = new hover();
-        hoverButton.width *= 0.40;
-        hoverButton.height *= 0.40;
-        hoverButton.x -= hoverButton.width / 2;
-        hoverButton.y -= hoverButton.height / 2;
-        noHoverButton = new noHover();
-        noHoverButton.width *= 0.40;
-        noHoverButton.height *= 0.40;
-        noHoverButton.x -= noHoverButton.width / 2;
-        noHoverButton.y -= noHoverButton.height / 2;
-        var startText:TextField = new TextField();
-        var startTextFormat:TextFormat = new TextFormat();
-        startTextFormat.size = 26;
-        startTextFormat.font = "Comic Sans";
-        startTextFormat.bold = true;
-        startTextFormat.align = TextFormatAlign.CENTER;
-        startTextFormat.color = 0xFFFFFF;
-        startText.defaultTextFormat = startTextFormat;
-        startText.width = noHoverButton.width;
-        startText.height = 30;
-        startText.x -= startText.width / 2;
-        startText.y -= startText.height / 2;
-        startText.text = "Start";
-        Start_button.addChild(noHoverButton);
-        Start_button.addChild(startText);
-        Start_button.mouseChildren = false;
-        Start_button.buttonMode = true;
-      About_text_format = new TextFormat();
-        About_text_format.size = 14;
-        About_text_format.font = "Verdana";
-        About_text_format.align = TextFormatAlign.CENTER;
-        About_text_format.color = 0x000000;
-      Learn_more_format = new TextFormat();
-        Learn_more_format.size = 14;
-        Learn_more_format.underline = true;
-        Learn_more_format.font = "Verdana";
-        Learn_more_format.align = TextFormatAlign.CENTER;
-        Learn_more_format.color = 0x000000;
-      Learn_more_text = new TextField();
-        Learn_more_text.defaultTextFormat = Learn_more_format;
-        Learn_more_text.width = 0.50 * stagewidth;
-        Learn_more_text.height = 22;
-        Learn_more_text.text = "Learn more about Measurement Lab";
-      About_ndt_text = new TextField();
-      About_ndt_text.defaultTextFormat = About_text_format;
-      About_ndt_text.width = 0.75 * stagewidth;
-      About_ndt_text.height = 0.40 * stageheight;
-      About_ndt_text.wordWrap = true;
-      About_ndt_text.selectable = false;
-      About_ndt_text.text = "Network Diagnostic Tool (NDT) provides a "
-                            + "sophisticated speed and diagnostic test. An NDT "
-                            + "test reports more than just the upload and "
-                            + "download speeds — it also attempts to determine "
-                            + "what, if any, problems limited these speeds, "
-                            + "differentiating between computer configuration "
-                            + "and network infrastructure problems. While the "
-                            + "diagnostic messages are most useful for expert "
-                            + "users, they can also help novice users by "
-                            + "allowing them to provide detailed trouble "
-                            + "reports to their network administrator.";
+      // Create objects of the initial screen.
+      // 1) M-Lab logo
+      _mlabLogo = new MLabLogoImg();
 
-      Learn_text_container = new Sprite();
-        Learn_text_container.addChild(Learn_more_text);
-        Learn_text_container.buttonMode = true;
-        Learn_text_container.mouseChildren = false;
-      blur = new BlurFilter(16.0, 0, 1);
-      // positioning objects on stage using a relative layout
-      Mlab_logo.x = (stagewidth/2) - (Mlab_logo.width/2);
-      Mlab_logo.y = 0.125*Mlab_logo.height;
-      About_ndt_text.x = 0.125 * stagewidth;
-      About_ndt_text.y = (Mlab_logo.y) + 1.125*Mlab_logo.height;
-      Learn_text_container.x = (stagewidth/2) - (Learn_text_container.width/2);
-      Learn_text_container.y = About_ndt_text.y + About_ndt_text.height;
-      Start_button.x = (stagewidth / 2);
-      Start_button.y = Learn_text_container.y + 4*Learn_text_container.height;
+      // 2) About NDT
+      var aboutNDTTextFormat:TextFormat = new TextFormat();
+      aboutNDTTextFormat.size = 14;
+      aboutNDTTextFormat.font = "Verdana";
+      aboutNDTTextFormat.align = TextFormatAlign.CENTER;
+      aboutNDTTextFormat.color = 0x000000;
+      _aboutNDTText = new TextField();
+      _aboutNDTText.defaultTextFormat = aboutNDTTextFormat;
+      _aboutNDTText.width = 0.75 * _stageWidth;
+      _aboutNDTText.height = 0.40 * _stageHeight;
+      _aboutNDTText.wordWrap = true;
+      _aboutNDTText.selectable = false;
+      _aboutNDTText.text = "Network Diagnostic Tool (NDT) provides a "
+                           + "sophisticated speed and diagnostic test. An NDT "
+                           + "test reports more than just the upload and "
+                           + "download speeds — it also attempts to determine "
+                           + "what, if any, problems limited these speeds, "
+                           + "differentiating between computer configuration "
+                           + "and network infrastructure problems. While the "
+                           + "diagnostic messages are most useful for expert "
+                           + "users, they can also help novice users by "
+                           + "allowing them to provide detailed trouble "
+                           + "reports to their network administrator.";
 
-      // adding objects to the GUI Container
-      this.addChild(Mlab_logo);
-      this.addChild(Start_button);
-      this.addChild(Learn_text_container);
-      this.addChild(About_ndt_text);
+      // 3) Learn more link
+      _urlRequest = new URLRequest(NDTConstants.MLAB_SITE);
+      var learnMoreTextFormat:TextFormat = new TextFormat();
+      learnMoreTextFormat.size = 14;
+      learnMoreTextFormat.font = "Verdana";
+      learnMoreTextFormat.underline = true;
+      learnMoreTextFormat.align = TextFormatAlign.CENTER;
+      learnMoreTextFormat.color = 0x000000;
+      var learnMoreText:TextField = new TextField();
+      learnMoreText.defaultTextFormat = learnMoreTextFormat;
+      learnMoreText.text = "Learn more about Measurement Lab";
+      _learnMoreLink = new Sprite();
+      _learnMoreLink.addChild(learnMoreText);
+      _learnMoreLink.buttonMode = true;
+      _learnMoreLink.mouseChildren = false;
+      _learnMoreLink.width = 0.50 * _stageWidth;
+      //_learnMoreLink.height = 22;
 
-      // Initialize tween variables
-      fadeEffect = new Fade();
-      fadeEffect.alphaFrom = 0.0;
-      fadeEffect.alphaTo = 1.0;
-      fadeEffect.duration = 500;
-      startUpAnimation();
+      // 4) Start button
+      _startButton = new NDTButton("Start", 26, 0.4);
 
-      // Initial Event Listeners
-      Learn_text_container.addEventListener(MouseEvent.CLICK, clickLearnText);
-      Start_button.addEventListener(MouseEvent.ROLL_OVER, rollOverStart);
-      Start_button.addEventListener(MouseEvent.ROLL_OUT, rollOutStart);
-      Start_button.addEventListener(MouseEvent.CLICK, clickStart);
+      // Position objects within initial screen, using a relative layout.
+      _mlabLogo.x = (_stageWidth / 2) - (_mlabLogo.width / 2);
+      _aboutNDTText.x = _stageWidth / 2 - _aboutNDTText.width / 2;
+      _learnMoreLink.x = _stageWidth / 2 - _learnMoreLink.width / 2;
+      _startButton.x = _stageWidth / 2;
+      var verticalMargin:Number = (_stageHeight - (
+          _mlabLogo.height + _aboutNDTText.height + _learnMoreLink.height
+          + _startButton.height)) / 5;
+      _mlabLogo.y = verticalMargin;
+      _aboutNDTText.y = _mlabLogo.y + _mlabLogo.height + verticalMargin;
+      _learnMoreLink.y = _aboutNDTText.y + _aboutNDTText.height;
+                         + verticalMargin;
+      _startButton.y = _learnMoreLink.y + _learnMoreLink.height
+                         + verticalMargin;
+
+      // Add initial event listeners.
+      _learnMoreLink.addEventListener(MouseEvent.CLICK, clickLearnMoreLink);
+      _startButton.addEventListener(MouseEvent.ROLL_OVER, rollOver);
+      _startButton.addEventListener(MouseEvent.ROLL_OUT, rollOut);
+      _startButton.addEventListener(MouseEvent.CLICK, clickStart);
+
+      // Add objects to the initial screen.
+      this.addChild(_mlabLogo);
+      this.addChild(_aboutNDTText);
+      this.addChild(_learnMoreLink);
+      this.addChild(_startButton);
+
+      // Initialize animation variables and visualize the initial screen.
+      _fadeEffect = new Fade();
+      _fadeEffect.alphaFrom = 0.0;
+      _fadeEffect.alphaTo = 1.0;
+      _fadeEffect.duration = 500;  // 0.5sec
+      _fadeEffect.play(
+          [_mlabLogo, _aboutNDTText, _learnMoreLink, _startButton]);
     }
+  }
+}
+
+import flash.display.DisplayObject;
+import flash.display.Sprite;
+import flash.text.*;
+
+class NDTButton extends Sprite {
+  [Embed(source="../assets/hover.png")]
+  private var ButtonImg:Class;
+
+  function NDTButton(text:String, textSize:int, prop:Number) {
+    super();
+    this.buttonMode = true;
+
+    var textFormat:TextFormat = new TextFormat();
+    textFormat.size = textSize;
+    textFormat.font = "Comic Sans";
+    textFormat.bold = true;
+    textFormat.align = TextFormatAlign.CENTER;
+    textFormat.color = 0xFFFFFF;
+    var textField:TextField = new TextField();
+    textField.defaultTextFormat = textFormat;
+    textField.text = text;
+
+    var buttonShape:DisplayObject = new ButtonImg();
+
+    buttonShape.width *= prop;
+    buttonShape.height *= prop;
+    buttonShape.x -= buttonShape.width / 2;
+    buttonShape.y -= buttonShape.height / 2;
+    textField.width = buttonShape.width;
+    textField.height = 30;
+    textField.x -= textField.width / 2;
+    textField.y -= textField.height / 2;
+
+    this.addChild(buttonShape);
+    this.addChild(textField);
+    this.mouseChildren = false;
+  }
+}
+
+class ResultsTextField extends TextField {
+  public function ResultsTextField() {
+    super();
+    this.wordWrap = true;
+    var textFormat:TextFormat = new TextFormat();
+    textFormat.size = 12;
+    textFormat.font = "Verdana";
+    textFormat.color = 0x000000;
+    textFormat.align = TextFormatAlign.LEFT;
+    this.defaultTextFormat = textFormat;
   }
 }
 
