@@ -464,6 +464,7 @@ package  {
         TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "c2sThroughputFailed", null,
             Main.locale));
+      TestResults.ndt_test_results::c2sTestSuccess = _c2sTestSuccess;
       TestResults.ndt_test_results::ndtTestStatus = "done";
       NDTUtils.callExternalFunction("testCompleted", "ClientToServerThroughput",
                                     (!_c2sTestSuccess).toString());

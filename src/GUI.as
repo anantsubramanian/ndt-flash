@@ -108,7 +108,7 @@ package  {
     }
 
     private function clickResults(e:MouseEvent):void {
-      _resultsTextField.text = TestResults.getResultDetails();
+      _resultsTextField.text = TestResults.getResultSummary();
       _resultsTextField.scrollV = 0;
    }
 
@@ -189,10 +189,7 @@ package  {
       if (_debugButton)
         _debugButton.addEventListener(MouseEvent.CLICK, clickDebug);
 
-      if (TestResults.ndt_test_results::ndtTestFailed)
-        _resultsTextField.text = "Test Failed! View errors for more details.\n";
-      else
-        _resultsTextField.text = TestResults.getResultDetails();
+      _resultsTextField.text = TestResults.getResultSummary();
     }
 
     public function GUI(

@@ -499,6 +499,7 @@ package  {
             NDTConstants.BUNDLE_NAME, "s2cThroughputFailed", null,
             Main.locale));
 
+      TestResults.ndt_test_results::s2cTestSuccess = _s2cTestSuccess;
       TestResults.ndt_test_results::ndtTestStatus = "done";
       NDTUtils.callExternalFunction(
           "testCompleted", "ServerToClientThroughput",
