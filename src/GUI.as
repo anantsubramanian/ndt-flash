@@ -28,16 +28,12 @@ package  {
   import spark.effects.*;
 
   /**
-   * Class that creates a Flash GUI for the tool. The GUI is optional and can
-   * be disabled in the 'Main' class.
+   * Class that creates a Flash GUI for the tool. The GUI is optional and can be
+   * disabled in the 'Main' class.
    */
   public class GUI extends Sprite {
-    public static const BUTTON_INDEX:int = 0;
-    public static const TEXT_INDEX:int = 1;
-
     [Embed(source="../assets/mlab-logo.png")]
     private var MLabLogoImg:Class;
-    private var _fadeEffect:Fade;
 
     private var _stageWidth:int;
     private var _stageHeight:int;
@@ -55,17 +51,6 @@ package  {
     private var _detailsButton:Sprite;
     private var _errorsButton:Sprite;
     private var _debugButton:Sprite;
-
-// SSS
-    private var scrollBar:Sprite;
-    private var scrollBlock:Sprite;
-    [Embed(source="../assets/scrollUp.png")]
-    private var scrollUp:Class;
-    [Embed(source="../assets/scrollDown.png")]
-    private var scrollDown:Class;
-    private var scrollUpButton:Sprite;
-    private var scrollDownButton:Sprite;
-// EEE
 
     // Event listeners
     private function clickLearnMoreLink(e:MouseEvent):void {
@@ -90,25 +75,21 @@ package  {
       _consoleText.scrollV = 0;
       _consoleText.x = 0.02 * _stageWidth;
       _consoleText.y = 0.02 * _stageHeight;
-      _consoleText.width = 0.98 * _stageWidth;
-      _consoleText.height = 0.98 * _stageHeight;
+      _consoleText.width = 0.96 * _stageWidth;
+      _consoleText.height = 0.96 * _stageHeight;
       this.addChild(_consoleText);
       _callerObj.startNDTTest();
     }
 
     private function hideInitialScreen():void {
-      _fadeEffect.end();
-      _fadeEffect.play(
-          [_mlabLogo, _aboutNDTText, _learnMoreLink, _startButton], true);
+      while (this.numChildren > 0) {
+        this.removeChildAt(0);
+      }
 
       _learnMoreLink.removeEventListener(MouseEvent.CLICK, clickLearnMoreLink);
       _startButton.removeEventListener(MouseEvent.ROLL_OVER, rollOver);
       _startButton.removeEventListener(MouseEvent.ROLL_OUT, rollOut);
       _startButton.removeEventListener(MouseEvent.CLICK, clickStart);
-
-      while (this.numChildren > 0) {
-        this.removeChildAt(0);
-      }
     }
 
     /**
@@ -121,116 +102,30 @@ package  {
     }
 
     private function hideConsoleScreen():void {
-      _fadeEffect.play([_consoleText], true);
       while (this.numChildren) {
         this.removeChildAt(0);
       }
     }
-/// SSS
+
     private function clickResults(e:MouseEvent):void {
-      _fadeEffect.play([_resultsTextField, scrollBlock], true);
-      _resultsTextField.text = TestResults.getDebugMsg();
+      _resultsTextField.text = TestResults.getResultDetails();
       _resultsTextField.scrollV = 0;
-      _fadeEffect.end();
-      scrollBlock.height = scrollBar.height / _resultsTextField.maxScrollV;
-      scrollBlock.y = 0;
-      _fadeEffect.play([_resultsTextField, scrollBlock]);
-    }
+   }
 
     private function clickDetails(e:MouseEvent):void {
-      _fadeEffect.play([_resultsTextField, scrollBlock], true);
-      _resultsTextField.text = TestResults.getDebugMsg();
+      _resultsTextField.text = TestResults.getResultDetails();
       _resultsTextField.scrollV = 0;
-      _fadeEffect.end();
-      scrollBlock.height = scrollBar.height / _resultsTextField.maxScrollV;
-      scrollBlock.y = 0;
-      _fadeEffect.play([_resultsTextField, scrollBlock]);
     }
 
     private function clickDebug(e:MouseEvent):void {
-      _fadeEffect.play([_resultsTextField, scrollBlock], true);
-      _resultsTextField.text = TestResults.getResultDetails();
+      _resultsTextField.text = TestResults.getDebugMsg();
       _resultsTextField.scrollV = 0;
-      _fadeEffect.end();
-      scrollBlock.height = 2 * scrollBar.height / _resultsTextField.maxScrollV;
-      scrollBlock.y = 0;
-      _fadeEffect.play([_resultsTextField, scrollBlock]);
     }
 
     private function clickErrors(e:MouseEvent):void {
-      _fadeEffect.play([_resultsTextField], true);
       _resultsTextField.text = TestResults.getErrMsg();
       _resultsTextField.scrollV = 0;
-      _fadeEffect.end();
-      scrollBlock.height = scrollBar.height / _resultsTextField.maxScrollV;
-      scrollBlock.y = 0;
-      _fadeEffect.play([_resultsTextField, scrollBlock]);
     }
-
-    private function scrollBarMove(e:MouseEvent):void {
-      var scrollTo:int =
-        int((Number(_resultsTextField.maxScrollV) / scrollBar.height) * mouseY);
-      if (_resultsTextField.scrollV != scrollTo)
-      {
-        _resultsTextField.scrollV = scrollTo;
-        scrollBlock.y =
-          (Number(scrollBar.height) / _resultsTextField.maxScrollV) * scrollTo;
-      }
-    }
-
-    private function moveScrollBlock(e:MouseEvent):void {
-      scrollBar.removeEventListener(MouseEvent.CLICK, scrollBarMove);
-      scrollBar.addEventListener(MouseEvent.MOUSE_MOVE, startDragging);
-    }
-
-    private function startDragging(e:MouseEvent):void {
-      scrollBlock.y = mouseY - scrollBlock.height / 2;
-    }
-
-    private function stopScrollBlock(e:MouseEvent):void {
-      scrollBar.removeEventListener(MouseEvent.MOUSE_MOVE, startDragging);
-      var scrollTo:int =
-        int((Number(_resultsTextField.maxScrollV) / scrollBar.height) * mouseY);
-      if (_resultsTextField.scrollV != scrollTo)
-      {
-        _resultsTextField.scrollV = scrollTo;
-        scrollBlock.y =
-          (Number(scrollBar.height) / _resultsTextField.maxScrollV) * scrollTo;
-      }
-      else
-        scrollBlock.y =
-          (Number(scrollBar.height) / _resultsTextField.maxScrollV)
-          * _resultsTextField.scrollV;
-      scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
-    }
-
-    private function scrollResults(e:MouseEvent):void {
-      if (_resultsTextField.scrollV == _resultsTextField.maxScrollV)
-      {
-        scrollBlock.y = scrollBar.height - scrollBlock.height;
-        return;
-      }
-      else if (_resultsTextField.scrollV == 1)
-      {
-        scrollBlock.y = 0;
-        return;
-      }
-      else if (_resultsTextField.scrollV > _resultsTextField.maxScrollV
-          || _resultsTextField.scrollV < 0)
-        return;
-      scrollBlock.y =
-          (Number(scrollBar.height) / _resultsTextField.maxScrollV)
-          * _resultsTextField.scrollV;
-    }
-    private function scrollResultsUp(e:MouseEvent):void {
-      _resultsTextField.scrollV--;
-      scrollResults(e);
-    }
-    private function scrollResultsDown(e:MouseEvent):void {
-      _resultsTextField.scrollV++;
-      scrollResults(e);
-    }
-// EEE
 
     public function displayResults():void {
       hideConsoleScreen();
@@ -295,52 +190,9 @@ package  {
         _debugButton.addEventListener(MouseEvent.CLICK, clickDebug);
 
       if (TestResults.ndt_test_results::ndtTestFailed)
-        _resultsTextField.appendText(
-            "Test Failed! View errors for more details.\n");
+        _resultsTextField.text = "Test Failed! View errors for more details.\n";
       else
-        _resultsTextField.appendText(TestResults.getResultDetails());
-
-// SSS
-      // create scrollbar
-      scrollBar = new Sprite();
-      scrollBar.graphics.beginFill(0x808080, 0.35);
-      scrollBar.graphics.drawRect(0, 0, 8, _stageHeight - 30);
-      scrollBar.graphics.endFill();
-      scrollBar.x = _stageWidth - 8;
-      scrollBar.y = 15;
-      scrollBlock = new Sprite();
-      scrollBlock.graphics.beginFill(0xC0C0C0, 0.50);
-      scrollBlock.graphics.drawRect(1, 0, 6, scrollBar.height/_resultsTextField.maxScrollV);
-      scrollBlock.graphics.endFill();
-
-      scrollUpButton = new Sprite();
-      scrollDownButton = new Sprite();
-      scrollUpButton.x = _stageWidth - 8;
-      scrollUp.y = 0;
-      scrollUpButton.addChild(new scrollUp());
-      scrollUpButton.width = 8;
-      scrollUpButton.height = 15;
-      scrollUpButton.buttonMode = true;
-      scrollDownButton.x = _stageWidth - 8;
-      scrollDownButton.y = _stageHeight - 15;
-      scrollDownButton.addChild(new scrollDown());
-      scrollDownButton.width = 8;
-      scrollDownButton.height = 15;
-      scrollDownButton.buttonMode = true;
-
-      scrollBar.addChild(scrollBlock);
-      this.addChild(scrollUpButton);
-      this.addChild(scrollDownButton);
-      scrollBar.mouseChildren = true;
-      scrollBar.buttonMode = true;
-      scrollBar.addEventListener(MouseEvent.CLICK, scrollBarMove);
-      scrollBlock.addEventListener(MouseEvent.MOUSE_DOWN, moveScrollBlock);
-      scrollBlock.addEventListener(MouseEvent.MOUSE_UP, stopScrollBlock);
-      scrollUpButton.addEventListener(MouseEvent.CLICK, scrollResultsUp);
-      scrollDownButton.addEventListener(MouseEvent.CLICK, scrollResultsDown);
-      _resultsTextField.addEventListener(MouseEvent.MOUSE_WHEEL, scrollResults);
-      this.addChild(scrollBar);
-// EEE
+        _resultsTextField.text = TestResults.getResultDetails();
     }
 
     public function GUI(
@@ -393,7 +245,6 @@ package  {
       _learnMoreLink.buttonMode = true;
       _learnMoreLink.mouseChildren = false;
       _learnMoreLink.width = 0.50 * _stageWidth;
-      //_learnMoreLink.height = 22;
 
       // 4) Start button
       _startButton = new NDTButton("Start", 26, 0.4);
@@ -424,14 +275,6 @@ package  {
       this.addChild(_aboutNDTText);
       this.addChild(_learnMoreLink);
       this.addChild(_startButton);
-
-      // Initialize animation variables and visualize the initial screen.
-      _fadeEffect = new Fade();
-      _fadeEffect.alphaFrom = 0.0;
-      _fadeEffect.alphaTo = 1.0;
-      _fadeEffect.duration = 500;  // 0.5sec
-      _fadeEffect.play(
-          [_mlabLogo, _aboutNDTText, _learnMoreLink, _startButton]);
     }
   }
 }
