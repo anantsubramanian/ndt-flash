@@ -319,17 +319,20 @@ package  {
    }
 
     private function clickDetails(e:MouseEvent):void {
-      _resultsTextField.text = TestResults.getResultDetails();
+      _resultsTextField.htmlText = "<font size=\"14\">"
+                                   + TestResults.getResultDetails();
       _resultsTextField.scrollV = 0;
     }
 
     private function clickDebug(e:MouseEvent):void {
-      _resultsTextField.text = TestResults.getDebugMsg();
+      _resultsTextField.htmlText = "<font size=\"14\">"
+                                   + TestResults.getDebugMsg();
       _resultsTextField.scrollV = 0;
     }
 
     private function clickErrors(e:MouseEvent):void {
-      _resultsTextField.text = TestResults.getErrMsg();
+      _resultsTextField.htmlText = "<font size=\"14\">"
+                                   + TestResults.getErrMsg();
       _resultsTextField.scrollV = 0;
     }
   }
