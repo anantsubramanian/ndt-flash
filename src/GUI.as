@@ -47,6 +47,7 @@ package  {
 
     private var _consoleText:TextField;
     private var _resultsTextField:TextField;
+    private var _summaryResultText:String;
     private var _resultsButton:Sprite;
     private var _detailsButton:Sprite;
     private var _errorsButton:Sprite;
@@ -104,7 +105,7 @@ package  {
       _learnMoreLink.width = 0.50 * _stageWidth;
 
       // 4) Start button
-      _startButton = new NDTButton("Start", 26, 0.4);
+      _startButton = new NDTButton("Start", 28, 0.4);
 
       // Position objects within initial screen, using a relative layout.
       _mlabLogo.x = (_stageWidth / 2) - (_mlabLogo.width / 2);
@@ -165,7 +166,7 @@ package  {
     private function hideInitialScreen():void {
       while (this.numChildren > 0)
         this.removeChildAt(0);
- 
+
       _learnMoreLink.removeEventListener(MouseEvent.CLICK, clickLearnMoreLink);
       _startButton.removeEventListener(MouseEvent.ROLL_OVER, rollOver);
       _startButton.removeEventListener(MouseEvent.ROLL_OUT, rollOut);
@@ -248,11 +249,68 @@ package  {
       if (_debugButton)
         _debugButton.addEventListener(MouseEvent.CLICK, clickDebug);
 
-      _resultsTextField.text = TestResults.getResultSummary();
+      _summaryResultText = new String();
+      _summaryResultText = (
+          "<p><font size=\"16\">" + "NDT test run towards M-Lab server<br>"
+          + "<b>" + NDTConstants.SERVER_HOSTNAME + "</b></font><br><br>");
+
+      if (TestResults.ndt_test_results::ndtVariables[NDTConstants.MINRTT]) {
+        _summaryResultText += (
+          "<p><font size=\"16\">" + "RTT between client and M-Lab server<br>"
+          + "<p><font size=\"30\">"
+          + TestResults.ndt_test_results::ndtVariables[NDTConstants.MINRTT]
+          + "</font> ms</font><br><br>");
+      }
+
+      if ((TestResults.ndt_test_results::testsConfirmedByServer & TestType.S2C)
+          == TestType.S2C) {
+        if (!TestResults.ndt_test_results::s2cTestSuccess)
+          _summaryResultText += (
+              "<p><font size=\"18\" color=\"#FF0000\">"
+              + "Download test FAILED! View Errors for details.</font>");
+        else {
+          // Print results in the most convinient units.
+          _summaryResultText += (
+              "<p><font size=\"16\">" + "DOWNLOAD SPEED<br>");
+          if (TestResults.ndt_test_results::s2cSpeed < 1.0)
+            _summaryResultText += (
+              "<p><font size=\"30\">"
+              + TestResults.ndt_test_results::s2cSpeed.toFixed(1)
+              + "</font> kbps</font><br><br>");
+          else
+            _summaryResultText += (
+            "<p><font size=\"30\">"
+            + (TestResults.ndt_test_results::s2cSpeed / 1000).toFixed(1)
+            + "</font> Mbps</font><br><br>");
+        }
+      }
+      if ((TestResults.ndt_test_results::testsConfirmedByServer & TestType.C2S)
+          == TestType.C2S) {
+        if (!TestResults.ndt_test_results::c2sTestSuccess)
+          _summaryResultText += (
+              "<p><font size=\"18\" color=\"#FF0000\">"
+              + "Upload test FAILED! View Errors for details.</font>");
+        else {
+          // Print results in the most convinient units.
+          _summaryResultText += (
+              "<p><fonit size=\"16\">" + "UPLOAD SPEED<br>");
+          if (TestResults.ndt_test_results::c2sSpeed < 1.0)
+            _summaryResultText += (
+              "<p><font size=\"30\">"
+              + TestResults.ndt_test_results::c2sSpeed.toFixed(1)
+              + "</font> kbps</font><br><br>");
+          else
+            _summaryResultText += (
+            "<p><font size=\"30\">"
+            + (TestResults.ndt_test_results::c2sSpeed / 1000).toFixed(1)
+            + "</font> Mbps</font><br><br>");
+        }
+      }
+      _resultsTextField.htmlText = _summaryResultText;
     }
 
     private function clickResults(e:MouseEvent):void {
-      _resultsTextField.text = TestResults.getResultSummary();
+      _resultsTextField.htmlText = _summaryResultText;
       _resultsTextField.scrollV = 0;
    }
 
@@ -316,8 +374,10 @@ class ResultsTextField extends TextField {
   public function ResultsTextField() {
     super();
     this.wordWrap = true;
+    this.multiline = true;
+    this.antiAliasType = flash.text.AntiAliasType.ADVANCED;
     var textFormat:TextFormat = new TextFormat();
-    textFormat.size = 12;
+    textFormat.size = 14;
     textFormat.font = "Verdana";
     textFormat.color = 0x000000;
     textFormat.align = TextFormatAlign.LEFT;

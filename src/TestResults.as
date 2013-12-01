@@ -23,7 +23,6 @@ package  {
   public class TestResults {
     private static var _ndtTestStartTime:Number = 0.0;
     private static var _ndtTestEndTime:Number = 0.0;
-    private static var _resultSummary:String = "";
     private static var _resultDetails:String = "";
     private static var _errMsg:String = "";
     private static var _debugMsg:String = "";
@@ -98,45 +97,6 @@ package  {
         Main.gui.addConsoleOutput(msg + "\n");
     }
 
-    private static function setResultSummary():void {
-      _resultSummary = "NDT test run towards M-Lab server: "
-                       + NDTConstants.SERVER_HOSTNAME + "\n";
-      if (ndtTestFailed) {
-         _resultSummary += "Test Failed! View errors for details.\n";
-         return;
-      }
-
-      if ((testsConfirmedByServer & TestType.S2C) == TestType.S2C) {
-        if (!s2cTestSuccess) {
-          _resultSummary += "Download test failed! View errors for details.\n";
-          return;
-        }
-        // Print results in the most convinient units.
-        _resultSummary += "Download speed: ";
-        if (s2cSpeed < 1.0)
-          _resultSummary += s2cSpeed.toFixed(1) + " kbps\n";
-        else
-          _resultSummary += (s2cSpeed / 1000).toFixed(1) + " Mbps\n";
-      }
-
-      if ((testsConfirmedByServer & TestType.C2S) == TestType.C2S) {
-        if (!c2sTestSuccess) {
-          _resultSummary += "Upload test failed! View errors for details.\n";
-          return;
-        }
-        // Print results in the most convinient units.
-        _resultSummary += "Upload speed: ";
-        if (c2sSpeed < 1.0)
-          _resultSummary += c2sSpeed.toFixed(1) + " kbps\n";
-        else
-          _resultSummary += (c2sSpeed / 1000).toFixed(1) + " Mbps\n"
-      }
-    }
-
-    public static function getResultSummary():String {
-        return _resultSummary;
-    }
-
     public static function getDebugMsg():String {
       return _debugMsg;
     }
@@ -150,7 +110,6 @@ package  {
     }
 
     public static function interpretResults():void {
-      setResultSummary();
       TestResultsUtils.parseNDTVariables(s2cTestResults + remoteTestResults);
       TestResultsUtils.appendClientInfo();
       if (ndtVariables[NDTConstants.COUNTRTT] > 0) {
