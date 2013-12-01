@@ -86,6 +86,9 @@ package  {
      * Function that reads the TEST_PREPARE message sent by the server.
      */
     private function prepareTest():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("META test: PREPARE_TEST stage.");
       TestResults.appendDebugMsg(
           ResourceManager.getInstance().getString(
@@ -130,6 +133,9 @@ package  {
      * indicate that the client should start sending META data.
      */
     private function startTest():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("META test: START_TEST stage.");
 
       var msg:Message = new Message();
@@ -227,6 +233,9 @@ package  {
      * sent.
      */
     private function finalizeTest():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("META test: FINALIZE_TEST stage.");
 
       var msg:Message = new Message();

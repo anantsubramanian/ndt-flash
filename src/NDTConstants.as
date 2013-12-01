@@ -32,6 +32,7 @@ package  {
     public static const PROTOCOL_MSG_READ_ERROR:int = 1;
     public static const MSG_HEADER_LENGTH:int = 3;
     public static const KICK_OLD_CLIENTS_MSG_LENGTH:int = 13;
+    public static const SRV_QUEUE_MSG_LENGTH:int = 4;
     // Control protocol.
     public static const DEFAULT_CONTROL_PORT:uint = 3001;
 

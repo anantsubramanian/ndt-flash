@@ -116,6 +116,9 @@ package  {
     }
 
     private function prepareTest():void {
+      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("S2C test: PREPARE_TEST stage.");
       TestResults.appendDebugMsg(
         ResourceManager.getInstance().getString(
@@ -229,6 +232,9 @@ package  {
     }
 
     private function startTest():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("S2C test: START_TEST stage.");
       // Remove ctl socket listener so it does not interfere with the out socket
       // listeners.
@@ -326,6 +332,7 @@ package  {
       // TODO(tiziana): Check why the following check is needed.
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
+
       TestResults.appendDebugMsg("S2C test: COMPARE_SERVER stage.");
 
       // Once all data is received / timeout occurs, server sends TEST_MSG
@@ -442,6 +449,9 @@ package  {
      * and adds more data to _web100VarResult every call.
      */
     private function getWeb100Vars():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(_ctlSocket)

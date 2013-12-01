@@ -170,6 +170,9 @@ package  {
      * them to the test results String for interpretation.
      */
     private function getRemoteResults():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
         if (msg.receiveMessage(_ctlSocket)

@@ -115,6 +115,9 @@ package  {
      * to connect to the port specified by the server.
      */
     private function prepareTest():void {
+      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("C2S test: PREPARE_TEST stage.");
       TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
           NDTConstants.BUNDLE_NAME, "runningOutboundTest", null,
@@ -135,7 +138,7 @@ package  {
 
       if (msg.type != MessageType.TEST_PREPARE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
-            NDTConstants.BUNDLE_NAME, "outbounc2sThroughputFaileddWrongMessage",null,
+            NDTConstants.BUNDLE_NAME, "outboundWrongMessage",null,
             Main.locale));
         if (msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg(
@@ -248,6 +251,9 @@ package  {
      * indicate to the client that it should start sending data.
      */
     private function startTest():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       // Remove ctl socket listener so it does not interfere with the out socket
       // listeners.
       removeCtlSocketOnReceivedDataListener();
@@ -355,7 +361,6 @@ package  {
      * stores it in the corresponding field.
      */
     private function compareWithServer():void {
-      // TODO(tiziana): Check why the following check is needed.
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
 
@@ -414,6 +419,9 @@ package  {
      * all local Event Listeners.
      */
     private function finalizeTest():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("C2S test: FINALIZE_TEST stage.");
 
       var msg:Message = new Message();

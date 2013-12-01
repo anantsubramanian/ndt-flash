@@ -97,6 +97,9 @@ package  {
      * old and unsupported clients.
      */
     private function kickOldClients():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("Handshake: KICK_CLIENTS stage.");
 
       var msg:Message = new Message();
@@ -123,6 +126,9 @@ package  {
      */
 
     private function srvQueue():void {
+      if (_ctlSocket.bytesAvailable < NDTConstants.SRV_QUEUE_MSG_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("Handshake: SRV_QUEUE stage.");
 
       // See https://code.google.com/p/ndt/issues/detail?id=101.
@@ -228,6 +234,9 @@ package  {
      * and the client.
      */
     private function verifyVersion():void {
+      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("Handshake: VERIFY_VERSION stage.");
 
       // The server must send a message to verify version, and this is a
@@ -277,6 +286,9 @@ package  {
      * test suite.
      */
     private function verifySuite():void {
+      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+        return;
+
       TestResults.appendDebugMsg("Handshake: VERIFY_SUITE stage.");
 
       // Read server message again. Server must send a MSG_LOGIN message to
