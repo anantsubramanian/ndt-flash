@@ -95,7 +95,7 @@ package  {
           return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
         }
       }
-      if (!readHeader(socket) || !readBody(socket, length)) {
+      if (!readHeader(socket) || !readBody(socket, _length)) {
         TestResults.appendErrMsg("Error reading message from socket");
         return NDTConstants.PROTOCOL_MSG_READ_ERROR;
       }
