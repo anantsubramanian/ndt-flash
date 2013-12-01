@@ -249,6 +249,11 @@ package  {
       if (_debugButton)
         _debugButton.addEventListener(MouseEvent.CLICK, clickDebug);
 
+      setSummaryResultText();
+      _resultsTextField.htmlText = _summaryResultText;
+    }
+
+    private function setSummaryResultText():void {
       _summaryResultText = new String();
       _summaryResultText = (
           "<p><font size=\"16\">" + "NDT test run towards M-Lab server<br>"
@@ -306,7 +311,6 @@ package  {
             + "</font> Mbps</font><br><br>");
         }
       }
-      _resultsTextField.htmlText = _summaryResultText;
     }
 
     private function clickResults(e:MouseEvent):void {
