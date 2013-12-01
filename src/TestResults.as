@@ -87,14 +87,15 @@ package  {
       if (!CONFIG::debug) {
           return;
       }
-      _debugMsg += msg + "\n";
+      var formattedMsg:String = (new Date().toUTCString()) + ": " + msg + "\n";
+      _debugMsg += formattedMsg;
       NDTUtils.callExternalFunction("appendDebugOutput", msg);
       // _ndtTestStartTime > 0 ensures the console window has been created.
       // TODO(tiziana): Verify if there is cleaner alternative.
       if (Main.guiEnabled && _ndtTestStartTime > 0)
         // TODO(tiziana): Handle the communication with GUI via events, instead
         // of blocking calls.
-        Main.gui.addConsoleOutput(msg + "\n");
+        Main.gui.addConsoleOutput(formattedMsg);
     }
 
     public static function getDebugMsg():String {
