@@ -105,7 +105,7 @@ package  {
       _learnMoreLink.width = 0.50 * _stageWidth;
 
       // 4) Start button
-      _startButton = new NDTButton("Start", 28, 0.4);
+      _startButton = new NDTButton("START", 30, 45, 0.4);
 
       // Position objects within initial screen, using a relative layout.
       _mlabLogo.x = (_stageWidth / 2) - (_mlabLogo.width / 2);
@@ -207,11 +207,11 @@ package  {
       _resultsTextField.height = 0.90 * _stageHeight;
       this.addChild(_resultsTextField);
 
-      _resultsButton = new NDTButton("Results", 18, 0.25);
-      _detailsButton = new NDTButton("Details", 18, 0.25);
-      _errorsButton = new NDTButton("Errors", 18, 0.25);
+      _resultsButton = new NDTButton("RESULTS", 18, 30, 0.25);
+      _detailsButton = new NDTButton("DETAILS", 18, 30, 0.25);
+      _errorsButton = new NDTButton("ERRORS", 18, 30, 0.25);
       if (CONFIG::debug)
-        _debugButton = new NDTButton("Debug", 18, 0.25);
+        _debugButton = new NDTButton("DEBUG", 18, 30, 0.25);
 
       var verticalMargin:Number = _stageHeight / 4;
       if (CONFIG::debug)
@@ -346,13 +346,13 @@ class NDTButton extends Sprite {
   [Embed(source="../assets/hover.png")]
   private var ButtonImg:Class;
 
-  function NDTButton(text:String, textSize:int, prop:Number) {
+  function NDTButton(text:String, textSize:int, height:int, prop:Number) {
     super();
     this.buttonMode = true;
 
     var textFormat:TextFormat = new TextFormat();
     textFormat.size = textSize;
-    textFormat.font = "Comic Sans";
+    textFormat.font = "Comic Sans MS";
     textFormat.bold = true;
     textFormat.align = TextFormatAlign.CENTER;
     textFormat.color = 0xFFFFFF;
@@ -367,7 +367,7 @@ class NDTButton extends Sprite {
     buttonShape.x -= buttonShape.width / 2;
     buttonShape.y -= buttonShape.height / 2;
     textField.width = buttonShape.width;
-    textField.height = 30;
+    textField.height = height;
     textField.x -= textField.width / 2;
     textField.y -= textField.height / 2;
 
