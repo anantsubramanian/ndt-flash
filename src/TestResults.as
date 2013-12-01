@@ -42,7 +42,8 @@ package  {
     ndt_test_results static var c2sTestSuccess:Boolean;
     ndt_test_results static var s2cTestSuccess:Boolean;
     ndt_test_results static var s2cTestResults:String;
-    ndt_test_results static var remoteTestResults:String;  // Sent by the server
+    // Results sent by the server.
+    ndt_test_results static var remoteTestResults:String = "";
     ndt_test_results static var testsConfirmedByServer:int;
 
     public static function get jitter():Number {
