@@ -45,11 +45,11 @@ package  {
     private var _c2sTestDuration:Number;
     private var _ctlSocket:Socket;
     private var _dataToSend:ByteArray;
-    private var _outSocket:Socket;
-    private var _outSendCount:int;
+    private var _c2sSocket:Socket;
+    private var _c2sSendCount:int;
     // Bytes not sent from last send operation on the C2S socket.
-    private var _outBytesNotSent:int;
-    private var _outTimer:Timer;
+    private var _c2sBytesNotSent:int;
+    private var _c2sTimer:Timer;
     private var _serverHostname:String;
     private var _testStage:int;
 
@@ -63,8 +63,8 @@ package  {
       _c2sTestSuccess = true;  // Initially the test has not failed.
       _c2sTestDuration = 0;
       _dataToSend = new ByteArray();
-      _outSendCount = 0;
-      _outBytesNotSent = 0;
+      _c2sSendCount = 0;
+      _c2sBytesNotSent = 0;
     }
 
     public function run():void {
@@ -150,10 +150,10 @@ package  {
           "Each message of the C2S test has " + _dataToSend.length + " bytes.");
 
       var c2sPort:int = parseInt(new String(msg.body));
-      _outSocket = new Socket();
-      addOutSocketEventListeners();
+      _c2sSocket = new Socket();
+      addC2SSocketEventListeners();
       try {
-        _outSocket.connect(_serverHostname, c2sPort);
+        _c2sSocket.connect(_serverHostname, c2sPort);
       } catch(e:IOError) {
         TestResults.appendErrMsg("C2S socket connect IO error: " + e);
         _c2sTestSuccess = false;
@@ -165,8 +165,8 @@ package  {
         endTest();
         return;
       }
-      _outTimer = new Timer(NDTConstants.C2S_DURATION);
-      _outTimer.addEventListener(TimerEvent.TIMER, onOutTimeout);
+      _c2sTimer = new Timer(NDTConstants.C2S_DURATION);
+      _c2sTimer.addEventListener(TimerEvent.TIMER, onC2STimeout);
 
       _testStage = START_TEST;
       // If TEST_PREPARE and TEST_START messages arrive together at the client,
@@ -176,64 +176,64 @@ package  {
         startTest();
     }
 
-    private function addOutSocketEventListeners():void {
-      _outSocket.addEventListener(Event.CONNECT, onOutConnect);
-      _outSocket.addEventListener(Event.CLOSE, onOutClose);
-      _outSocket.addEventListener(IOErrorEvent.IO_ERROR, onOutIOError);
-      _outSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
-                                  onOutSecError);
-      _outSocket.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS,
-                                  onOutProgress);
+    private function addC2SSocketEventListeners():void {
+      _c2sSocket.addEventListener(Event.CONNECT, onC2SConnect);
+      _c2sSocket.addEventListener(Event.CLOSE, onC2SClose);
+      _c2sSocket.addEventListener(IOErrorEvent.IO_ERROR, onC2SIOError);
+      _c2sSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,
+                                  onC2SSecError);
+      _c2sSocket.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS,
+                                  onC2SProgress);
     }
 
-    private function removeOutSocketEventListeners():void {
-      _outSocket.removeEventListener(Event.CONNECT, onOutConnect);
-      _outSocket.removeEventListener(Event.CLOSE, onOutClose);
-      _outSocket.removeEventListener(IOErrorEvent.IO_ERROR, onOutIOError);
-      _outSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,
-                                     onOutSecError);
-      _outSocket.removeEventListener(OutputProgressEvent.OUTPUT_PROGRESS,
-                                     onOutProgress);
+    private function removeC2SSocketEventListeners():void {
+      _c2sSocket.removeEventListener(Event.CONNECT, onC2SConnect);
+      _c2sSocket.removeEventListener(Event.CLOSE, onC2SClose);
+      _c2sSocket.removeEventListener(IOErrorEvent.IO_ERROR, onC2SIOError);
+      _c2sSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,
+                                     onC2SSecError);
+      _c2sSocket.removeEventListener(OutputProgressEvent.OUTPUT_PROGRESS,
+                                     onC2SProgress);
     }
 
-    private function onOutConnect(e:Event):void {
+    private function onC2SConnect(e:Event):void {
       TestResults.appendDebugMsg("C2S socket connected.");
     }
 
-    private function onOutClose(e:Event):void {
+    private function onC2SClose(e:Event):void {
       TestResults.appendDebugMsg("C2S socket closed by the server.");
-      closeOutSocket();
+      closeC2SSocket();
     }
 
-    private function onOutIOError(e:IOErrorEvent):void {
+    private function onC2SIOError(e:IOErrorEvent):void {
       TestResults.appendErrMsg("IOError on C2S socket: " + e);
       _c2sTestSuccess = false;
-      closeOutSocket();
+      closeC2SSocket();
       endTest();
     }
 
-    private function onOutSecError(e:SecurityErrorEvent):void {
+    private function onC2SSecError(e:SecurityErrorEvent):void {
       TestResults.appendErrMsg("Security error on C2S socket: " + e);
       _c2sTestSuccess = false;
-      closeOutSocket();
+      closeC2SSocket();
       endTest();
     }
 
-    private function onOutProgress(e:OutputProgressEvent):void {
-      if (_outSocket.bytesPending == 0) {
-        _outSendCount++;
-        if (_outSocket.connected) {
+    private function onC2SProgress(e:OutputProgressEvent):void {
+      if (_c2sSocket.bytesPending == 0) {
+        _c2sSendCount++;
+        if (_c2sSocket.connected) {
           sendData();
           return;
         } else {
-          closeOutSocket();
+          closeC2SSocket();
         }
       }
     }
 
-    private function onOutTimeout(e:TimerEvent):void {
+    private function onC2STimeout(e:TimerEvent):void {
       TestResults.appendDebugMsg("Timeout for sending data on C2S socket.");
-      closeOutSocket();
+      closeC2SSocket();
     }
 
     private function startTest():void {
@@ -273,7 +273,7 @@ package  {
 
       // Mark the start time of the test.
       _c2sTestDuration = getTimer();
-      _outTimer.start();
+      _c2sTimer.start();
 
       _testStage = SEND_DATA;
       TestResults.appendDebugMsg("C2S test: SEND_DATA stage.");
@@ -285,28 +285,28 @@ package  {
      * C2S socket.
     */
     private function sendData():void {
-      _outSocket.writeBytes(_dataToSend, 0, _dataToSend.length);
-      _outSocket.flush();
+      _c2sSocket.writeBytes(_dataToSend, 0, _dataToSend.length);
+      _c2sSocket.flush();
     }
 
-    private function closeOutSocket():void {
-      _outTimer.stop();
-      _outTimer.removeEventListener(TimerEvent.TIMER, onOutTimeout);
+    private function closeC2SSocket():void {
+      _c2sTimer.stop();
+      _c2sTimer.removeEventListener(TimerEvent.TIMER, onC2STimeout);
       _c2sTestDuration = getTimer() - _c2sTestDuration;
       TestResults.appendDebugMsg(
           "C2S test lasted " + _c2sTestDuration + " msec.");
 
-      _outBytesNotSent = _outSocket.bytesPending;
+      _c2sBytesNotSent = _c2sSocket.bytesPending;
       // TODO(tiziana): Verify if it's necessary to check if the socket is
       // connected and to use the following commented code:
-      //if (_outSocket.connected)
-      //    _outBytesNotSent = _outSocket.bytesPending;
+      //if (_c2sSocket.connected)
+      //    _c2sBytesNotSent = _c2sSocket.bytesPending;
       //else
-      //    _outBytesNotSent = 0;
+      //    _c2sBytesNotSent = 0;
 
-      removeOutSocketEventListeners();
+      removeC2SSocketEventListeners();
       try {
-        _outSocket.close();
+        _c2sSocket.close();
       } catch (e:IOError) {
         TestResults.appendErrMsg(
             "IO Error while closing C2S socket: " + e);
@@ -320,13 +320,13 @@ package  {
     private function calculateThroughput():void {
       TestResults.appendDebugMsg("C2S test: COMPUTE_THROUGHPUT stage.");
 
-      var outByteSent:Number = (
-          _outSendCount * NDTConstants.PREDEFINED_BUFFER_SIZE
-          + (NDTConstants.PREDEFINED_BUFFER_SIZE - _outBytesNotSent));
-      TestResults.appendDebugMsg("C2S test sent " + outByteSent + " bytes.");
+      var c2sByteSent:Number = (
+          _c2sSendCount * NDTConstants.PREDEFINED_BUFFER_SIZE
+          + (NDTConstants.PREDEFINED_BUFFER_SIZE - _c2sBytesNotSent));
+      TestResults.appendDebugMsg("C2S test sent " + c2sByteSent + " bytes.");
 
       var c2sSpeed:Number = (
-          (outByteSent * NDTConstants.BYTES2BITS)
+          (c2sByteSent * NDTConstants.BYTES2BITS)
           / _c2sTestDuration);
       TestResults.ndt_test_results::c2sSpeed = c2sSpeed;
       TestResults.appendDebugMsg("C2S throughput computed by client is "
