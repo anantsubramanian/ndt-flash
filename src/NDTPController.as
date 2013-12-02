@@ -25,9 +25,9 @@ package  {
   import mx.resources.ResourceManager;
 
   /**
-   * Class responsible for establishing the socket connection and initiating
-   * communications with the server (NDTP-Control).
-   * Calls functions to perform the required tests and to interpret the results.
+   * This class creates (and closes) the Control socket with the server and
+   * coordinates the NDT protocol, which includes the initial handshake, all
+   * the measurement tests and the retrieval of the test results.
    */
   public class NDTPController {
     private const READ_TIMEOUT:int = 10000;  // 10sec
@@ -87,12 +87,12 @@ package  {
     }
 
     private function onIOError(e:IOErrorEvent):void {
-      TestResults.appendErrMsg("IOError on control socket: " + e);
+      TestResults.appendErrMsg("IOError on Control socket: " + e);
       failNDTTest();
     }
 
     private function onSecurityError(e:SecurityErrorEvent):void {
-      TestResults.appendErrMsg("Security error on control socket: " + e);
+      TestResults.appendErrMsg("Security error on Control socket: " + e);
       failNDTTest();
     }
 
@@ -102,18 +102,11 @@ package  {
       handshake.run();
     }
 
-    /**
-     * This function initializes the array 'tests' with the different tests
-     * received in the message from the server.
-     */
     public function initiateTests(testsConfirmedByServer:String):void {
       _testsToRun = testsConfirmedByServer.split(" ");
       runTests();
     }
 
-    /**
-     * Function that creates objects of the respective classes to run the tests.
-     */
     public function runTests():void {
       if (_testsToRun.length > 0) {
        var currentTest:int = parseInt(_testsToRun.shift());
@@ -165,10 +158,6 @@ package  {
       failNDTTest();
     }
 
-   /**
-     * Function that reads the rest of the server calculated results and appends
-     * them to the test results String for interpretation.
-     */
     private function getRemoteResults():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -225,16 +214,12 @@ package  {
       finishNDTTest();
     }
 
-    /**
-     * Function that is called on completion of all the tests and after the
-     * retrieval of the last set of results.
-     */
     private function finishNDTTest():void {
       try {
         _ctlSocket.close();
       } catch (e:IOError) {
         TestResults.appendErrMsg(
-            "Client failed to close control socket. Error" + e);
+            "Client failed to close Control socket. Error" + e);
       }
 
       TestResults.recordEndTime();

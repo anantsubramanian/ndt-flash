@@ -27,9 +27,7 @@ package  {
   import mx.resources.ResourceManager;
 
   /**
-   * Class that contains functions that perform the Client-to-Server throughput
-   * test. It is a 10 second memory-to-memory data transfer to test achievable
-   * network bandwidth.
+   * This class performs the Client-to-Server throughput test.
    */
   public class TestC2S {
     // Valid values for _testStage.
@@ -43,13 +41,13 @@ package  {
 
     private var _callerObj:NDTPController;
     private var _c2sTestSuccess:Boolean;
-    // Time to send data to server on out socket.
+    // Time to send data to server on the C2S socket.
     private var _c2sTestDuration:Number;
     private var _ctlSocket:Socket;
     private var _dataToSend:ByteArray;
     private var _outSocket:Socket;
     private var _outSendCount:int;
-    // Bytes not sent from last send operation on out socket.
+    // Bytes not sent from last send operation on the C2S socket.
     private var _outBytesNotSent:int;
     private var _outTimer:Timer;
     private var _serverHostname:String;
@@ -109,11 +107,6 @@ package  {
       }
     }
 
-    /**
-     * Function that handles the TEST_PREPARE message sent by the server.
-     * It fills the buffer ByteArray with data and creates a new Socket object
-     * to connect to the port specified by the server.
-     */
     private function prepareTest():void {
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -208,7 +201,7 @@ package  {
     }
 
     private function onOutClose(e:Event):void {
-      TestResults.appendDebugMsg("C2S socket closed closed by the server.");
+      TestResults.appendDebugMsg("C2S socket closed by the server.");
       closeOutSocket();
     }
 
@@ -238,29 +231,21 @@ package  {
       }
     }
 
-    /**
-     * Function triggered when 10 sec of writing to the socket is complete.
-     */
     private function onOutTimeout(e:TimerEvent):void {
       TestResults.appendDebugMsg("Timeout for sending data on C2S socket.");
       closeOutSocket();
     }
 
-    /**
-     * Function triggered when the server sends the TEST_START message to
-     * indicate to the client that it should start sending data.
-     */
     private function startTest():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
         return;
 
-      // Remove ctl socket listener so it does not interfere with the out socket
+      // Remove ctl socket listener so it does not interfere with C2S socket
       // listeners.
       removeCtlSocketOnReceivedDataListener();
 
       TestResults.appendDebugMsg("C2S test: START_TEST stage.");
 
-      // The server tells the client to start pumping out data.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -324,7 +309,7 @@ package  {
         _outSocket.close();
       } catch (e:IOError) {
         TestResults.appendErrMsg(
-            "IO Error while closing C2S out socket: " + e);
+            "IO Error while closing C2S socket: " + e);
       }
       addCtlSocketOnReceivedDataListener();
 
@@ -332,10 +317,6 @@ package  {
       calculateThroughput();
     }
 
-    /**
-     * Function that is called to calculate the throughput once all data is sent
-     * to the server
-     */
     private function calculateThroughput():void {
       TestResults.appendDebugMsg("C2S test: COMPUTE_THROUGHPUT stage.");
 
@@ -356,10 +337,6 @@ package  {
         compareWithServer();
     }
 
-    /**
-     * Function that receives the server computed value of the throughput and
-     * stores it in the corresponding field.
-     */
     private function compareWithServer():void {
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -391,7 +368,6 @@ package  {
         return;
       }
 
-      // Get throughput calculated by the server.
       var sc2sSpeedStr:String = new String(msg.body);
       var sc2sSpeed:Number = parseFloat(sc2sSpeedStr);
       if (isNaN(sc2sSpeed)) {
@@ -414,10 +390,6 @@ package  {
         finalizeTest();
     }
 
-    /**
-     * Function that adds the results to the output to be displayed and removes
-     * all local Event Listeners.
-     */
     private function finalizeTest():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -454,10 +426,6 @@ package  {
       return;
     }
 
-    /**
-     * Function triggered when the test is complete, regardless of whether the
-     * test completed successfully or not.
-     */
     private function endTest():void {
       TestResults.appendDebugMsg("C2S test: END_TEST stage.");
       removeCtlSocketOnReceivedDataListener();

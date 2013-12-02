@@ -16,7 +16,6 @@ package  {
   public class NDTConstants {
     public static const MLAB_SITE:String = "http://www.measurementlab.net";
 
-    // Constants common to all the tests.
     public static const CLIENT_VERSION:String = CONFIG::ndtClientVersion;
     public static const CLIENT_ID:String = "swf";
     // Client MUST request the TEST_STATUS.
@@ -33,7 +32,6 @@ package  {
     public static const MSG_HEADER_LENGTH:int = 3;
     public static const KICK_OLD_CLIENTS_MSG_LENGTH:int = 13;
     public static const SRV_QUEUE_MSG_LENGTH:int = 4;
-    // Control protocol.
     public static const DEFAULT_CONTROL_PORT:uint = 3001;
 
     // SRV-QUEUE status.

@@ -79,7 +79,7 @@ package  {
       if (lang != null && region != null
           && (ResourceManager.getInstance().getResourceBundle(
                 lang + "_" + region, NDTConstants.BUNDLE_NAME) != null)) {
-        // Bundle for specified locale found, change value of locale
+        // Bundle for specified locale found, change value of locale.
         Main.locale = new String(lang + "_" + region);
         TestResults.appendDebugMsg(
             "Initialized locale from Flash config. Locale: " + Main.locale);
@@ -101,7 +101,7 @@ package  {
         ExternalInterface.addCallback(
             "getDebugOutput", TestResults.getDebugMsg);
         ExternalInterface.addCallback(
-            "getAdvanced", TestResults.getResultDetails);
+            "getDetails", TestResults.getResultDetails);
         ExternalInterface.addCallback(
             "getErrors", TestResults.getErrMsg);
         ExternalInterface.addCallback(

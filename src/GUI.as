@@ -28,8 +28,8 @@ package  {
   import spark.effects.*;
 
   /**
-   * Class that creates a Flash GUI for the tool. The GUI is optional and can be
-   * disabled in the 'Main' class.
+   * This class creates a Flash GUI for the client. The GUI is optional and can
+   * be disabled in the 'Main' class.
    */
   public class GUI extends Sprite {
     [Embed(source="../assets/mlab-logo.png")]
@@ -174,8 +174,7 @@ package  {
     }
 
     /**
-     * Function that adds text to the TextField that is displaying the console
-     * output while the tests are running.
+     * Add text to the console while the NDT test is running.
      */
     public function addConsoleOutput(text:String):void {
       _consoleText.appendText(text);

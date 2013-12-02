@@ -783,7 +783,7 @@ package  {
               NDTConstants.BUNDLE_NAME, "flowControlLimits", null, Main.locale)
           + " " + networkLimit.toFixed(2) + " Mbps");
 
-      // Client, Server data reports on link capacity.
+      // Client and server data reports on link capacity.
       var c2sData:String = TestResultsUtils.getDataRateString(
           TestResults.ndtVariables[NDTConstants.C2SDATA]);
       var c2sAck:String = TestResultsUtils.getDataRateString(

@@ -17,8 +17,9 @@ package  {
   import flash.utils.getTimer;
   import mx.resources.ResourceManager;
   /**
-   * Class that interprets the results of the tests. The results are stored in
-   * variables that can be accessed through JavaScript.
+   * Class used throughout the test to store test results along with debug and
+   * error messages. It also interprets the results of the tests. The results
+   * are stored in variables that can be accessed through JavaScript.
    */
   public class TestResults {
     private static var _ndtTestStartTime:Number = 0.0;

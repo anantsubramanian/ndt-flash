@@ -26,15 +26,12 @@ package  {
   import mx.resources.ResourceManager;
 
   /**
-   * This class contains the functions used to perform the Server-to-Client
-   * throughput  test to measure the network bandwidth from the server to the
-   * client. There is an event listener function that triggers different stages
-   * of the test depending on the status variable.
+   * This class performs the Server-to-Client throughput test.
    */
   public class TestS2C {
     // Timer for single read operation.
     private const READ_TIMEOUT:int = 15000; // 15sec
-    // Timer for total transfer on s2c socket.
+    // Timer for total transfer on the S2C socket.
     private const IN_TOT_TIMEOUT:int = 14500; // 14.5sec
 
     // Valid values for _testStage.
@@ -53,7 +50,7 @@ package  {
     private var _inTimer:Timer;
     private var _readTimer:Timer;
     private var _receivedData:ByteArray;
-      // Time to send data to client on in socket.
+      // Time to send data to client on the S2C socket.
     private var _s2cTestDuration:Number;
     private var _s2cTestSuccess:Boolean;
     private var _serverHostname:String;
@@ -221,9 +218,6 @@ package  {
       endTest();
     }
 
-    /**
-     * Function triggered every time the server sends data on the in socket.
-     */
     private function onInReceivedData(e:ProgressEvent):void {
       _readTimer.stop();
       _readTimer.reset();
@@ -236,8 +230,8 @@ package  {
         return;
 
       TestResults.appendDebugMsg("S2C test: START_TEST stage.");
-      // Remove ctl socket listener so it does not interfere with the out socket
-      // listeners.
+      // Remove Control socket listener so it does not interfere with the S2C
+      // socket listeners.
       removeCtlSocketOnReceivedDataListener();
 
       var msg:Message = new Message();
@@ -282,12 +276,12 @@ package  {
     }
 
     /**
-     * Function that is called repeatedly by the _inSocket response listener for
-     * the duration of the test. It processes and keeps track of the total bits
-     * received from the server. The test only progresses past this stage if:
+     * Function that is called repeatedly by the S2C socket response listener
+     * for the duration of the test. It processes and keeps track of the total
+     * bytes received from the server. The test only goes past this stage if:
      * 1. All data was successfully received.
-     * 2. A read timeout (15s) occured on _inSocket.
-     * 3. More than 14.5 seconds have elapsed since the beginning of the test.
+     * 2. A read timeout (15s) occured on S2C socket.
+     * 3. More than 14.5 seconds have passed since the beginning of the test.
      */
     private function receiveData():void {
       var readBytes:int = 0;
@@ -314,7 +308,7 @@ package  {
 
       } catch (e:IOError) {
         TestResults.appendErrMsg(
-            "IO Error while closing S2C in socket: " + e);
+            "IO Error while closing S2C socket: " + e);
       }
       addCtlSocketOnReceivedDataListener();
 
@@ -323,21 +317,12 @@ package  {
         compareWithServer();
     }
 
-    /**
-     * Function that receives and compares the server throughput value with the
-     * client obtained one. It then sends the client calculated throughput value
-     * to the server.
-     */
     private function compareWithServer():void {
-      // TODO(tiziana): Check why the following check is needed.
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
 
       TestResults.appendDebugMsg("S2C test: COMPARE_SERVER stage.");
 
-      // Once all data is received / timeout occurs, server sends TEST_MSG
-      // message with throughput calculated at its end, unsent data queue size
-      // and total sent byte count, separated by spaces.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -363,7 +348,6 @@ package  {
         return;
       }
 
-      // Get throughput calculated by the server.
       var msgBody:String = new String(msg.body);
       var msgFields:Array = msgBody.split(" ");
       if (msgFields.length != 3) {
@@ -410,7 +394,6 @@ package  {
       TestResults.appendDebugMsg("S2C throughput computed by the client is "
                                  + s2cSpeed.toFixed(2) + " kbps.");
 
-      // Client must send its throughput to the server using a TEST_MSG message.
       var sendData:ByteArray = new ByteArray();
       sendData.writeFloat(s2cSpeed);
       TestResults.appendDebugMsg(
@@ -445,8 +428,8 @@ package  {
 
     /**
      * Function that gets all the web100 variables as name-value string pairs.
-     * It is called multiple times by the response listener of the ctl socket
-     * and adds more data to _web100VarResult every call.
+     * It is called multiple times by the response listener of the Control
+     * socket and adds more data to _web100VarResult every call.
      */
     private function getWeb100Vars():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)

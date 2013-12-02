@@ -18,7 +18,7 @@ package  {
   import flash.utils.ByteArray;
 
   /**
-   * Class to define an NDT message. A message is characterized by a type,
+   * Class that defines an NDT message. A message is characterized by a type,
    * a length and a body. All the types are defined in the class MessageType.
    * All the valid types are defined in the class MessageType.
    * The client and server exchange messages as sequence of bytes, where
@@ -102,9 +102,6 @@ package  {
       return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
     }
 
-    /**
-     * Send protocol messages given their type and data byte array.
-     */
     public function sendMessage(socket:Socket):Boolean {
       var header:ByteArray = new ByteArray();
       header[0] = _type;

@@ -21,9 +21,7 @@ package  {
   import mx.resources.ResourceManager;
 
   /**
-   * This class performs the META test. The META test allows the Client
-   * to send additional information to the server that is included with
-   * the final set of results.
+   * This class performs the META test.
    */
   public class TestMETA {
     // Valid values for _testStage.
@@ -82,9 +80,6 @@ package  {
       }
     }
 
-    /**
-     * Function that reads the TEST_PREPARE message sent by the server.
-     */
     private function prepareTest():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -128,10 +123,6 @@ package  {
         startTest();
     }
 
-    /**
-     * Function triggered when the server sends the TEST_START message to
-     * indicate that the client should start sending META data.
-     */
     private function startTest():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -167,14 +158,9 @@ package  {
       sendData();
     }
 
-    /**
-     * Function that sends META data to the server.
-     */
     private function sendData():void {
       TestResults.appendDebugMsg("META test: SEND_DATA stage.");
 
-      // As a response to the server's TEST_START message, the client responds
-      // with TEST_MSG type message.
       var bodyToSend:ByteArray = new ByteArray();
 
       bodyToSend.writeUTFBytes(new String(
@@ -228,10 +214,6 @@ package  {
         finalizeTest();
     }
 
-    /**
-     * Function that is called when all the data to send to the server has been
-     * sent.
-     */
     private function finalizeTest():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
         return;
@@ -267,10 +249,6 @@ package  {
       return;
     }
 
-    /**
-     * Function triggered when the test is complete, regardless of whether the
-     * test completed successfully or not.
-     */
     private function endTest():void {
       TestResults.appendDebugMsg("META test: END_TEST stage.");
       removeResponseListener();

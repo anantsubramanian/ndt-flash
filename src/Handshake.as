@@ -20,9 +20,8 @@ package  {
   import mx.utils.StringUtil;
 
   /**
-   * This class handles the initial communication with the server before the
-   * tests. It has an event handler function that call functions to handle the
-   * different stages of communication with the server.
+   * This class handles the initial communication with the server before
+   * starting the measurement tests.
    */
   public class Handshake {
     // Valid values for _testStage.
@@ -38,11 +37,6 @@ package  {
     // Has the client already received a wait message?
     private var _isNotFirstWaitFlag:Boolean;
 
-    /**
-     * @param {Socket} socket The object used for communication.
-     * @param {int} testPack The requested test-suite.
-     * @param {NDTPController} callerObject Reference to the caller object.
-     */
     public function Handshake(ctlSocket:Socket, testsRequestByClient:int,
                               callerObject:NDTPController) {
       _callerObj = callerObject;
@@ -52,10 +46,6 @@ package  {
       _isNotFirstWaitFlag = false;  // No wait messages received yet.
     }
 
-    /**
-     * Starts the handshake by sending a MSG_LOGIN message to the server to
-     * commonicate the suite of tests requested by the client.
-     */
     public function run():void {
       addOnReceivedDataListener();
 
@@ -92,10 +82,6 @@ package  {
       }
     }
 
-    /**
-     * Function that reads and processes the message from the server to kick
-     * old and unsupported clients.
-     */
     private function kickOldClients():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)
         return;
@@ -119,12 +105,6 @@ package  {
       }
     }
 
-    /**
-     * Function that handles the queue responses from the server.
-     * The onReceivedData function will continue to iexecute srvQueue() until
-     * _testStage is changed to indicate that the waiting period is over.
-     */
-
     private function srvQueue():void {
       if (_ctlSocket.bytesAvailable < NDTConstants.SRV_QUEUE_MSG_LENGTH)
         return;
@@ -140,7 +120,6 @@ package  {
           + parseInt(new String(msg.body), 16) + " instead.");
         failHandshake();
       }
-      // If message is not of SRV_QUEUE type, it is incorrect at this stage.
       if (msg.type != MessageType.SRV_QUEUE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "loggingWrongMessage", null,
@@ -148,8 +127,6 @@ package  {
         failHandshake();
       }
 
-      // The body of a SRV_QUEUE message contains a wait flag that indicates one
-      // of a few queuing statuses, which will be handled individually below.
       var waitFlagString:String = new String(msg.body);
       TestResults.appendDebugMsg("Wait flag received = " + waitFlagString);
       var waitFlag:int = parseInt(waitFlagString);
@@ -229,18 +206,12 @@ package  {
       }
     }
 
-    /**
-     * Function that verifies version compatibility between the server
-     * and the client.
-     */
     private function verifyVersion():void {
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
 
       TestResults.appendDebugMsg("Handshake: VERIFY_VERSION stage.");
 
-      // The server must send a message to verify version, and this is a
-      // MSG_LOGIN type message.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -258,7 +229,6 @@ package  {
         failHandshake();
         return;
       }
-      // Version compatibility between server and client must be verified.
       var version:String = new String(msg.body);
       // TODO(tiziana): Change once issue#104 is resolved
       //   https://code.google.com/p/ndt/issues/detail?id=104.
@@ -279,21 +249,12 @@ package  {
       }
     }
 
-    /**
-     * Function that verifies that the suite previously requested by the client
-     * is the same as the one the server has sent. If successfully completed,
-     * the function calls allComplete that initiates the tests requested in the
-     * test suite.
-     */
     private function verifySuite():void {
       if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
         return;
 
       TestResults.appendDebugMsg("Handshake: VERIFY_SUITE stage.");
 
-      // Read server message again. Server must send a MSG_LOGIN message to
-      // negotiate the test suite and this should be the same set of tests
-      // requested by the client earlier.
       var msg:Message = new Message();
       if (msg.receiveMessage(_ctlSocket)
           != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
@@ -311,7 +272,6 @@ package  {
         return;
       }
 
-      // Extract the list of tests confirmed by the server.
       var confirmedTests:String = new String(msg.body);
       TestResults.ndt_test_results::testsConfirmedByServer =
           TestType.stringToInt(confirmedTests);
@@ -327,10 +287,6 @@ package  {
       _callerObj.failNDTTest();
     }
 
-    /**
-     * Function that removes the local event handler for the Control Socket
-     * responses and passes control back to the caller object.
-     */
     private function endHandshake(confirmedTests:String):void {
       TestResults.appendDebugMsg("Handshake: END.");
 
