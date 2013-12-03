@@ -24,7 +24,11 @@ package {
     public static const STATUS:int = (1 << 4);
     public static const META:int = (1 << 5);
 
-    public static function stringToInt(testString:String):int {
+    /*
+     * Converts a space-separated list of strings to a bitwise-OR of each
+     * non-zero int.
+     */
+    public static function listToBitWiseOR(testString:String):int {
       var testInt:int = 0;
       for each (var item:String in testString.split(" ")) {
           testInt = testInt | parseInt(item);
