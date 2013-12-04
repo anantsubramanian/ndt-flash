@@ -298,13 +298,8 @@ package  {
       _c2sTimer.stop();
       _c2sTimer.removeEventListener(TimerEvent.TIMER, onC2STimeout);
 
-      _c2sBytesNotSent = _c2sSocket.bytesPending;
-      // TODO(tiziana): Verify if it's necessary to check if the socket is
-      // connected and to use the following commented code:
-      //if (_c2sSocket.connected)
-      //    _c2sBytesNotSent = _c2sSocket.bytesPending;
-      //else
-      //    _c2sBytesNotSent = 0;
+      if (_c2sSocket.connected)
+        _c2sBytesNotSent = _c2sSocket.bytesPending;
 
       removeC2SSocketEventListeners();
       try {
