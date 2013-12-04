@@ -31,8 +31,6 @@ package  {
   public class TestS2C {
     // Timer for single read operation.
     private const READ_TIMEOUT:int = 15000; // 15sec
-    // Timer for total transfer on the S2C socket.
-    private const IN_TOT_TIMEOUT:int = 14500; // 14.5sec
 
     // Valid values for _testStage.
     private static const PREPARE_TEST:int = 0;
@@ -165,7 +163,7 @@ package  {
       }
       _readTimer = new Timer(READ_TIMEOUT);
       _readTimer.addEventListener(TimerEvent.TIMER, onS2CTimeout);
-      _s2cTimer = new Timer(IN_TOT_TIMEOUT);
+      _s2cTimer = new Timer(NDTConstants.S2C_DURATION);
       _s2cTimer.addEventListener(TimerEvent.TIMER, onS2CTimeout);
 
       _testStage = START_TEST;

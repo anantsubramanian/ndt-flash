@@ -52,7 +52,10 @@ package  {
     public static const META_CLIENT_VERSION:String = "client.version";
     public static const META_CLIENT_APPLICATION:String = "client.application";
 
-    public static const C2S_DURATION:int = 10000;  // 10sec
+    // Allow the client to run the S2C and the C2S tests longer than 10sec.
+    // This will cause the server to close the test sockets.
+    public static const C2S_DURATION:int = 15000;  // 15sec
+    public static const S2C_DURATION:int = 15000;  // 15sec
     // TCP constants.
     // Max size that can be sent, because 2 bytes are used to hold data length.
     public static const TCP_MAX_RECV_WIN_SIZE:int = 65535; // bytes
