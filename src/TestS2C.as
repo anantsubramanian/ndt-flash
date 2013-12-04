@@ -385,9 +385,10 @@ package  {
     private function calculateThroughput():void {
       TestResults.appendDebugMsg("S2C test: COMPUTE_THROUGHPUT stage.");
 
-      var s2cSpeed:Number = (
-          ( _s2cByteCount * NDTConstants.BYTES2BITS)
-          / _s2cTestDuration);
+      var s2cByteSent:Number = (_s2cByteCount * NDTConstants.BYTES2BITS);
+      TestResults.appendDebugMsg("S2C test sent " + s2cByteSent + " bytes.");
+
+      var s2cSpeed:Number = (s2cByteSent / _s2cTestDuration);
       TestResults.ndt_test_results::s2cSpeed = s2cSpeed;
       TestResults.appendDebugMsg("S2C throughput computed by the client is "
                                  + s2cSpeed.toFixed(2) + " kbps.");
