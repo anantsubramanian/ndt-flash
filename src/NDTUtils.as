@@ -140,6 +140,23 @@ package  {
       }
       return bytesRead;
     }
+
+    public static function readAllBytesAndDiscard(socket:Socket):int {
+      var bytesCount:int = 0;
+      while (socket.bytesAvailable) {
+        try {
+          socket.readByte();
+          bytesCount++;
+        } catch (e:IOError) {
+          TestResults.appendErrMsg("Error reading byte from socket: " + e);
+          break;
+        } catch(error:EOFError) {
+          // No more data to read from the socket.
+          break;
+        }
+      }
+      return bytesCount;
+    }
   }
 }
 

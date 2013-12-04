@@ -47,7 +47,6 @@ package  {
     private var _s2cSocket:Socket;
     private var _s2cTimer:Timer;
     private var _readTimer:Timer;
-    private var _receivedData:ByteArray;
       // Time to send data to client on the S2C socket.
     private var _s2cTestDuration:Number;
     private var _s2cTestSuccess:Boolean;
@@ -65,7 +64,6 @@ package  {
       _s2cTestSuccess = true;  // Initially the test has not failed.
       _s2cTestDuration = 0;
       _s2cByteCount = 0;
-      _receivedData = new ByteArray();
       _web100VarResult = "";
     }
 
@@ -188,9 +186,9 @@ package  {
       _s2cSocket.removeEventListener(Event.CLOSE, onS2CClose);
       _s2cSocket.removeEventListener(IOErrorEvent.IO_ERROR, onS2CError);
       _s2cSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,
-                                    onS2CSecError);
+                                     onS2CSecError);
       _s2cSocket.removeEventListener(ProgressEvent.SOCKET_DATA,
-                                    onS2CReceivedData);
+                                     onS2CReceivedData);
     }
 
     private function onS2CConnect(e:Event):void {
@@ -257,10 +255,11 @@ package  {
         return;
       }
 
-      // Mark the start time of the test.
-      _s2cTestDuration = getTimer();
       _readTimer.start();
       _s2cTimer.start();
+      // Record start time right before it starts receiving data, to be as
+      // accurate as possible.
+      _s2cTestDuration = getTimer();
 
       _testStage = RECEIVE_DATA;
       TestResults.appendDebugMsg("S2C test: RECEIVE_DATA stage.");
@@ -277,27 +276,28 @@ package  {
      * Function that is called repeatedly by the S2C socket response listener
      * for the duration of the test. It processes and keeps track of the total
      * bytes received from the server. The test only goes past this stage if:
-     * 1. All data was successfully received.
-     * 2. A read timeout (15s) occured on S2C socket.
-     * 3. More than 14.5 seconds have passed since the beginning of the test.
+     * 1. All data was successfully received and the server closed the socket.
+     * 2. A read timeout occured on S2C socket.
+     * 3. More than NDTConstants.S2C_DURATION seconds have passed since the
+     *    beginning of the test.
      */
     private function receiveData():void {
-      var readBytes:int = 0;
-      while ((readBytes = NDTUtils.readBytes(
-          _s2cSocket, _receivedData, 0, NDTConstants.PREDEFINED_BUFFER_SIZE))
-          > 0) {
-        _s2cByteCount += readBytes;
-      }
+      _s2cByteCount += NDTUtils.readAllBytesAndDiscard(_s2cSocket);
     }
 
     private function closeS2CSocket():void {
+      // Record end time right after it stops receiving data, to be as accurate
+      // as possible.
       _s2cTimer.stop();
-      _readTimer.stop();
-      _readTimer.removeEventListener(TimerEvent.TIMER, onS2CTimeout);
-      _s2cTimer.removeEventListener(TimerEvent.TIMER, onS2CTimeout);
       _s2cTestDuration = getTimer() - _s2cTestDuration;
       TestResults.appendDebugMsg(
           "S2C test lasted " + _s2cTestDuration + " msec.");
+      _readTimer.stop();
+      _readTimer.removeEventListener(TimerEvent.TIMER, onS2CTimeout);
+      _s2cTimer.removeEventListener(TimerEvent.TIMER, onS2CTimeout);
+
+      if (_s2cSocket.connected)
+        _s2cByteCount += _s2cSocket.bytesAvailable;
 
       removeCtlSocketOnReceivedDataListener();
       try {
@@ -385,10 +385,10 @@ package  {
     private function calculateThroughput():void {
       TestResults.appendDebugMsg("S2C test: COMPUTE_THROUGHPUT stage.");
 
-      var s2cByteSent:Number = (_s2cByteCount * NDTConstants.BYTES2BITS);
-      TestResults.appendDebugMsg("S2C test sent " + s2cByteSent + " bytes.");
+      TestResults.appendDebugMsg("S2C test sent " + _s2cByteCount + " bytes.");
 
-      var s2cSpeed:Number = (s2cByteSent / _s2cTestDuration);
+      var s2cSpeed:Number = (
+          _s2cByteCount * NDTConstants.BYTES2BITS / _s2cTestDuration);
       TestResults.ndt_test_results::s2cSpeed = s2cSpeed;
       TestResults.appendDebugMsg("S2C throughput computed by the client is "
                                  + s2cSpeed.toFixed(2) + " kbps.");
@@ -398,7 +398,7 @@ package  {
       TestResults.appendDebugMsg(
           "Sending '" + s2cSpeed + "' back to the server.");
 
-      var msgToSend:Message = new Message(MessageType.TEST_MSG, _receivedData);
+      var msgToSend:Message = new Message(MessageType.TEST_MSG, sendData);
       if (!msgToSend.sendMessage(_ctlSocket)) {
         _s2cTestSuccess = false;
         endTest();
