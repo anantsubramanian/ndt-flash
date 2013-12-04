@@ -165,6 +165,7 @@ package  {
         endTest();
         return;
       }
+
       _c2sTimer = new Timer(NDTConstants.C2S_DURATION);
       _c2sTimer.addEventListener(TimerEvent.TIMER, onC2STimeout);
 
@@ -220,14 +221,12 @@ package  {
     }
 
     private function onC2SProgress(e:OutputProgressEvent):void {
-      if (_c2sSocket.bytesPending == 0) {
+      if (_c2sSocket.bytesPending == 0)
         _c2sSendCount++;
-        if (_c2sSocket.connected) {
-          sendData();
-          return;
-        } else {
-          closeC2SSocket();
-        }
+      if (_c2sSocket.connected) {
+        sendData();
+      } else {
+        closeC2SSocket();
       }
     }
 
@@ -271,9 +270,10 @@ package  {
         return;
       }
 
-      // Mark the start time of the test.
-      _c2sTestDuration = getTimer();
       _c2sTimer.start();
+      // Record start time right before it starts sending data, to be as
+      // accurate as possible.
+      _c2sTestDuration = getTimer();
 
       _testStage = SEND_DATA;
       TestResults.appendDebugMsg("C2S test: SEND_DATA stage.");
@@ -290,11 +290,13 @@ package  {
     }
 
     private function closeC2SSocket():void {
-      _c2sTimer.stop();
-      _c2sTimer.removeEventListener(TimerEvent.TIMER, onC2STimeout);
+      // Record end time right after it stops sending data, to be as accurate as
+      // possible.
       _c2sTestDuration = getTimer() - _c2sTestDuration;
       TestResults.appendDebugMsg(
           "C2S test lasted " + _c2sTestDuration + " msec.");
+      _c2sTimer.stop();
+      _c2sTimer.removeEventListener(TimerEvent.TIMER, onC2STimeout);
 
       _c2sBytesNotSent = _c2sSocket.bytesPending;
       // TODO(tiziana): Verify if it's necessary to check if the socket is
