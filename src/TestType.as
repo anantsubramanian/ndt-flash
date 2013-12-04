@@ -25,13 +25,18 @@ package {
     public static const META:int = (1 << 5);
 
     /*
-     * Converts a space-separated list of strings to a bitwise-OR of each
-     * non-zero int.
+     * Converts a space-separatparseInt(item)ed list of strings to a bitwise-OR
+     * of each non-zero int.
      */
-    public static function listToBitWiseOR(testString:String):int {
+    public static function listToBitwiseOR(testString:String):int {
       var testInt:int = 0;
       for each (var item:String in testString.split(" ")) {
-          testInt = testInt | parseInt(item);
+         var currentTest:int = parseInt(item);
+         if (isNaN(currentTest)) {
+           TestResults.appendErrMsg("Non valid test id: " + item);
+           continue;
+         }
+         testInt = testInt | currentTest;
       }
       return testInt;
     }

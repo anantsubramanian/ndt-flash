@@ -274,7 +274,7 @@ package  {
 
       var confirmedTests:String = new String(msg.body);
       TestResults.ndt_test_results::testsConfirmedByServer =
-          TestType.listToBitWiseOR(confirmedTests);
+          TestType.listToBitwiseOR(confirmedTests);
 
       TestResults.appendDebugMsg("Test suite: " + confirmedTests);
       endHandshake(StringUtil.trim(confirmedTests));
