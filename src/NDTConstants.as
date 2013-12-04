@@ -16,7 +16,10 @@ package  {
   public class NDTConstants {
     public static const MLAB_SITE:String = "http://www.measurementlab.net";
 
-    public static const CLIENT_VERSION:String = CONFIG::ndtClientVersion;
+    public static const CLIENT_VERSION:String = CONFIG::clientVersion;
+    public static const EXPECTED_SERVER_VERSION:String = CONFIG::serverVersion;
+    // The current version of the protocol is backward compatible to v3.3.12.
+    public static const LAST_VALID_SERVER_VERSION:String = "v3.3.12";
     public static const CLIENT_ID:String = "swf";
     // Client MUST request the TEST_STATUS.
     public static const TESTS_REQUESTED_BY_CLIENT:int =

@@ -24,10 +24,14 @@
       <name>CONFIG::defaultLocale</name>
       <value>"en_US"</value>
     </define>
-    <!-- The current NDT client version -->
+    <!-- The current NDT version -->
     <define append="true">
-      <name>CONFIG::ndtClientVersion</name>
-      <value>"1.0.0.0"</value>
+      <name>CONFIG::serverVersion</name>
+      <value>"v3.6.5.2"</value>
+    </define>
+    <define append="true">
+      <name>CONFIG::clientVersion</name>
+      <value>"v1.0.0.0"</value>
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <!-- The locales to compile into the application-->

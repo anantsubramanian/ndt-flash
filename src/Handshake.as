@@ -229,16 +229,23 @@ package  {
         failHandshake();
         return;
       }
-      var version:String = new String(msg.body);
-      // TODO(tiziana): Change once issue#104 is resolved
-      //   https://code.google.com/p/ndt/issues/detail?id=104.
-      if (version.indexOf("v") != 0) {
-        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
-            NDTConstants.BUNDLE_NAME, "incompatibleVersion",null, Main.locale));
+      var receivedServerVersion:String = new String(msg.body);
+      TestResults.appendDebugMsg("Server version: " + receivedServerVersion);
+      // See https://code.google.com/p/ndt/issues/detail?id=104.
+      if (receivedServerVersion != NDTConstants.EXPECTED_SERVER_VERSION)
+        TestResults.appendDebugMsg(
+            "The server version sent by the server is: "
+            + receivedServerVersion
+            + ", while the client expects: "
+            + NDTConstants.EXPECTED_SERVER_VERSION);
+      if (receivedServerVersion < NDTConstants.LAST_VALID_SERVER_VERSION) {
+        TestResults.appendErrMsg(
+            ResourceManager.getInstance().getString(
+                NDTConstants.BUNDLE_NAME, "incompatibleVersion",null,
+                Main.locale));
         failHandshake();
         return;
       }
-      TestResults.appendDebugMsg("Server version: " + version.substring(1));
 
       _testStage = VERIFY_SUITE;
       // If VERIFY_VERSION and VERIFY_SUITE messages arrive together at the
