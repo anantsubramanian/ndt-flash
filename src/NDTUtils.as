@@ -35,17 +35,19 @@ package  {
         functionName:String, ... args):void {
       if (!ExternalInterface.available)
         return;
-      switch (args.length) {
-        case 0: ExternalInterface.call(functionName);
-                break;
-        case 1: ExternalInterface.call(functionName, args[0]);
-                break;
-        case 2: ExternalInterface.call(functionName, args[0], args[1]);
-                break;
+      try {
+        switch (args.length) {
+          case 0: ExternalInterface.call(functionName);
+                  break;
+          case 1: ExternalInterface.call(functionName, args[0]);
+                  break;
+          case 2: ExternalInterface.call(functionName, args[0], args[1]);
+                  break;
+        }
+      } catch(e:Error) {
+        // It cannot cannot call TestResults.appendErrMsg, because that calls
+        // callExternalFunction.
       }
-      // Intentionally, don't catch ExternalInterface errors, because it's not
-      // clear where to log them at this point. It cannot cannot call
-      // TestResults.appendErrMsg, because that calls callExternalFunction.
     }
     /**
      * Function that reads the HTML parameter tags for the SWF file and
