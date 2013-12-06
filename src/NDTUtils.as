@@ -35,19 +35,17 @@ package  {
         functionName:String, ... args):void {
       if (!ExternalInterface.available)
         return;
-      try {
-        switch (args.length) {
-          case 0: ExternalInterface.call(functionName);
-                  break;
-          case 1: ExternalInterface.call(functionName, args[0]);
-                  break;
-          case 2: ExternalInterface.call(functionName, args[0], args[1]);
-                  break;
-        }
-      } catch(e:Error) {
-        // It cannot cannot call TestResults.appendErrMsg, because that calls
-        // callExternalFunction.
+      switch (args.length) {
+        case 0: ExternalInterface.call(functionName);
+                break;
+        case 1: ExternalInterface.call(functionName, args[0]);
+                break;
+        case 2: ExternalInterface.call(functionName, args[0], args[1]);
+                break;
       }
+      // Intentionally, don't catch ExternalInterface errors, because it's not
+      // clear where to log them at this point. It cannot cannot call
+      // TestResults.appendErrMsg, because that calls callExternalFunction.
     }
     /**
      * Function that reads the HTML parameter tags for the SWF file and
@@ -96,6 +94,8 @@ package  {
      * data to be sent to JavaScript.
      */
     public static function addJSCallbacks():void {
+      if (!ExternalInterface.available)
+        return;
       // TODO(tiziana): Restrict domain to the M-Lab website/server.
       Security.allowDomain("*");
       try {
@@ -108,6 +108,8 @@ package  {
         ExternalInterface.addCallback(
             "getNDTvar", TestResultsUtils.getNDTVariable);
       } catch (e:Error) {
+        // This should never be raised, because it checks if ExternalInterface
+        // is available.
         TestResults.appendErrMsg("Container doesn't support callbacks. " +
                                  "Error: " + e);
       } catch (e:SecurityError) {
