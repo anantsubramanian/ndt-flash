@@ -351,7 +351,7 @@ class NDTButton extends Sprite {
 
     var textFormat:TextFormat = new TextFormat();
     textFormat.size = textSize;
-    textFormat.font = "Comic Sans MS";
+    textFormat.font = "Verdana";
     textFormat.bold = true;
     textFormat.align = TextFormatAlign.CENTER;
     textFormat.color = 0xFFFFFF;
