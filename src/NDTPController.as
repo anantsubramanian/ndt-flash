@@ -164,8 +164,7 @@ package  {
 
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
-        if (msg.receiveMessage(_ctlSocket)
-            != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        if (!msg.receiveMessage(_ctlSocket)) {
           TestResults.appendErrMsg(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)

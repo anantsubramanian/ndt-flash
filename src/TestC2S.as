@@ -118,8 +118,7 @@ package  {
       TestResults.ndt_test_results::ndtTestStatus = "runningOutboundTest";
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -246,8 +245,7 @@ package  {
       TestResults.appendDebugMsg("C2S test: START_TEST stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -341,8 +339,7 @@ package  {
       TestResults.appendDebugMsg("C2S test: COMPARE_SERVER stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -394,8 +391,7 @@ package  {
       TestResults.appendDebugMsg("C2S test: FINALIZE_TEST stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)

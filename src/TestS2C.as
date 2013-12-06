@@ -119,8 +119,7 @@ package  {
       TestResults.ndt_test_results::ndtTestStatus = "runningInboundTest";
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -231,8 +230,7 @@ package  {
       removeCtlSocketOnReceivedDataListener();
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         // See https://code.google.com/p/ndt/issues/detail?id=105
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
@@ -322,8 +320,7 @@ package  {
       TestResults.appendDebugMsg("S2C test: COMPARE_SERVER stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -436,8 +433,7 @@ package  {
 
       var msg:Message = new Message();
       while (_ctlSocket.bytesAvailable > 0) {
-        if (msg.receiveMessage(_ctlSocket)
-            != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+        if (!msg.receiveMessage(_ctlSocket)) {
           TestResults.appendErrMsg(
               ResourceManager.getInstance().getString(
                   NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)

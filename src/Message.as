@@ -77,29 +77,12 @@ package  {
       return true;
     }
 
-    /**
-     * Receive message.
-     * @return {int} Values:
-     *   a) NDTConstants.PROTOCOL_MSG_READ_SUCCESS, in case of success.
-     *      successfully read expected number of bytes.
-     *   b) NDTConstants.PROTOCOL_MSG_READ_ERROR, if it cannot read the message
-     *      header or if the message body is shorther than expected.
-     */
     public function receiveMessage(socket:Socket,
-                                   kickOldClientsMsg:Boolean=false):int {
-      if (kickOldClientsMsg) {
-        if (!readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)) {
-          TestResults.appendErrMsg("Error reading KICK_OLD_CLIENTS message");
-          return NDTConstants.PROTOCOL_MSG_READ_ERROR;
-        } else {
-          return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
-        }
-      }
-      if (!readHeader(socket) || !readBody(socket, _length)) {
-        TestResults.appendErrMsg("Error reading message from socket");
-        return NDTConstants.PROTOCOL_MSG_READ_ERROR;
-      }
-      return NDTConstants.PROTOCOL_MSG_READ_SUCCESS;
+                                   kickOldClientsMsg:Boolean=false):Boolean {
+      if (kickOldClientsMsg)
+        return readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH);
+
+      return readHeader(socket) && readBody(socket, _length);
     }
 
     public function sendMessage(socket:Socket):Boolean {

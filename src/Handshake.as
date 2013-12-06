@@ -89,8 +89,7 @@ package  {
       TestResults.appendDebugMsg("Handshake: KICK_CLIENTS stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket, true)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket, true)) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "unsupportedClient", null, Main.locale));
         failHandshake();
@@ -113,8 +112,7 @@ package  {
 
       // See https://code.google.com/p/ndt/issues/detail?id=101.
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
           + parseInt(new String(msg.body), 16) + " instead.");
@@ -213,8 +211,7 @@ package  {
       TestResults.appendDebugMsg("Handshake: VERIFY_VERSION stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
@@ -263,8 +260,7 @@ package  {
       TestResults.appendDebugMsg("Handshake: VERIFY_SUITE stage.");
 
       var msg:Message = new Message();
-      if (msg.receiveMessage(_ctlSocket)
-          != NDTConstants.PROTOCOL_MSG_READ_SUCCESS) {
+      if (!msg.receiveMessage(_ctlSocket)) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
