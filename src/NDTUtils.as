@@ -62,11 +62,13 @@ package  {
       } else {
         initializeLocale();
       }
-      if (NDTConstants.HTML_USERAGENT in paramObject) {
-        TestResults.ndt_test_results::userAgent =
-            paramObject[NDTConstants.HTML_USERAGENT];
-        TestResults.appendDebugMsg("Initialized useragent from HTML. Useragent:"
-                                   + TestResults.ndt_test_results::userAgent);
+      try {
+        TestResults.ndt_test_results::userAgent = 
+          ExternalInterface.call("window.navigator.userAgent.toString");
+        TestResults.appendDebugMsg("Initialized useragent from JavaScript. Useragent:"
+                                    + TestResults.ndt_test_results::userAgent);
+      } catch(e:Error) {
+        TestResults.appendErrMsg("Error obtaining UserAgent from JavaScript." + e);
       }
     }
 
