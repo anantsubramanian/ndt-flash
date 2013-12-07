@@ -31,12 +31,17 @@ package  {
    */
   public class NDTPController {
     private const READ_TIMEOUT:int = 10000;  // 10sec
+    // Valid values for _testStage.
+    private const REMOTE_RESULTS1:int = 0;
+    private const REMOTE_RESULTS2:int = 1;
 
     private var _ctlSocket:Socket = null;
     private var _hostname:String;
+    private var _msg:Message;
     private var _readResultsTimer:Timer;
     private var _remoteTestResults:String;
     private var _testsToRun:Array;
+    private var _testStage:int;
 
     public function NDTPController(hostname:String) {
       _hostname = hostname;
@@ -130,12 +135,14 @@ package  {
         }
       } else {
         addOnReceivedDataListener();
+        _msg = new Message();
+        _testStage = REMOTE_RESULTS1;
         _readResultsTimer = new Timer(READ_TIMEOUT);
         _readResultsTimer.addEventListener(TimerEvent.TIMER, onReadTimeout);
         _readResultsTimer.start();
-        // In case data arrived before starting the onReceiveData listener.
         if (_ctlSocket.bytesAvailable > 0)
-          getRemoteResults();
+          // In case data arrived before starting the onReceiveData listener.
+          getRemoteResults1();
       }
     }
 
@@ -148,7 +155,14 @@ package  {
     }
 
     private function onReceivedData(e:ProgressEvent):void {
-      getRemoteResults();
+      switch (_testStage) {
+        case REMOTE_RESULTS1:
+          getRemoteResults1()
+          break;
+        case REMOTE_RESULTS2:
+          getRemoteResults2()
+          break;
+      }
     }
 
     private function onReadTimeout(e:TimerEvent):void {
@@ -158,36 +172,32 @@ package  {
       failNDTTest();
     }
 
-    private function getRemoteResults():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+    private function getRemoteResults1():void {
+      if (!_msg.readHeader(_ctlSocket))
         return;
 
-      var msg:Message = new Message();
-      while (_ctlSocket.bytesAvailable > 0) {
-        if (!msg.receiveMessage(_ctlSocket)) {
-          TestResults.appendErrMsg(
-              ResourceManager.getInstance().getString(
-                  NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-              + parseInt(new String(msg.body), 16)
-              + " instead.");
-          _readResultsTimer.stop();
-          failNDTTest();
-          return;
-        }
+      if (_msg.type == MessageType.MSG_LOGOUT) {
+        // All results obtained.
+        _readResultsTimer.stop();
+        removeOnReceivedDataListener();
+        succeedNDTTest();
+        return;
+      }
 
-        if (msg.type == MessageType.MSG_RESULTS) {
-            _remoteTestResults += new String(msg.body);
-           continue;
-        }
+      _testStage = REMOTE_RESULTS2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case, it's
+        // necessary to explicitly call the following function to move to the
+        // next step.
+        getRemoteResults2();
+    }
 
-        // All results obtained. LOGOUT message received now.
-        if (msg.type == MessageType.MSG_LOGOUT) {
-          _readResultsTimer.stop();
-          removeOnReceivedDataListener();
-          succeedNDTTest();
-          return;
-        }
+    private function getRemoteResults2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
+        return;
 
+      if (_msg.type != MessageType.MSG_RESULTS) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "resultsWrongMessage", null,
             Main.locale));
@@ -196,7 +206,16 @@ package  {
         failNDTTest();
         return;
       }
-      return;
+
+      _remoteTestResults += new String(_msg.body);
+      _msg = new Message();
+      _testStage = REMOTE_RESULTS1;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case two consecutive MSG_RESULTS messages arrive together at the
+        // client they trigger a single ProgressEvent.SOCKET_DATA event. In such
+        // case, it's necessary to explicitly call the following function to
+        // move to the next step.
+        getRemoteResults1();
     }
 
     public function failNDTTest():void {
@@ -215,7 +234,6 @@ package  {
 
     private function finishNDTTest():void {
       try {
-        _ctlSocket.close();
       } catch (e:IOError) {
         TestResults.appendErrMsg(
             "Client failed to close Control socket. Error" + e);

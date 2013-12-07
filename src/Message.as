@@ -51,11 +51,15 @@ package  {
       return _body;
     }
 
-    private function readHeader(socket:Socket):Boolean {
+    public function readHeader(socket:Socket):Boolean {
+      if (socket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+        return false;
+
       var header:ByteArray = new ByteArray();
       var bytesRead:int = NDTUtils.readBytes(
           socket, header, 0, NDTConstants.MSG_HEADER_LENGTH);
       if(bytesRead != NDTConstants.MSG_HEADER_LENGTH) {
+        // This case should never occurr.
         TestResults.appendErrMsg("Error reading header from socket. Only "
                                  + bytesRead + " bytes read");
         return false;
@@ -66,23 +70,19 @@ package  {
       return true;
     }
 
-    private function readBody(socket:Socket, bytesToRead:int):Boolean {
+    public function readBody(socket:Socket, bytesToRead:int):Boolean {
+      if (socket.bytesAvailable < bytesToRead)
+        return false;
+
       _body = new ByteArray();
       var bytesRead:int = NDTUtils.readBytes(socket, _body, 0, bytesToRead);
       if(bytesRead != bytesToRead) {
+        // This case should never occurr.
         TestResults.appendErrMsg("Error reading body from socket. Only "
                                  + bytesRead + "bytes read.");
         return false;
       }
       return true;
-    }
-
-    public function receiveMessage(socket:Socket,
-                                   kickOldClientsMsg:Boolean=false):Boolean {
-      if (kickOldClientsMsg)
-        return readBody(socket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH);
-
-      return readHeader(socket) && readBody(socket, _length);
     }
 
     public function sendMessage(socket:Socket):Boolean {

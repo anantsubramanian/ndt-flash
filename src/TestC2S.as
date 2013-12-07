@@ -31,28 +31,30 @@ package  {
    */
   public class TestC2S {
     // Valid values for _testStage.
-    private static const PREPARE_TEST:int = 0;
-    private static const START_TEST:int = 1;
-    private static const SEND_DATA:int = 2;
-    private static const COMPUTE_THROUGHPUT:int = 3;
-    private static const COMPARE_SERVER:int = 4;
-    private static const FINALIZE_TEST:int = 5;
-    private static const END_TEST:int = 6;
+    private static const PREPARE_TEST1:int = 0;
+    private static const PREPARE_TEST2:int = 1;
+    private static const START_TEST:int = 2;
+    private static const SEND_DATA:int = 3;
+    private static const COMPUTE_THROUGHPUT:int = 4;
+    private static const COMPARE_SERVER1:int = 5;
+    private static const COMPARE_SERVER2:int = 6;
+    private static const FINALIZE_TEST:int = 7;
+    private static const END_TEST:int = 8;
 
     private var _callerObj:NDTPController;
     private var _c2sTestSuccess:Boolean;
     // Time to send data to server on the C2S socket.
     private var _c2sTestDuration:Number;
     private var _ctlSocket:Socket;
-    private var _dataToSend:ByteArray;
     private var _c2sSocket:Socket;
     private var _c2sSendCount:int;
     // Bytes not sent from last send operation on the C2S socket.
     private var _c2sBytesNotSent:int;
     private var _c2sTimer:Timer;
+    private var _dataToSend:ByteArray;
+    private var _msg:Message;
     private var _serverHostname:String;
     private var _testStage:int;
-
 
     public function TestC2S(ctlSocket:Socket, serverHostname:String,
                             callerObj:NDTPController) {
@@ -74,13 +76,19 @@ package  {
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "c2sThroughput", null, Main.locale));
       NDTUtils.callExternalFunction("testStarted", "ClientToServerThroughput");
+      TestResults.appendDebugMsg("C2S test: PREPARE_TEST stage.");
+      TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
+          NDTConstants.BUNDLE_NAME, "runningOutboundTest", null,
+          Main.locale));
+      TestResults.ndt_test_results::ndtTestStatus = "runningOutboundTest";
 
       addCtlSocketOnReceivedDataListener();
-      _testStage = PREPARE_TEST;
-      // In case data arrived before starting the ProgressEvent.SOCKET_DATA
-      // listener.
+      _msg = new Message();
+      _testStage = PREPARE_TEST1;
       if (_ctlSocket.bytesAvailable > 0)
-        prepareTest();
+        // In case data arrived before starting the ProgressEvent.SOCKET_DATA
+        // listener.
+        prepareTest1();
     }
 
     private function addCtlSocketOnReceivedDataListener():void {
@@ -94,47 +102,47 @@ package  {
 
     private function onCtlReceivedData(e:ProgressEvent):void {
       switch (_testStage) {
-        case PREPARE_TEST:   prepareTest();
-                             break;
-        case START_TEST:     startTest();
-                             break;
-        case COMPARE_SERVER: compareWithServer();
-                             break;
-        case FINALIZE_TEST:  finalizeTest();
-                             break;
-        case END_TEST:       endTest();
-                             break;
+        case PREPARE_TEST1:   prepareTest1();
+                              break;
+        case PREPARE_TEST2:   prepareTest2();
+                              break;
+        case START_TEST:      startTest();
+                              break;
+        case COMPARE_SERVER1: compareWithServer1();
+                              break;
+        case COMPARE_SERVER2: compareWithServer2();
+                              break;
+        case FINALIZE_TEST:   finalizeTest();
+                              break;
+        case END_TEST:        endTest();
+                              break;
       }
     }
 
-    private function prepareTest():void {
-      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+    private function prepareTest1():void {
+      if (!_msg.readHeader(_ctlSocket))
         return;
 
-      TestResults.appendDebugMsg("C2S test: PREPARE_TEST stage.");
-      TestResults.appendDebugMsg(ResourceManager.getInstance().getString(
-          NDTConstants.BUNDLE_NAME, "runningOutboundTest", null,
-          Main.locale));
-      TestResults.ndt_test_results::ndtTestStatus = "runningOutboundTest";
+      _testStage = PREPARE_TEST2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case, it's
+        // necessary to explicitly call the following function to move to the
+        // next step.
+        prepareTest2();
+    }
 
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead.");
-        _c2sTestSuccess = false;
-        endTest();
+    private function prepareTest2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
         return;
-      }
 
-      if (msg.type != MessageType.TEST_PREPARE) {
+      if (_msg.type != MessageType.TEST_PREPARE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "outboundWrongMessage",null,
             Main.locale));
-        if (msg.type == MessageType.MSG_ERROR) {
+        if (_msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg(
-              "ERROR MSG: " + parseInt(new String(msg.body), 16));
+              "ERROR MSG: " + parseInt(new String(_msg.body), 16));
         }
         _c2sTestSuccess = false;
         endTest();
@@ -148,7 +156,7 @@ package  {
       TestResults.appendDebugMsg(
           "Each message of the C2S test has " + _dataToSend.length + " bytes.");
 
-      var c2sPort:int = parseInt(new String(msg.body));
+      var c2sPort:int = parseInt(new String(_msg.body));
       _c2sSocket = new Socket();
       addC2SSocketEventListeners();
       try {
@@ -167,12 +175,15 @@ package  {
 
       _c2sTimer = new Timer(NDTConstants.C2S_DURATION);
       _c2sTimer.addEventListener(TimerEvent.TIMER, onC2STimeout);
-
+      _msg = new Message();
       _testStage = START_TEST;
-      // If TEST_PREPARE and TEST_START messages arrive together at the client,
-      // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
-      // the following condition is needed to move to the next step.
+      TestResults.appendDebugMsg("C2S test: START_TEST stage.");
+
       if (_ctlSocket.bytesAvailable > 0)
+        // If TEST_PREPARE and TEST_START messages arrive together at the client
+        // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to move to
+        // the next step.
         startTest();
     }
 
@@ -235,38 +246,25 @@ package  {
     }
 
     private function startTest():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+      if (!_msg.readHeader(_ctlSocket))
         return;
+      // TEST_START message has no body.
 
-      // Remove ctl socket listener so it does not interfere with C2S socket
-      // listeners.
-      removeCtlSocketOnReceivedDataListener();
-
-      TestResults.appendDebugMsg("C2S test: START_TEST stage.");
-
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-            + parseInt(new String(msg.body), 16) + " instead.");
-        _c2sTestSuccess = false;
-        endTest();
-        return;
-      }
-
-      if (msg.type != MessageType.TEST_START) {
+      if (_msg.type != MessageType.TEST_START) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "outboundWrongMessage", null,
             Main.locale));
-        if (msg.type == MessageType.MSG_ERROR) {
-          TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.body), 16));
+        if (_msg.type == MessageType.MSG_ERROR) {
+          TestResults.appendErrMsg("ERROR MSG: ");
         }
         _c2sTestSuccess = false;
         endTest();
         return;
       }
+
+      // Remove ctl socket listener so it does not interfere with C2S socket
+      // listeners.
+      removeCtlSocketOnReceivedDataListener();
 
       _c2sTimer.start();
       // Record start time right before it starts sending data, to be as
@@ -327,42 +325,47 @@ package  {
       TestResults.appendDebugMsg("C2S throughput computed by client is "
                                  + c2sSpeed.toFixed(2) + " kbps.");
 
-      _testStage = COMPARE_SERVER;
-      if (_ctlSocket.bytesAvailable > 0)
-        compareWithServer();
-    }
-
-    private function compareWithServer():void {
-      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
-        return;
-
+      _msg = new Message();
+      _testStage = COMPARE_SERVER1;
       TestResults.appendDebugMsg("C2S test: COMPARE_SERVER stage.");
 
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead.");
-        _c2sTestSuccess = false;
-        endTest();
-        return;
-      }
+      // The following check is probably not necessary. Added anyway, in case
+      // the COMPARE_SERVER message does not trigger onReceivedData.
+      if (_ctlSocket.bytesAvailable > 0)
+        compareWithServer1();
+    }
 
-      if (msg.type != MessageType.TEST_MSG) {
+    private function compareWithServer1():void {
+      if (!_msg.readHeader(_ctlSocket))
+        return;
+
+      _testStage = COMPARE_SERVER2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to move to
+        // the next step.
+        compareWithServer2();
+    }
+
+    private function compareWithServer2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
+        return;
+
+      if (_msg.type != MessageType.TEST_MSG) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "outboundWrongMessage", null,
             Main.locale));
-        if(msg.type == MessageType.MSG_ERROR) {
+        if(_msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.body), 16));
+                                   + parseInt(new String(_msg.body), 16));
         }
         _c2sTestSuccess = false;
         endTest();
         return;
       }
 
-      var sc2sSpeedStr:String = new String(msg.body);
+      var sc2sSpeedStr:String = new String(_msg.body);
       var sc2sSpeed:Number = parseFloat(sc2sSpeedStr);
       if (isNaN(sc2sSpeed)) {
         TestResults.appendErrMsg(
@@ -377,37 +380,30 @@ package  {
 
       TestResults.ndt_test_results::sc2sSpeed = sc2sSpeed;
       TestResults.appendDebugMsg("C2S throughput computed by the server is "
-                                 + sc2sSpeed.toFixed(2) + "kbps");
+                                 + sc2sSpeed.toFixed(2) + " kbps");
 
+      _msg = new Message();
       _testStage = FINALIZE_TEST;
+      TestResults.appendDebugMsg("C2S test: FINALIZE_TEST stage.");
       if(_ctlSocket.bytesAvailable > 0)
+        // If COMPARE_SERVER and TEST_FINALIZE messages arrive together at the
+        // client, they trigger a single ProgressEvent.SOCKET_DATA event. In
+        // such case, it's necessary to explicitly call the following function
+        // to move to the next step.
         finalizeTest();
     }
 
     private function finalizeTest():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+      if (!_msg.readHeader(_ctlSocket))
         return;
+      // TEST_FINALIZE message has no body.
 
-      TestResults.appendDebugMsg("C2S test: FINALIZE_TEST stage.");
-
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-            + parseInt(new String(msg.body), 16) + " instead.");
-        _c2sTestSuccess = false;
-        endTest();
-        return;
-      }
-
-      if (msg.type != MessageType.TEST_FINALIZE) {
+      if (_msg.type != MessageType.TEST_FINALIZE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "outboundWrongMessage", null,
             Main.locale));
-        if (msg.type == MessageType.MSG_ERROR) {
-          TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.body), 16));
+        if (_msg.type == MessageType.MSG_ERROR) {
+          TestResults.appendErrMsg("ERROR MSG");
         }
         _c2sTestSuccess = false;
         endTest();

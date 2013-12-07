@@ -25,13 +25,17 @@ package  {
    */
   public class Handshake {
     // Valid values for _testStage.
-    private const KICK_CLIENTS:int = 0;
-    private const SRV_QUEUE:int = 1;
-    private const VERIFY_VERSION:int = 2;
-    private const VERIFY_SUITE:int = 3;
+    private const KICK_CLIENTS:int    = 0;
+    private const SRV_QUEUE1:int      = 1;
+    private const SRV_QUEUE2:int      = 2;
+    private const VERIFY_VERSION1:int = 3;
+    private const VERIFY_VERSION2:int = 4;
+    private const VERIFY_SUITE1:int   = 5;
+    private const VERIFY_SUITE2:int   = 6;
 
     private var _callerObj:NDTPController;
     private var _ctlSocket:Socket;
+    private var _msg:Message;
     private var _testStage:int;
     private var _testsRequestByClient:int;
     // Has the client already received a wait message?
@@ -47,17 +51,19 @@ package  {
     }
 
     public function run():void {
-      addOnReceivedDataListener();
-
       var msgBody:ByteArray = new ByteArray();
       msgBody.writeByte(_testsRequestByClient);
-      var msg:Message = new Message(MessageType.MSG_LOGIN, msgBody);
-      if (!msg.sendMessage(_ctlSocket)) {
+      _msg = new Message(MessageType.MSG_LOGIN, msgBody);
+      if (!_msg.sendMessage(_ctlSocket)) {
         failHandshake();
       }
 
+      addOnReceivedDataListener();
+      _msg = new Message();
       _testStage = KICK_CLIENTS;
+      TestResults.appendDebugMsg("Handshake: KICK_CLIENTS stage.");
       if (_ctlSocket.bytesAvailable > 0)
+        // In case data arrived before starting the onReceiveData listener.
         kickOldClients();
     }
 
@@ -73,75 +79,82 @@ package  {
       switch (_testStage) {
         case KICK_CLIENTS:    kickOldClients();
                               break;
-        case SRV_QUEUE:       srvQueue();
+        case SRV_QUEUE1:      srvQueue1();
                               break;
-        case VERIFY_VERSION:  verifyVersion();
+        case SRV_QUEUE2:      srvQueue2();
                               break;
-        case VERIFY_SUITE:    verifySuite();
+        case VERIFY_VERSION1: verifyVersion1();
+                              break;
+        case VERIFY_VERSION2: verifyVersion2();
+                              break;
+        case VERIFY_SUITE1:   verifySuite1();
+                              break;
+        case VERIFY_SUITE2:   verifySuite2();
                               break;
       }
     }
 
     private function kickOldClients():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH)
+      _msg = new Message();
+      if (!_msg.readBody(_ctlSocket, NDTConstants.KICK_OLD_CLIENTS_MSG_LENGTH))
         return;
 
-      TestResults.appendDebugMsg("Handshake: KICK_CLIENTS stage.");
-
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket, true)) {
-        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
-            NDTConstants.BUNDLE_NAME, "unsupportedClient", null, Main.locale));
-        failHandshake();
-      }
-
-      _testStage = SRV_QUEUE;
-      // If KICK_CLIENTS and SRV_QUEUE messages arrive together at the client,
-      // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
-      // the following condition is needed to move to the next step.
+      _msg = new Message();
+      _testStage = SRV_QUEUE1;
+      TestResults.appendDebugMsg("Handshake: SRV_QUEUE stage.");
       if (_ctlSocket.bytesAvailable > 0) {
-        srvQueue();
+        // If KICK_CLIENTS and SRV_QUEUE messages arrive together at the client,
+        // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to move to
+        // the next step.
+        srvQueue1();
       }
     }
 
-    private function srvQueue():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.SRV_QUEUE_MSG_LENGTH)
+    private function srvQueue1():void {
+      if (!_msg.readHeader(_ctlSocket))
         return;
 
-      TestResults.appendDebugMsg("Handshake: SRV_QUEUE stage.");
+      _testStage = SRV_QUEUE2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to move to
+        // the next step.
+        srvQueue2();
+    }
 
-      // See https://code.google.com/p/ndt/issues/detail?id=101.
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(ResourceManager.getInstance().getString(
-            NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead.");
-        failHandshake();
-      }
-      if (msg.type != MessageType.SRV_QUEUE) {
+    private function srvQueue2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
+        return;
+
+      if (_msg.type != MessageType.SRV_QUEUE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "loggingWrongMessage", null,
             Main.locale));
         failHandshake();
       }
 
-      var waitFlagString:String = new String(msg.body);
-      TestResults.appendDebugMsg("Wait flag received = " + waitFlagString);
+      var waitFlagString:String = new String(_msg.body);
+      TestResults.appendDebugMsg("Received wait flag = " + waitFlagString);
       var waitFlag:int = parseInt(waitFlagString);
 
-      // Handling different queued-client cases.
+      // Handle different queued-client cases.
+      // See https://code.google.com/p/ndt/issues/detail?id=101.
       switch(waitFlag) {
         case NDTConstants.SRV_QUEUE_TEST_STARTS_NOW:
           // No more waiting. Proceed.
           TestResults.appendDebugMsg("Finished waiting.");
-          _testStage = VERIFY_VERSION;
+          _msg = new Message();
+          _testStage = VERIFY_VERSION1;
+          TestResults.appendDebugMsg("Handshake: VERIFY_VERSION stage.");
 
-          // If SRV_QUEUE and VERIFY_VERSION messages arrive together at the
-          // client, they trigger a single ProgressEvent.SOCKET_DATA event. In
-          // such case, the following condition is needed to move to the next
-          // step.
           if(_ctlSocket.bytesAvailable > 0)
-            verifyVersion();
+            // If SRV_QUEUE and VERIFY_VERSION messages arrive together at the
+            // client, they trigger a single ProgressEvent.SOCKET_DATA event. In
+            // such case, it's necessary to explicitly call the following
+            // function.
+            verifyVersion1();
           return;
 
         case NDTConstants.SRV_QUEUE_SERVER_FAULT:
@@ -183,10 +196,10 @@ package  {
         case NDTConstants.SRV_QUEUE_HEARTBEAT:
           // Server sends signal to see if client is still alive.
           // Client should respond with a MSG_WAITING message.
-          var msgBody:ByteArray = new ByteArray();
-          msgBody.writeByte(_testsRequestByClient);
-          msg = new Message(MessageType.MSG_WAITING, msgBody);
-          if (!msg.sendMessage(_ctlSocket)) {
+          var _msgBody:ByteArray = new ByteArray();
+          _msgBody.writeByte(_testsRequestByClient);
+          _msg = new Message(MessageType.MSG_WAITING, _msgBody);
+          if (!_msg.sendMessage(_ctlSocket)) {
             failHandshake();
           }
 
@@ -204,29 +217,32 @@ package  {
       }
     }
 
-    private function verifyVersion():void {
-      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+    private function verifyVersion1():void {
+      if (!_msg.readHeader(_ctlSocket))
         return;
 
-      TestResults.appendDebugMsg("Handshake: VERIFY_VERSION stage.");
+      _testStage = VERIFY_VERSION2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to move to
+        // the next step.
+        verifyVersion2();
+    }
 
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-            + parseInt(new String(msg.body), 16) + " instead.");
-        failHandshake();
+    private function verifyVersion2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
         return;
-      }
-      if (msg.type != MessageType.MSG_LOGIN) {
+
+      if (_msg.type != MessageType.MSG_LOGIN) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "versionWrongMessage", null,
             Main.locale));
         failHandshake();
         return;
       }
-      var receivedServerVersion:String = new String(msg.body);
+
+      var receivedServerVersion:String = new String(_msg.body);
       TestResults.appendDebugMsg("Server version: " + receivedServerVersion);
       // See https://code.google.com/p/ndt/issues/detail?id=104.
       if (receivedServerVersion != NDTConstants.EXPECTED_SERVER_VERSION)
@@ -244,38 +260,44 @@ package  {
         return;
       }
 
-      _testStage = VERIFY_SUITE;
-      // If VERIFY_VERSION and VERIFY_SUITE messages arrive together at the
-      // client, they trigger a single ProgressEvent.SOCKET_DATA event. In such
-      // case, the following condition is needed to move to the next step.
+      _msg = new Message();
+      _testStage = VERIFY_SUITE1;
+      TestResults.appendDebugMsg("Handshake: VERIFY_SUITE stage.");
+
       if (_ctlSocket.bytesAvailable > 0) {
-        verifySuite();
+        // If VERIFY_VERSION and VERIFY_SUITE messages arrive together at the
+        // client, they trigger a single ProgressEvent.SOCKET_DATA event. In
+        // such case, it's necessary to explicitly call the following function
+        // to  move to the next step.
+        verifySuite1();
       }
     }
 
-    private function verifySuite():void {
-      if (_ctlSocket.bytesAvailable <= NDTConstants.MSG_HEADER_LENGTH)
+    private function verifySuite1():void {
+      if (!_msg.readHeader(_ctlSocket))
         return;
 
-      TestResults.appendDebugMsg("Handshake: VERIFY_SUITE stage.");
+      _testStage = VERIFY_SUITE2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to move to
+        // the next step.
+        verifySuite2();
+    }
 
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-            + parseInt(new String(msg.body), 16) + " instead");
-        failHandshake();
+    private function verifySuite2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
         return;
-      }
-      if (msg.type != MessageType.MSG_LOGIN) {
+
+      if (_msg.type != MessageType.MSG_LOGIN) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "testsuiteWrongMessage", null,
             Main.locale));
         return;
       }
 
-      var confirmedTests:String = new String(msg.body);
+      var confirmedTests:String = new String(_msg.body);
       TestResults.ndt_test_results::testsConfirmedByServer =
           TestType.listToBitwiseOR(confirmedTests);
 

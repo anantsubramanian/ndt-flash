@@ -25,15 +25,17 @@ package  {
    */
   public class TestMETA {
     // Valid values for _testStage.
-    private static const PREPARE_TEST:int  = 0;
-    private static const START_TEST:int    = 1;
-    private static const SEND_DATA:int     = 2;
-    private static const FINALIZE_TEST:int = 3;
-    private static const END_TEST:int  = 4;
+    private static const PREPARE_TEST1:int = 0;
+    private static const PREPARE_TEST2:int = 1;
+    private static const START_TEST:int    = 2;
+    private static const SEND_DATA:int     = 3;
+    private static const FINALIZE_TEST:int = 4;
+    private static const END_TEST:int  = 5;
 
     private var _callerObj:NDTPController;
     private var _ctlSocket:Socket;
     private var _metaTestSuccess:Boolean;
+    private var _msg:Message;
     private var _testStage:int;
 
     public function TestMETA(ctlSocket:Socket, callerObject:NDTPController) {
@@ -50,13 +52,20 @@ package  {
           ResourceManager.getInstance().getString(
               NDTConstants.BUNDLE_NAME, "meta", null, Main.locale));
       NDTUtils.callExternalFunction("testStarted", "Meta");
+      TestResults.appendDebugMsg("META test: PREPARE_TEST stage.");
+      TestResults.appendDebugMsg(
+          ResourceManager.getInstance().getString(
+              NDTConstants.BUNDLE_NAME, "sendingMetaInformation", null,
+              Main.locale));
+      TestResults.ndt_test_results::ndtTestStatus = "sendingMetaInformation";
 
       addOnReceivedDataListener();
-      _testStage = PREPARE_TEST;
-      // In case data arrived before starting the ProgressEvent.SOCKET_DATA
-      // listener.
+      _msg = new Message();
+      _testStage = PREPARE_TEST1;
       if(_ctlSocket.bytesAvailable > 0)
-        prepareTest();
+        // In case data arrived before starting the ProgressEvent.SOCKET_DATA
+        // listener.
+        prepareTest1();
     }
 
     private function addOnReceivedDataListener():void {
@@ -69,7 +78,9 @@ package  {
 
     private function onReceivedData(e:ProgressEvent):void {
       switch (_testStage) {
-        case PREPARE_TEST:  prepareTest();
+        case PREPARE_TEST1: prepareTest1();
+                            break;
+        case PREPARE_TEST2: prepareTest2();
                             break;
         case START_TEST:    startTest();
                             break;
@@ -80,72 +91,60 @@ package  {
       }
     }
 
-    private function prepareTest():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+    private function prepareTest1():void {
+      if (!_msg.readHeader(_ctlSocket))
         return;
 
-      TestResults.appendDebugMsg("META test: PREPARE_TEST stage.");
-      TestResults.appendDebugMsg(
-          ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "sendingMetaInformation", null,
-              Main.locale));
-      TestResults.ndt_test_results::ndtTestStatus = "sendingMetaInformation";
+      _testStage = PREPARE_TEST2;
+      if (_ctlSocket.bytesAvailable > 0)
+        // In case header and body have arrive together at the client, they
+        // trigger a single ProgressEvent.SOCKET_DATA event. In such case, it's
+        // necessary to explicitly call the following function to move to the
+        // next step.
+        prepareTest2();
+    }
 
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-            + parseInt(new String(msg.body), 16) + " instead.");
-        _metaTestSuccess = false;
-        endTest();
+    private function prepareTest2():void {
+      if (!_msg.readBody(_ctlSocket, _msg.length))
         return;
-      }
 
-      if (msg.type != MessageType.TEST_PREPARE) {
+      if (_msg.type != MessageType.TEST_PREPARE) {
         TestResults.appendErrMsg(ResourceManager.getInstance().getString(
             NDTConstants.BUNDLE_NAME, "metaWrongMessage", null, Main.locale));
-        if (msg.type == MessageType.MSG_ERROR) {
+        if (_msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg("ERROR MSG: "
-                                   + parseInt(new String(msg.body), 16));
+                                   + parseInt(new String(_msg.body), 16));
         }
         _metaTestSuccess = false;
         endTest();
         return;
       }
 
+      _msg = new Message();
       _testStage = START_TEST;
-      // If TEST_PREPARE and TEST_START messages arrive together at the client,
-      // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
-      // the following condition is needed to move to the next step.
+      TestResults.appendDebugMsg("META test: START_TEST stage.");
+
       if (_ctlSocket.bytesAvailable > 0)
+        // If TEST_PREPARE and TEST_START messages arrive together at the client
+        // they trigger a single ProgressEvent.SOCKET_DATA event. In such case,
+        // it's necessary to explicitly call the following function to  move to
+        // the next step.
         startTest();
     }
 
     private function startTest():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+      if (!_msg.readHeader(_ctlSocket))
         return;
+      // TEST_START message has no body.
 
-      TestResults.appendDebugMsg("META test: START_TEST stage.");
-
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-            ResourceManager.getInstance().getString(
-                NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead.");
-        _metaTestSuccess = false;
-        endTest();
-        return;
-      }
-      if (msg.type != MessageType.TEST_START) {
+      if (_msg.type != MessageType.TEST_START) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME, "metaWrongMessage", null,
                 Main.locale));
-        if (msg.type == MessageType.MSG_ERROR) {
+        if (_msg.type == MessageType.MSG_ERROR) {
           TestResults.appendErrMsg(
-              "ERROR MSG: " + parseInt(new String(msg.body), 16));
+              "ERROR MSG: " + parseInt(new String(_msg.body), 16));
         }
         _metaTestSuccess = false;
         endTest();
@@ -153,18 +152,17 @@ package  {
       }
 
       _testStage = SEND_DATA;
+      TestResults.appendDebugMsg("META test: SEND_DATA stage.");
       sendData();
     }
 
     private function sendData():void {
-      TestResults.appendDebugMsg("META test: SEND_DATA stage.");
-
       var bodyToSend:ByteArray = new ByteArray();
 
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_OS + ":" + Capabilities.os));
-      var msg:Message = new Message(MessageType.TEST_MSG, bodyToSend);
-      if (!msg.sendMessage(_ctlSocket)) {
+      var _msg:Message = new Message(MessageType.TEST_MSG, bodyToSend);
+      if (!_msg.sendMessage(_ctlSocket)) {
         _metaTestSuccess = false;
         endTest();
         return;
@@ -174,8 +172,8 @@ package  {
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_BROWSER + ":" + UserAgentTools.getBrowser(
               TestResults.ndt_test_results::userAgent)[2]));
-      msg = new Message(MessageType.TEST_MSG, bodyToSend);
-      if (!msg.sendMessage(_ctlSocket)) {
+      _msg = new Message(MessageType.TEST_MSG, bodyToSend);
+      if (!_msg.sendMessage(_ctlSocket)) {
         _metaTestSuccess = false;
         endTest();
         return;
@@ -185,8 +183,8 @@ package  {
       bodyToSend.writeUTFBytes(new String(
           NDTConstants.META_CLIENT_VERSION + ":"
           + NDTConstants.CLIENT_VERSION));
-      msg = new Message(MessageType.TEST_MSG, bodyToSend);
-      if (!msg.sendMessage(_ctlSocket)) {
+      _msg = new Message(MessageType.TEST_MSG, bodyToSend);
+      if (!_msg.sendMessage(_ctlSocket)) {
         _metaTestSuccess = false;
         endTest();
         return;
@@ -198,14 +196,15 @@ package  {
 
       // Client can send any number of such meta data in a TEST_MSG format and
       // signal the send of the transmission using an empty TEST_MSG.
-      msg = new Message(MessageType.TEST_MSG, new ByteArray());
-      if (!msg.sendMessage(_ctlSocket)) {
+      _msg = new Message(MessageType.TEST_MSG, new ByteArray());
+      if (!_msg.sendMessage(_ctlSocket)) {
         _metaTestSuccess = false;
         endTest();
         return;
       }
 
       _testStage = FINALIZE_TEST;
+      TestResults.appendDebugMsg("META test: FINALIZE_TEST stage.");
       // The following check is probably not necessary. Added anyway, in case
       // the TEST_FINALIZE message does not trigger onReceivedData.
       if (_ctlSocket.bytesAvailable > 0)
@@ -213,29 +212,17 @@ package  {
     }
 
     private function finalizeTest():void {
-      if (_ctlSocket.bytesAvailable < NDTConstants.MSG_HEADER_LENGTH)
+      if (!_msg.readHeader(_ctlSocket))
         return;
+      // TEST_FINALIZE message has no body.
 
-      TestResults.appendDebugMsg("META test: FINALIZE_TEST stage.");
-
-      var msg:Message = new Message();
-      if (!msg.receiveMessage(_ctlSocket)) {
-        TestResults.appendErrMsg(
-          ResourceManager.getInstance().getString(
-              NDTConstants.BUNDLE_NAME, "protocolError", null, Main.locale)
-          + parseInt(new String(msg.body), 16) + " instead.");
-        _metaTestSuccess = false;
-        endTest();
-        return;
-      }
-      if (msg.type != MessageType.TEST_FINALIZE) {
+      if (_msg.type != MessageType.TEST_FINALIZE) {
         TestResults.appendErrMsg(
             ResourceManager.getInstance().getString(
                 NDTConstants.BUNDLE_NAME,"metaWrongMessage", null,
                 Main.locale));
-        if (msg.type == MessageType.MSG_ERROR) {
-          TestResults.appendErrMsg(
-              "ERROR MSG: " + parseInt(new String(msg.body), 16));
+        if (_msg.type == MessageType.MSG_ERROR) {
+          TestResults.appendErrMsg("ERROR MSG");
         }
         _metaTestSuccess = false;
         endTest();
