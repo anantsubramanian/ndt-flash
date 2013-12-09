@@ -79,7 +79,7 @@ package  {
       if(bytesRead != bytesToRead) {
         // This case should never occurr.
         TestResults.appendErrMsg("Error reading body from socket. Only "
-                                 + bytesRead + "bytes read.");
+                                 + bytesRead + " bytes read.");
         return false;
       }
       return true;
