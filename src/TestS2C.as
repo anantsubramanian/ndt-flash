@@ -425,10 +425,9 @@ package  {
       TestResults.appendErrMsg("Timeout when reading web100 variables.");
       _readTimer.removeEventListener(TimerEvent.TIMER, onWeb100ReadTimeout);
 
+      _s2cTestSuccess = false;
       _testStage = END_TEST;
-      if (_ctlSocket.bytesAvailable > 0) {
-        endTest();
-      }
+      endTest();
     }
 
     /**
@@ -445,6 +444,7 @@ package  {
         _readTimer.stop();
         _readTimer.removeEventListener(TimerEvent.TIMER, onWeb100ReadTimeout);
         _s2cTestSuccess = true;
+        _testStage = END_TEST;
         endTest();
         return;
       }
@@ -470,6 +470,7 @@ package  {
         _readTimer.stop();
         _readTimer.removeEventListener(TimerEvent.TIMER, onWeb100ReadTimeout);
         _s2cTestSuccess = false;
+        _testStage = END_TEST;
         endTest();
         return;
       }
