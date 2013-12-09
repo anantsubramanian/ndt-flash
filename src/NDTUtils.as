@@ -46,8 +46,7 @@ package  {
         }
       } catch (e:Error) {
         // TODO(tiziana): Find out why ExternalInterface.available does not work
-        //It cannot cannot call TestResults.appendErrMsg, because that calls
-        // callExternalFunction.
+        // in some cases and this exception is raised.
       }
     }
     /**
@@ -62,13 +61,18 @@ package  {
       } else {
         initializeLocale();
       }
+
+      if (!ExternalInterface.available)
+        return;
       try {
-        TestResults.ndt_test_results::userAgent = 
-          ExternalInterface.call("window.navigator.userAgent.toString");
-        TestResults.appendDebugMsg("Initialized useragent from JavaScript. Useragent:"
-                                    + TestResults.ndt_test_results::userAgent);
+        TestResults.ndt_test_results::userAgent = ExternalInterface.call(
+            "window.navigator.userAgent.toString");
+        TestResults.appendDebugMsg(
+            "Initialized useragent from JavaScript. Useragent:"
+            + TestResults.ndt_test_results::userAgent);
       } catch(e:Error) {
-        TestResults.appendErrMsg("Error obtaining UserAgent from JavaScript." + e);
+        // TODO(tiziana): Find out why ExternalInterface.available does not work
+        // in some cases and this exception is raised.
       }
     }
 
@@ -113,10 +117,8 @@ package  {
         ExternalInterface.addCallback(
             "getNDTvar", TestResultsUtils.getNDTVariable);
       } catch (e:Error) {
-        // This should never be raised, because it checks if ExternalInterface
-        // is available.
-        TestResults.appendErrMsg("Container doesn't support callbacks. " +
-                                 "Error: " + e);
+        // TODO(tiziana): Find out why ExternalInterface.available does not work
+        // in some cases and this exception is raised.
       } catch (e:SecurityError) {
         TestResults.appendErrMsg("Security error when adding callbacks: " + e);
       }
