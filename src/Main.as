@@ -25,6 +25,7 @@ package {
     public static var guiEnabled:Boolean = CONFIG::guiEnabled;
     public static var locale:String = CONFIG::defaultLocale;
     public static var gui:GUI;
+    public static var server_hostname:String = NDTConstants.SERVER_HOSTNAME;
 
     public function Main():void {
       if (stage)
@@ -44,8 +45,7 @@ package {
       // Set the properties of the SWF from HTML tags.
       NDTUtils.initializeFromHTML(this.root.loaderInfo.parameters);
 
-      var frame:NDTPController = new NDTPController(
-          NDTConstants.SERVER_HOSTNAME);
+      var frame:NDTPController = new NDTPController(server_hostname);
 
       stage.showDefaultContextMenu = false;
       if (guiEnabled) {

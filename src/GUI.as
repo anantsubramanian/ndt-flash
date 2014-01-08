@@ -256,7 +256,7 @@ package  {
       _summaryResultText = new String();
       _summaryResultText = (
           "<p><font size=\"16\">" + "NDT test run towards M-Lab server<br>"
-          + "<b>" + NDTConstants.SERVER_HOSTNAME + "</b></font><br><br>");
+          + "<b>" + Main.server_hostname + "</b></font><br><br>");
 
       if (TestResults.ndt_test_results::ndtVariables[NDTConstants.MINRTT]) {
         _summaryResultText += (
