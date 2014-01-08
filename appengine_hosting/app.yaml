@@ -9,6 +9,7 @@ handlers:
   mime_type: application/x-shockwave-flash
   static_files: static_files/ndt.swf
   upload: static_files/ndt.swf
+
 - url: /.*
   static_files: static_files/index.html
   upload: static_files/index.html
