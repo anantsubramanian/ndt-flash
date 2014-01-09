@@ -1,15 +1,28 @@
-<html>
-  <body>
-    <script language="JavaScript">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <title>NDT test</title>
+    <script type="text/javascript">
       function getNDTServer() {
         // TODO(tiziana): Integrate with mlab-ns, when the Flash policy files
         // are deployed on prod servers.
         return "ndt.iupui.mlab1.nuq0t.measurement-lab.org";
       }
     </script>
-    <object type="application/x-shockwave-flash" data="ndt.swf"
-      width="1000" height="600">
-      <p>You need at least <a href="http://www.adobe.com/go/getflashplayer">Flash Player 11</a> to view this page.</p>
-    </object>
+  </head>
+  <body>
+    <script type="text/javascript">
+      document.write(
+        '<object type="application/x-shockwave-flash" data="ndt.swf" ' +
+        '    width="1000" height="600"> ' +
+        '    <param name="movie" value="ndt.swf" /> ' +
+        '    <param name="allowfullscreen" value="true" /> ' +
+        '    <param name="FlashVars" value="ServerHostname=' + getNDTServer() + '"/> ' +
+        '    <h4>Content on this page requires a newer version of Adobe Flash Player.</h4> ' +
+        '    <p><a href="http://www.adobe.com/go/getflashplayer"> ' +
+        '    <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" ' +
+        '        alt="Get Adobe Flash player" width="112" height="33" /></a></p> ' +
+        '</object>');
+    </script>
   </body>
 </html>

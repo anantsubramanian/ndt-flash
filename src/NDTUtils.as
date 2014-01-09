@@ -62,6 +62,13 @@ package  {
         initializeLocale();
       }
 
+      if (NDTConstants.HTML_SERVER_HOSTNAME in paramObject) {
+        Main.server_hostname = paramObject[NDTConstants.HTML_SERVER_HOSTNAME];
+        TestResults.appendDebugMsg("Initialized server from HTML. Server: "
+                                   + Main.server_hostname);
+      }
+      // else keep the default value (NDTConstants.SERVER_HOSTNAME).
+
       if (!ExternalInterface.available)
         return;
       try {
