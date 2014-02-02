@@ -64,6 +64,7 @@ package  {
 
       if (!ExternalInterface.available)
         return;
+
       try {
         TestResults.ndt_test_results::userAgent = ExternalInterface.call(
             "window.navigator.userAgent.toString");
@@ -73,6 +74,15 @@ package  {
       } catch(e:Error) {
         // TODO(tiziana): Find out why ExternalInterface.available does not work
         // in some cases and this exception is raised.
+      }
+
+      try {
+        Main.server_hostname = ExternalInterface.call("getNDTServer");
+        TestResults.appendDebugMsg(
+            "Initialized server from JavaScript. Server hostname:"
+            + Main.server_hostname);
+      } catch(e:Error) {
+        Main.server_hostname = NDTConstants.SERVER_HOSTNAME;
       }
     }
 

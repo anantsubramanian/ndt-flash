@@ -1,0 +1,14 @@
+application: ndt-flash
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /ndt.swf
+  mime_type: application/x-shockwave-flash
+  static_files: static_files/ndt.swf
+  upload: static_files/ndt.swf
+- url: /.*
+  static_files: static_files/index.html
+  upload: index.html
