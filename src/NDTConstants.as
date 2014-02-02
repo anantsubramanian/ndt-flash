@@ -148,6 +148,7 @@ package  {
     // HTML tags.
     public static const HTML_LOCALE:String = "Locale";
     public static const HTML_USERAGENT:String = "UserAgentString";
+    public static const HTML_SERVER_HOSTNAME:String = "ServerHostname";
 
     // Names of NDT variables sent by the server.
     public static const MSSSENT:String = "MSSSent";
